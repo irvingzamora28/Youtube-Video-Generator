@@ -20,21 +20,21 @@ export default function SegmentTimeline({ section, onSegmentSelect, selectedSegm
 
   return (
     <div className="mt-4">
-      <h3 className="text-sm font-medium text-color-muted-foreground mb-2">Timeline</h3>
+      <h3 className="text-sm font-medium text-muted-foreground mb-2">Timeline</h3>
       
       {/* Timeline ruler */}
       <div className="relative h-8 mb-1 flex">
         {/* Time markers */}
         {Array.from({ length: Math.ceil(totalDuration / 15) + 1 }).map((_, i) => (
           <div key={i} className="absolute" style={{ left: `${(i * 15 / totalDuration) * 100}%` }}>
-            <div className="h-2 border-l border-color-border"></div>
-            <div className="text-xs text-color-muted-foreground">{formatTime(i * 15)}</div>
+            <div className="h-2 border-l border-border"></div>
+            <div className="text-xs text-muted-foreground">{formatTime(i * 15)}</div>
           </div>
         ))}
       </div>
       
       {/* Segments timeline */}
-      <div className="relative h-12 bg-color-muted/20 rounded-md mb-4">
+      <div className="relative h-12 bg-muted/20 rounded-md mb-4">
         {section.segments.map((segment) => {
           const segmentWidth = (segment.duration / totalDuration) * 100;
           const segmentLeft = (segment.startTime / totalDuration) * 100;
@@ -44,17 +44,17 @@ export default function SegmentTimeline({ section, onSegmentSelect, selectedSegm
               key={segment.id}
               className={`absolute h-full rounded-md cursor-pointer transition-all hover:brightness-90 flex items-center justify-center overflow-hidden ${
                 selectedSegmentId === segment.id 
-                  ? 'ring-2 ring-color-primary ring-offset-1' 
-                  : 'border border-color-border'
+                  ? 'ring-2 ring-primary ring-offset-1' 
+                  : 'border border-border'
               }`}
               style={{
                 left: `${segmentLeft}%`,
                 width: `${segmentWidth}%`,
-                backgroundColor: selectedSegmentId === segment.id ? 'var(--color-primary/20)' : 'var(--color-card)',
+                backgroundColor: selectedSegmentId === segment.id ? 'var(--primary/20)' : 'var(--card)',
               }}
               onClick={() => onSegmentSelect(segment.id)}
             >
-              <div className="text-xs truncate px-2 text-color-foreground">
+              <div className="text-xs truncate px-2 text-foreground">
                 {segment.narrationText.substring(0, 20)}...
               </div>
               
@@ -67,7 +67,7 @@ export default function SegmentTimeline({ section, onSegmentSelect, selectedSegm
                   return (
                     <div
                       key={visual.id}
-                      className="absolute h-full bg-color-primary/60"
+                      className="absolute h-full bg-primary/60"
                       style={{
                         left: `${visualLeft}%`,
                         width: `${visualWidth}%`,
@@ -84,8 +84,8 @@ export default function SegmentTimeline({ section, onSegmentSelect, selectedSegm
       
       {/* Selected segment details */}
       {selectedSegmentId && (
-        <div className="bg-color-muted/10 p-3 rounded-md">
-          <div className="text-sm text-color-foreground">
+        <div className="bg-muted/10 p-3 rounded-md">
+          <div className="text-sm text-foreground">
             {section.segments.find(s => s.id === selectedSegmentId)?.narrationText}
           </div>
         </div>

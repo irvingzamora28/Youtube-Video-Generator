@@ -86,8 +86,8 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
   const getVisualization = (visual: Visual | null) => {
     if (!visual) {
       return (
-        <div className="flex items-center justify-center h-64 bg-color-muted/20 rounded-lg">
-          <p className="text-color-muted-foreground">No visual available</p>
+        <div className="flex items-center justify-center h-64 bg-muted/20 rounded-lg">
+          <p className="text-muted-foreground">No visual available</p>
         </div>
       );
     }
@@ -95,7 +95,7 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
     // If we have an image URL, show it
     if (visual.imageUrl) {
       return (
-        <div className="flex items-center justify-center h-64 bg-color-muted/20 rounded-lg">
+        <div className="flex items-center justify-center h-64 bg-muted/20 rounded-lg">
           <img
             src={visual.imageUrl}
             alt={visual.altText || visual.description}
@@ -107,7 +107,7 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
 
     // Otherwise show a placeholder based on the visual type
     return (
-      <div className="flex flex-col items-center justify-center h-64 bg-color-muted/20 rounded-lg">
+      <div className="flex flex-col items-center justify-center h-64 bg-muted/20 rounded-lg">
         {visual.visualType === 'image' && (
           <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Stickman figure */}
@@ -157,25 +157,25 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
         )}
 
         {visual.visualType === 'text' && (
-          <div className="text-center p-4 border border-color-border rounded-md">
-            <p className="text-color-foreground font-medium">Text Overlay</p>
-            <p className="text-color-muted-foreground text-sm mt-2">{visual.description}</p>
+          <div className="text-center p-4 border border-border rounded-md">
+            <p className="text-foreground font-medium">Text Overlay</p>
+            <p className="text-muted-foreground text-sm mt-2">{visual.description}</p>
           </div>
         )}
 
-        <p className="text-color-muted-foreground text-sm mt-4">{visual.description}</p>
+        <p className="text-muted-foreground text-sm mt-4">{visual.description}</p>
       </div>
     );
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-color-card rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b border-color-border flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-color-foreground">Script Preview</h2>
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-card rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto border border-border">
+        <div className="px-6 py-4 border-b border-border flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-foreground">Script Preview</h2>
           <button
             onClick={onClose}
-            className="text-color-muted-foreground hover:text-color-foreground"
+            className="text-muted-foreground hover:text-foreground"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -185,10 +185,10 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
 
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-color-foreground">
+            <h3 className="text-lg font-medium text-foreground">
               {currentSectionIndex + 1}. {currentSection.title}
             </h3>
-            <div className="text-sm text-color-muted-foreground">
+            <div className="text-sm text-muted-foreground">
               Duration: {formatTime(currentSection.totalDuration)}
             </div>
           </div>
@@ -203,9 +203,9 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div>
               <div className="flex justify-between items-center mb-2">
-                <h4 className="text-sm font-medium text-color-muted-foreground">Visual Preview</h4>
+                <h4 className="text-sm font-medium text-muted-foreground">Visual Preview</h4>
                 {currentSegment && currentSegment.visuals.length > 1 && (
-                  <div className="text-xs text-color-muted-foreground">
+                  <div className="text-xs text-muted-foreground">
                     Visual {currentVisualIndex + 1} of {currentSegment.visuals.length}
                   </div>
                 )}
@@ -215,7 +215,7 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
 
               {currentVisual && (
                 <div className="mt-2">
-                  <div className="flex justify-between text-xs text-color-muted-foreground">
+                  <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Time: {formatTime(currentSegment.startTime + currentVisual.timestamp)}</span>
                     <span>Duration: {formatTime(currentVisual.duration)}</span>
                   </div>
@@ -226,14 +226,14 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
                       <button
                         onClick={goToPreviousVisual}
                         disabled={currentVisualIndex === 0 && currentSection.segments.findIndex(s => s.id === currentSegmentId) === 0}
-                        className="px-2 py-1 bg-color-muted text-color-muted-foreground rounded-md text-xs disabled:opacity-50"
+                        className="px-2 py-1 bg-muted text-muted-foreground rounded-md text-xs disabled:opacity-50"
                       >
                         Previous Visual
                       </button>
                       <button
                         onClick={goToNextVisual}
                         disabled={currentVisualIndex === currentSegment.visuals.length - 1 && currentSection.segments.findIndex(s => s.id === currentSegmentId) === currentSection.segments.length - 1}
-                        className="px-2 py-1 bg-color-muted text-color-muted-foreground rounded-md text-xs disabled:opacity-50"
+                        className="px-2 py-1 bg-muted text-muted-foreground rounded-md text-xs disabled:opacity-50"
                       >
                         Next Visual
                       </button>
@@ -244,12 +244,12 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
             </div>
 
             <div>
-              <h4 className="text-sm font-medium text-color-muted-foreground mb-2">Narration</h4>
-              <div className="p-4 bg-color-muted/20 rounded-lg h-64 overflow-y-auto">
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Narration</h4>
+              <div className="p-4 bg-muted/20 rounded-lg h-64 overflow-y-auto">
                 {currentSegment ? (
-                  <p className="text-color-foreground">{currentSegment.narrationText}</p>
+                  <p className="text-foreground">{currentSegment.narrationText}</p>
                 ) : (
-                  <p className="text-color-muted-foreground">No segment selected</p>
+                  <p className="text-muted-foreground">No segment selected</p>
                 )}
               </div>
 
@@ -259,14 +259,14 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
                   <button
                     onClick={goToPreviousSegment}
                     disabled={currentSection.segments.findIndex(s => s.id === currentSegmentId) === 0 && currentSectionIndex === 0}
-                    className="px-3 py-1 bg-color-secondary text-color-secondary-foreground rounded-md text-sm disabled:opacity-50"
+                    className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md text-sm disabled:opacity-50"
                   >
                     Previous Segment
                   </button>
                   <button
                     onClick={goToNextSegment}
                     disabled={currentSection.segments.findIndex(s => s.id === currentSegmentId) === currentSection.segments.length - 1 && currentSectionIndex === script.sections.length - 1}
-                    className="px-3 py-1 bg-color-secondary text-color-secondary-foreground rounded-md text-sm disabled:opacity-50"
+                    className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md text-sm disabled:opacity-50"
                   >
                     Next Segment
                   </button>
@@ -280,19 +280,19 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
             <button
               onClick={goToPreviousSection}
               disabled={currentSectionIndex === 0}
-              className="px-4 py-2 bg-color-secondary text-color-secondary-foreground rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous Section
             </button>
 
-            <div className="text-sm text-color-muted-foreground">
+            <div className="text-sm text-muted-foreground">
               Section {currentSectionIndex + 1} of {script.sections.length}
             </div>
 
             <button
               onClick={goToNextSection}
               disabled={currentSectionIndex === script.sections.length - 1}
-              className="px-4 py-2 bg-color-secondary text-color-secondary-foreground rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next Section
             </button>
@@ -302,7 +302,7 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
           <div className="mt-4 flex justify-center">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="px-4 py-2 bg-color-primary text-color-primary-foreground rounded-md"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
             >
               {isPlaying ? (
                 <span className="flex items-center">
@@ -322,10 +322,10 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
             </button>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-color-border">
+          <div className="mt-6 pt-6 border-t border-border">
             <button
               onClick={onClose}
-              className="w-full px-4 py-2 bg-color-primary text-color-primary-foreground rounded-md"
+              className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md"
             >
               Close Preview
             </button>

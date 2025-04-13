@@ -33,15 +33,15 @@ export default function ScriptSectionEditor({ section, onSave, onCancel }: Scrip
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-color-card rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b border-color-border">
-          <h2 className="text-xl font-semibold text-color-foreground">Edit Section</h2>
+      <div className="bg-card rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div className="px-6 py-4 border-b border-border">
+          <h2 className="text-xl font-semibold text-foreground">Edit Section</h2>
         </div>
         
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-6">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-color-foreground mb-1">
+              <label htmlFor="title" className="block text-sm font-medium text-foreground mb-1">
                 Section Title
               </label>
               <input
@@ -49,13 +49,13 @@ export default function ScriptSectionEditor({ section, onSave, onCancel }: Scrip
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2 border border-color-border rounded-md bg-color-background text-color-foreground focus:outline-none focus:ring-2 focus:ring-color-primary"
+                className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               />
             </div>
             
             <div>
-              <label htmlFor="content" className="block text-sm font-medium text-color-foreground mb-1">
+              <label htmlFor="content" className="block text-sm font-medium text-foreground mb-1">
                 Narration Content
               </label>
               <textarea
@@ -63,13 +63,13 @@ export default function ScriptSectionEditor({ section, onSave, onCancel }: Scrip
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={6}
-                className="w-full px-4 py-2 border border-color-border rounded-md bg-color-background text-color-foreground focus:outline-none focus:ring-2 focus:ring-color-primary"
+                className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               />
             </div>
             
             <div>
-              <label htmlFor="visualNotes" className="block text-sm font-medium text-color-foreground mb-1">
+              <label htmlFor="visualNotes" className="block text-sm font-medium text-foreground mb-1">
                 Visual Notes
               </label>
               <textarea
@@ -77,16 +77,16 @@ export default function ScriptSectionEditor({ section, onSave, onCancel }: Scrip
                 value={visualNotes}
                 onChange={(e) => setVisualNotes(e.target.value)}
                 rows={4}
-                className="w-full px-4 py-2 border border-color-border rounded-md bg-color-background text-color-foreground focus:outline-none focus:ring-2 focus:ring-color-primary"
+                className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               />
-              <p className="mt-1 text-sm text-color-muted-foreground">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Describe what should be shown visually during this section (stickman actions, diagrams, etc.)
               </p>
             </div>
             
             <div>
-              <label htmlFor="duration" className="block text-sm font-medium text-color-foreground mb-1">
+              <label htmlFor="duration" className="block text-sm font-medium text-foreground mb-1">
                 Duration (seconds)
               </label>
               <input
@@ -96,7 +96,7 @@ export default function ScriptSectionEditor({ section, onSave, onCancel }: Scrip
                 onChange={(e) => setDuration(Number(e.target.value))}
                 min={5}
                 max={300}
-                className="w-full px-4 py-2 border border-color-border rounded-md bg-color-background text-color-foreground focus:outline-none focus:ring-2 focus:ring-color-primary"
+                className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               />
             </div>
@@ -105,13 +105,13 @@ export default function ScriptSectionEditor({ section, onSave, onCancel }: Scrip
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 border border-color-border text-color-foreground rounded-md hover:bg-color-muted/30"
+                className="px-4 py-2 border border-border text-foreground rounded-md hover:bg-muted/30"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-color-primary text-color-primary-foreground rounded-md hover:bg-color-primary/90"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
               >
                 Save Changes
               </button>

@@ -7,35 +7,35 @@ export default function Navbar() {
   const location = useLocation();
 
   return (
-    <nav className="bg-color-card border-b border-color-border shadow-sm">
+    <nav className="bg-card border-b border-border shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/" className="text-2xl font-bold text-color-primary">StickEdu</Link>
+              <Link to="/" className="text-2xl font-bold text-primary">StickEdu</Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
                 to="/"
-                className={`${location.pathname === '/' ? 'border-color-primary text-color-foreground' : 'border-transparent text-color-muted-foreground hover:text-color-foreground hover:border-color-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                className={`${location.pathname === '/' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
               >
                 Dashboard
               </Link>
               <Link
                 to="/create"
-                className={`${location.pathname === '/create' ? 'border-color-primary text-color-foreground' : 'border-transparent text-color-muted-foreground hover:text-color-foreground hover:border-color-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                className={`${location.pathname === '/create' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
               >
                 Create Video
               </Link>
               <Link
                 to="/my-videos"
-                className={`${location.pathname === '/my-videos' ? 'border-color-primary text-color-foreground' : 'border-transparent text-color-muted-foreground hover:text-color-foreground hover:border-color-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                className={`${location.pathname === '/my-videos' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
               >
                 My Videos
               </Link>
               <Link
                 to="/settings"
-                className={`${location.pathname === '/settings' ? 'border-color-primary text-color-foreground' : 'border-transparent text-color-muted-foreground hover:text-color-foreground hover:border-color-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                className={`${location.pathname === '/settings' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
               >
                 Settings
               </Link>
@@ -113,28 +113,28 @@ export default function Navbar() {
           <div className="pt-2 pb-3 space-y-1">
             <Link
               to="/"
-              className={`${location.pathname === '/' ? 'bg-color-accent text-color-accent-foreground border-color-primary' : 'border-transparent text-color-foreground hover:bg-color-accent hover:border-color-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              className={`${location.pathname === '/' ? 'bg-accent text-accent-foreground border-primary' : 'border-transparent text-foreground hover:bg-accent hover:border-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
               Dashboard
             </Link>
             <Link
               to="/create"
-              className={`${location.pathname === '/create' ? 'bg-color-accent text-color-accent-foreground border-color-primary' : 'border-transparent text-color-foreground hover:bg-color-accent hover:border-color-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              className={`${location.pathname === '/create' ? 'bg-accent text-accent-foreground border-primary' : 'border-transparent text-foreground hover:bg-accent hover:border-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
               Create Video
             </Link>
             <Link
               to="/my-videos"
-              className={`${location.pathname === '/my-videos' ? 'bg-color-accent text-color-accent-foreground border-color-primary' : 'border-transparent text-color-foreground hover:bg-color-accent hover:border-color-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              className={`${location.pathname === '/my-videos' ? 'bg-accent text-accent-foreground border-primary' : 'border-transparent text-foreground hover:bg-accent hover:border-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
               My Videos
             </Link>
             <Link
               to="/settings"
-              className={`${location.pathname === '/settings' ? 'bg-color-accent text-color-accent-foreground border-color-primary' : 'border-transparent text-color-foreground hover:bg-color-accent hover:border-color-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              className={`${location.pathname === '/settings' ? 'bg-accent text-accent-foreground border-primary' : 'border-transparent text-foreground hover:bg-accent hover:border-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
               Settings
