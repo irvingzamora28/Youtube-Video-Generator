@@ -1,0 +1,13 @@
+# FastAPI and dependencies
+fastapi>=0.110.0
+uvicorn>=0.27.0
+pydantic>=2.6.0
+python-dotenv>=1.0.0
+
+# LLM APIs
+openai>=1.72.0
+google-generativeai
+
+# Utilities
+httpx>=0.26.0
+python-multipart>=0.0.9
