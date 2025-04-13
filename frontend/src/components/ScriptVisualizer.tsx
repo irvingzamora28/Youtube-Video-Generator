@@ -1,22 +1,6 @@
 import { useState } from 'react';
-
-type ScriptSection = {
-  id: string;
-  title: string;
-  content: string;
-  visualNotes: string;
-  duration: number;
-};
-
-type Script = {
-  id: string;
-  title: string;
-  description: string;
-  targetAudience: string;
-  sections: ScriptSection[];
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { Script, ScriptSection, ScriptSegment, Visual } from '../types/script';
+import SegmentTimeline from './SegmentTimeline';
 
 type ScriptVisualizerProps = {
   script: Script;
@@ -25,52 +9,168 @@ type ScriptVisualizerProps = {
 
 export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerProps) {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-  
+  const [currentSegmentId, setCurrentSegmentId] = useState<string | null>(null);
+  const [currentVisualIndex, setCurrentVisualIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const currentSection = script.sections[currentSectionIndex];
-  
+
+  // Initialize the current segment if not set
+  if (!currentSegmentId && currentSection.segments.length > 0) {
+    setCurrentSegmentId(currentSection.segments[0].id);
+  }
+
+  const currentSegment = currentSection.segments.find(s => s.id === currentSegmentId) || currentSection.segments[0];
+  const currentVisual = currentSegment?.visuals[currentVisualIndex] || null;
+
   const goToNextSection = () => {
     if (currentSectionIndex < script.sections.length - 1) {
       setCurrentSectionIndex(currentSectionIndex + 1);
-    }
-  };
-  
-  const goToPreviousSection = () => {
-    if (currentSectionIndex > 0) {
-      setCurrentSectionIndex(currentSectionIndex - 1);
+      setCurrentSegmentId(null);
+      setCurrentVisualIndex(0);
     }
   };
 
-  // Generate a simple stickman visualization based on the section
-  const getStickmanVisualization = (section: ScriptSection) => {
-    // This would be replaced with actual visualization logic
-    // For now, we'll return a placeholder SVG
+  const goToPreviousSection = () => {
+    if (currentSectionIndex > 0) {
+      setCurrentSectionIndex(currentSectionIndex - 1);
+      setCurrentSegmentId(null);
+      setCurrentVisualIndex(0);
+    }
+  };
+
+  const goToNextSegment = () => {
+    const currentSegmentIndex = currentSection.segments.findIndex(s => s.id === currentSegmentId);
+    if (currentSegmentIndex < currentSection.segments.length - 1) {
+      setCurrentSegmentId(currentSection.segments[currentSegmentIndex + 1].id);
+      setCurrentVisualIndex(0);
+    } else {
+      goToNextSection();
+    }
+  };
+
+  const goToPreviousSegment = () => {
+    const currentSegmentIndex = currentSection.segments.findIndex(s => s.id === currentSegmentId);
+    if (currentSegmentIndex > 0) {
+      setCurrentSegmentId(currentSection.segments[currentSegmentIndex - 1].id);
+      setCurrentVisualIndex(0);
+    } else {
+      goToPreviousSection();
+    }
+  };
+
+  const goToNextVisual = () => {
+    if (currentSegment && currentVisualIndex < currentSegment.visuals.length - 1) {
+      setCurrentVisualIndex(currentVisualIndex + 1);
+    } else {
+      goToNextSegment();
+    }
+  };
+
+  const goToPreviousVisual = () => {
+    if (currentVisualIndex > 0) {
+      setCurrentVisualIndex(currentVisualIndex - 1);
+    } else {
+      goToPreviousSegment();
+    }
+  };
+
+  // Format time (seconds) to MM:SS format
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Generate a visualization based on the current visual
+  const getVisualization = (visual: Visual | null) => {
+    if (!visual) {
+      return (
+        <div className="flex items-center justify-center h-64 bg-color-muted/20 rounded-lg">
+          <p className="text-color-muted-foreground">No visual available</p>
+        </div>
+      );
+    }
+
+    // If we have an image URL, show it
+    if (visual.imageUrl) {
+      return (
+        <div className="flex items-center justify-center h-64 bg-color-muted/20 rounded-lg">
+          <img
+            src={visual.imageUrl}
+            alt={visual.altText || visual.description}
+            className="max-h-full max-w-full object-contain"
+          />
+        </div>
+      );
+    }
+
+    // Otherwise show a placeholder based on the visual type
     return (
-      <div className="flex items-center justify-center h-64 bg-color-muted/20 rounded-lg">
-        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Head */}
-          <circle cx="60" cy="30" r="15" stroke="currentColor" strokeWidth="2" />
-          
-          {/* Body */}
-          <line x1="60" y1="45" x2="60" y2="85" stroke="currentColor" strokeWidth="2" />
-          
-          {/* Arms */}
-          <line x1="60" y1="60" x2="30" y2="50" stroke="currentColor" strokeWidth="2" />
-          <line x1="60" y1="60" x2="90" y2="50" stroke="currentColor" strokeWidth="2" />
-          
-          {/* Legs */}
-          <line x1="60" y1="85" x2="40" y2="115" stroke="currentColor" strokeWidth="2" />
-          <line x1="60" y1="85" x2="80" y2="115" stroke="currentColor" strokeWidth="2" />
-          
-          {/* Speech bubble */}
-          <path d="M95 20C95 14.4772 99.4772 10 105 10H115C120.523 10 125 14.4772 125 20V30C125 35.5228 120.523 40 115 40H110L105 50L100 40H95C89.4772 40 85 35.5228 85 30V20Z" transform="translate(-30 -5) scale(0.8)" stroke="currentColor" strokeWidth="2" />
-        </svg>
+      <div className="flex flex-col items-center justify-center h-64 bg-color-muted/20 rounded-lg">
+        {visual.visualType === 'image' && (
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Stickman figure */}
+            <circle cx="60" cy="30" r="15" stroke="currentColor" strokeWidth="2" />
+            <line x1="60" y1="45" x2="60" y2="85" stroke="currentColor" strokeWidth="2" />
+            <line x1="60" y1="60" x2="30" y2="50" stroke="currentColor" strokeWidth="2" />
+            <line x1="60" y1="60" x2="90" y2="50" stroke="currentColor" strokeWidth="2" />
+            <line x1="60" y1="85" x2="40" y2="115" stroke="currentColor" strokeWidth="2" />
+            <line x1="60" y1="85" x2="80" y2="115" stroke="currentColor" strokeWidth="2" />
+          </svg>
+        )}
+
+        {visual.visualType === 'animation' && (
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Animation placeholder */}
+            <circle cx="60" cy="60" r="40" stroke="currentColor" strokeWidth="2" strokeDasharray="5 5">
+              <animateTransform
+                attributeName="transform"
+                attributeType="XML"
+                type="rotate"
+                from="0 60 60"
+                to="360 60 60"
+                dur="10s"
+                repeatCount="indefinite"
+              />
+            </circle>
+            <circle cx="60" cy="30" r="10" fill="currentColor">
+              <animate
+                attributeName="cy"
+                values="30;40;30"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+            </circle>
+          </svg>
+        )}
+
+        {visual.visualType === 'diagram' && (
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Diagram placeholder */}
+            <rect x="20" y="20" width="30" height="30" stroke="currentColor" strokeWidth="2" />
+            <rect x="70" y="20" width="30" height="30" stroke="currentColor" strokeWidth="2" />
+            <rect x="45" y="70" width="30" height="30" stroke="currentColor" strokeWidth="2" />
+            <line x1="35" y1="50" x2="50" y2="70" stroke="currentColor" strokeWidth="2" />
+            <line x1="85" y1="50" x2="70" y2="70" stroke="currentColor" strokeWidth="2" />
+          </svg>
+        )}
+
+        {visual.visualType === 'text' && (
+          <div className="text-center p-4 border border-color-border rounded-md">
+            <p className="text-color-foreground font-medium">Text Overlay</p>
+            <p className="text-color-muted-foreground text-sm mt-2">{visual.description}</p>
+          </div>
+        )}
+
+        <p className="text-color-muted-foreground text-sm mt-4">{visual.description}</p>
       </div>
     );
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-color-card rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-color-card rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
         <div className="px-6 py-4 border-b border-color-border flex justify-between items-center">
           <h2 className="text-xl font-semibold text-color-foreground">Script Preview</h2>
           <button
@@ -82,34 +182,100 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
             </svg>
           </button>
         </div>
-        
+
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-color-foreground">
               {currentSectionIndex + 1}. {currentSection.title}
             </h3>
             <div className="text-sm text-color-muted-foreground">
-              Duration: {currentSection.duration}s
+              Duration: {formatTime(currentSection.totalDuration)}
             </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* Segment timeline */}
+          <SegmentTimeline
+            section={currentSection}
+            onSegmentSelect={setCurrentSegmentId}
+            selectedSegmentId={currentSegmentId}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div>
-              <h4 className="text-sm font-medium text-color-muted-foreground mb-2">Visual Preview</h4>
-              {getStickmanVisualization(currentSection)}
-              <div className="mt-2 text-sm text-color-muted-foreground">
-                <p>{currentSection.visualNotes}</p>
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="text-sm font-medium text-color-muted-foreground">Visual Preview</h4>
+                {currentSegment && currentSegment.visuals.length > 1 && (
+                  <div className="text-xs text-color-muted-foreground">
+                    Visual {currentVisualIndex + 1} of {currentSegment.visuals.length}
+                  </div>
+                )}
               </div>
+
+              {getVisualization(currentVisual)}
+
+              {currentVisual && (
+                <div className="mt-2">
+                  <div className="flex justify-between text-xs text-color-muted-foreground">
+                    <span>Time: {formatTime(currentSegment.startTime + currentVisual.timestamp)}</span>
+                    <span>Duration: {formatTime(currentVisual.duration)}</span>
+                  </div>
+
+                  {/* Visual navigation */}
+                  {currentSegment && currentSegment.visuals.length > 1 && (
+                    <div className="flex justify-center mt-2 space-x-2">
+                      <button
+                        onClick={goToPreviousVisual}
+                        disabled={currentVisualIndex === 0 && currentSection.segments.findIndex(s => s.id === currentSegmentId) === 0}
+                        className="px-2 py-1 bg-color-muted text-color-muted-foreground rounded-md text-xs disabled:opacity-50"
+                      >
+                        Previous Visual
+                      </button>
+                      <button
+                        onClick={goToNextVisual}
+                        disabled={currentVisualIndex === currentSegment.visuals.length - 1 && currentSection.segments.findIndex(s => s.id === currentSegmentId) === currentSection.segments.length - 1}
+                        className="px-2 py-1 bg-color-muted text-color-muted-foreground rounded-md text-xs disabled:opacity-50"
+                      >
+                        Next Visual
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            
+
             <div>
               <h4 className="text-sm font-medium text-color-muted-foreground mb-2">Narration</h4>
               <div className="p-4 bg-color-muted/20 rounded-lg h-64 overflow-y-auto">
-                <p className="text-color-foreground">{currentSection.content}</p>
+                {currentSegment ? (
+                  <p className="text-color-foreground">{currentSegment.narrationText}</p>
+                ) : (
+                  <p className="text-color-muted-foreground">No segment selected</p>
+                )}
               </div>
+
+              {/* Segment navigation */}
+              {currentSection.segments.length > 1 && (
+                <div className="flex justify-center mt-4 space-x-2">
+                  <button
+                    onClick={goToPreviousSegment}
+                    disabled={currentSection.segments.findIndex(s => s.id === currentSegmentId) === 0 && currentSectionIndex === 0}
+                    className="px-3 py-1 bg-color-secondary text-color-secondary-foreground rounded-md text-sm disabled:opacity-50"
+                  >
+                    Previous Segment
+                  </button>
+                  <button
+                    onClick={goToNextSegment}
+                    disabled={currentSection.segments.findIndex(s => s.id === currentSegmentId) === currentSection.segments.length - 1 && currentSectionIndex === script.sections.length - 1}
+                    className="px-3 py-1 bg-color-secondary text-color-secondary-foreground rounded-md text-sm disabled:opacity-50"
+                  >
+                    Next Segment
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-          
+
+          {/* Section navigation */}
           <div className="mt-6 flex justify-between items-center">
             <button
               onClick={goToPreviousSection}
@@ -118,11 +284,11 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
             >
               Previous Section
             </button>
-            
+
             <div className="text-sm text-color-muted-foreground">
               Section {currentSectionIndex + 1} of {script.sections.length}
             </div>
-            
+
             <button
               onClick={goToNextSection}
               disabled={currentSectionIndex === script.sections.length - 1}
@@ -131,7 +297,31 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
               Next Section
             </button>
           </div>
-          
+
+          {/* Playback controls */}
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="px-4 py-2 bg-color-primary text-color-primary-foreground rounded-md"
+            >
+              {isPlaying ? (
+                <span className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  Pause Preview
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                  </svg>
+                  Play Preview
+                </span>
+              )}
+            </button>
+          </div>
+
           <div className="mt-6 pt-6 border-t border-color-border">
             <button
               onClick={onClose}
