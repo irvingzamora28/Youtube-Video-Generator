@@ -6,8 +6,9 @@ python-dotenv>=1.0.0
 
 # LLM APIs
 openai>=1.72.0
-google-genai
+google-genai>=0.1.0
 
 # Utilities
 httpx>=0.26.0
 python-multipart>=0.0.9
+Pillow>=10.0.0  # For image processing

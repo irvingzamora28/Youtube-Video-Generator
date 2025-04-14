@@ -1,4 +1,4 @@
-import { Script } from '../types/script';
+import { Script, Visual } from '../types/script';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -78,4 +78,56 @@ function transformScriptFromApi(apiScript: any): Script {
     totalDuration: apiScript.total_duration,
     status: apiScript.status,
   };
+}
+
+/**
+ * Generate an image based on a description
+ */
+export async function generateImage(description: string, model?: string): Promise<string> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/image/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: description,
+        model,
+      }),
+    });
+
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to generate image');
+      } catch (parseError) {
+        // If we can't parse the error as JSON, use the status text
+        throw new Error(`Failed to generate image: ${response.status} ${response.statusText}`);
+      }
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to generate image');
+    }
+
+    // Return the base64 image data
+    return `data:${data.mime_type};base64,${data.image_data}`;
+  } catch (error) {
+    console.error('Error generating image:', error);
+    throw error;
+  }
+}
+
+/**
+ * Generate an image for a visual
+ */
+export async function generateImageForVisual(visual: Visual): Promise<string> {
+  // Create a prompt that includes all the relevant information from the visual
+  const prompt = `Generate a ${visual.visualType} of: ${visual.description}.
+  Style: ${visual.visualStyle || 'simple, clear, educational'}.
+  This should be a stickman-style educational visual.`;
+
+  return generateImage(prompt);
 }

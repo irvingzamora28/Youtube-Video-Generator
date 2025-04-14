@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ScriptSegment, Visual } from '../types/script';
+import { generateImageForVisual } from '../services/api';
 
 type SegmentEditorProps = {
   segment: ScriptSegment;
@@ -14,6 +15,8 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
   const [visuals, setVisuals] = useState<Visual[]>(segment.visuals);
   const [activeVisualIndex, setActiveVisualIndex] = useState<number | null>(null);
   const [selectedTextRange, setSelectedTextRange] = useState<{start: number, end: number} | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -104,6 +107,36 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
       [field]: value,
     };
     setVisuals(updatedVisuals);
+  };
+
+  const handleGenerateImage = async () => {
+    if (activeVisualIndex === null) return;
+
+    const visual = visuals[activeVisualIndex];
+
+    // Check if we have a description
+    if (!visual.description.trim()) {
+      setGenerationError('Please provide a description for the visual');
+      return;
+    }
+
+    setIsGeneratingImage(true);
+    setGenerationError(null);
+
+    try {
+      // Generate the image
+      const imageUrl = await generateImageForVisual(visual);
+
+      // Update the visual with the image URL
+      handleUpdateVisual(activeVisualIndex, 'imageUrl', imageUrl);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      // Extract the error message if available
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setGenerationError(`Failed to generate image: ${errorMessage}`);
+    } finally {
+      setIsGeneratingImage(false);
+    }
   };
 
   const handleRemoveVisual = (index: number) => {
@@ -241,7 +274,7 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
                     }`}
                     onClick={() => setActiveVisualIndex(index)}
                   >
-                    <div className="w-16 h-16 bg-muted/30 rounded flex items-center justify-center">
+                    <div className="w-16 h-16 bg-muted/30 rounded flex items-center justify-center overflow-hidden">
                       {visual.imageUrl ? (
                         <img
                           src={visual.imageUrl}
@@ -274,16 +307,58 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
                     <h4 className="text-sm font-medium text-foreground">
                       Edit Visual {activeVisualIndex + 1}
                     </h4>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveVisual(activeVisualIndex)}
-                      className="text-destructive hover:text-destructive/90 text-sm"
-                    >
-                      Remove
-                    </button>
+                    <div className="flex space-x-2">
+                      <button
+                        type="button"
+                        onClick={handleGenerateImage}
+                        disabled={isGeneratingImage}
+                        className="px-2 py-1 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center"
+                      >
+                        {isGeneratingImage ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Generating...
+                          </>
+                        ) : (
+                          'Generate Image'
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveVisual(activeVisualIndex)}
+                        className="text-destructive hover:text-destructive/90 text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
 
+                  {generationError && (
+                    <div className="mb-4 p-2 bg-destructive/10 border border-destructive/20 rounded-md text-sm text-destructive">
+                      {generationError}
+                    </div>
+                  )}
+
                   <div className="space-y-4">
+                    {/* Preview the generated image */}
+                    {visuals[activeVisualIndex].imageUrl && (
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-foreground mb-1">
+                          Preview
+                        </label>
+                        <div className="border border-border rounded-md p-2 flex justify-center">
+                          <img
+                            src={visuals[activeVisualIndex].imageUrl}
+                            alt={visuals[activeVisualIndex].altText || 'Generated visual'}
+                            className="max-h-48 object-contain"
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">
                         Visual Description
