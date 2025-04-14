@@ -5,6 +5,7 @@ import SegmentEditor from '../components/SegmentEditor';
 import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
+import { generateScript } from '../services/api';
 
 export default function ScriptGenerator() {
   const [topic, setTopic] = useState('');
@@ -22,291 +23,20 @@ export default function ScriptGenerator() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsGenerating(true);
-    
-    // Simulate API call to generate script
-    setTimeout(() => {
-      // Create a mock script with sections and segments
-      const mockScript: Script = {
-        id: 'script-' + Date.now(),
-        title: `Understanding ${topic}`,
-        description: `A comprehensive explanation of ${topic} for ${audience} audiences.`,
-        targetAudience: audience,
-        sections: [
-          {
-            id: 'section-1',
-            title: 'Introduction',
-            content: `An introduction to ${topic} and why it matters.`,
-            segments: [
-              {
-                id: 'segment-1-1',
-                narrationText: `Are you struggling with understanding ${topic}? In this video, we'll break down the key concepts and show you how it all works.`,
-                startTime: 0,
-                duration: 10,
-                visuals: [
-                  {
-                    id: 'visual-1-1-1',
-                    description: `A stickman looking confused with a thought bubble containing a question mark and the text "${topic}?"`,
-                    timestamp: 0,
-                    duration: 5,
-                    visualType: 'image',
-                    position: 'center',
-                    transition: 'fade',
-                  },
-                  {
-                    id: 'visual-1-1-2',
-                    description: `The stickman brightens up as a lightbulb appears above their head.`,
-                    timestamp: 5,
-                    duration: 5,
-                    visualType: 'image',
-                    position: 'center',
-                    transition: 'fade',
-                  }
-                ]
-              },
-              {
-                id: 'segment-1-2',
-                narrationText: `${topic} has become increasingly important in today's world. Let's explore why it matters and how it affects our daily lives.`,
-                startTime: 10,
-                duration: 15,
-                visuals: [
-                  {
-                    id: 'visual-1-2-1',
-                    description: `A stickman standing in front of a world map with highlighted areas showing the impact of ${topic}.`,
-                    timestamp: 0,
-                    duration: 8,
-                    visualType: 'image',
-                    position: 'full',
-                    transition: 'slide',
-                  },
-                  {
-                    id: 'visual-1-2-2',
-                    description: `The stickman in daily life scenarios where ${topic} is relevant.`,
-                    timestamp: 8,
-                    duration: 7,
-                    visualType: 'image',
-                    position: 'center',
-                    transition: 'fade',
-                  }
-                ]
-              }
-            ],
-            totalDuration: 25,
-          },
-          {
-            id: 'section-2',
-            title: `Key Concepts of ${topic}`,
-            content: `The fundamental principles and concepts that make up ${topic}.`,
-            segments: [
-              {
-                id: 'segment-2-1',
-                narrationText: `Let's start with the basics. At its core, ${topic} consists of several key principles that work together.`,
-                startTime: 0,
-                duration: 12,
-                visuals: [
-                  {
-                    id: 'visual-2-1-1',
-                    description: `A stickman teacher pointing at a blackboard with the title "${topic} Fundamentals".`,
-                    timestamp: 0,
-                    duration: 12,
-                    visualType: 'image',
-                    position: 'center',
-                    transition: 'fade',
-                  }
-                ]
-              },
-              {
-                id: 'segment-2-2',
-                narrationText: `The first important concept is [concept 1]. This forms the foundation upon which everything else is built.`,
-                startTime: 12,
-                duration: 15,
-                visuals: [
-                  {
-                    id: 'visual-2-2-1',
-                    description: `A stickman building a foundation labeled "[concept 1]".`,
-                    timestamp: 0,
-                    duration: 8,
-                    visualType: 'image',
-                    position: 'center',
-                    transition: 'fade',
-                  },
-                  {
-                    id: 'visual-2-2-2',
-                    description: `A close-up diagram showing how [concept 1] works.`,
-                    timestamp: 8,
-                    duration: 7,
-                    visualType: 'diagram',
-                    position: 'full',
-                    transition: 'zoom',
-                  }
-                ]
-              },
-              {
-                id: 'segment-2-3',
-                narrationText: `Next, we have [concept 2], which builds upon [concept 1] and extends its capabilities.`,
-                startTime: 27,
-                duration: 13,
-                visuals: [
-                  {
-                    id: 'visual-2-3-1',
-                    description: `The stickman adding a second level to the structure, labeled "[concept 2]".`,
-                    timestamp: 0,
-                    duration: 7,
-                    visualType: 'image',
-                    position: 'center',
-                    transition: 'fade',
-                  },
-                  {
-                    id: 'visual-2-3-2',
-                    description: `An animation showing the relationship between [concept 1] and [concept 2].`,
-                    timestamp: 7,
-                    duration: 6,
-                    visualType: 'animation',
-                    position: 'center',
-                    transition: 'fade',
-                  }
-                ]
-              }
-            ],
-            totalDuration: 40,
-          },
-          {
-            id: 'section-3',
-            title: 'Practical Applications',
-            content: `How ${topic} is applied in real-world scenarios.`,
-            segments: [
-              {
-                id: 'segment-3-1',
-                narrationText: `Now that we understand the theory, let's look at how ${topic} is applied in practice.`,
-                startTime: 0,
-                duration: 10,
-                visuals: [
-                  {
-                    id: 'visual-3-1-1',
-                    description: `A stickman transitioning from a classroom to a workshop environment.`,
-                    timestamp: 0,
-                    duration: 10,
-                    visualType: 'animation',
-                    position: 'full',
-                    transition: 'slide',
-                  }
-                ]
-              },
-              {
-                id: 'segment-3-2',
-                narrationText: `In industry, ${topic} is used to solve complex problems such as [example 1].`,
-                startTime: 10,
-                duration: 15,
-                visuals: [
-                  {
-                    id: 'visual-3-2-1',
-                    description: `Stickman in an industrial setting working with machinery related to ${topic}.`,
-                    timestamp: 0,
-                    duration: 8,
-                    visualType: 'image',
-                    position: 'left',
-                    transition: 'fade',
-                  },
-                  {
-                    id: 'visual-3-2-2',
-                    description: `A diagram showing how ${topic} solves [example 1].`,
-                    timestamp: 8,
-                    duration: 7,
-                    visualType: 'diagram',
-                    position: 'right',
-                    transition: 'fade',
-                  }
-                ]
-              },
-              {
-                id: 'segment-3-3',
-                narrationText: `In everyday life, you might encounter ${topic} when [example 2].`,
-                startTime: 25,
-                duration: 15,
-                visuals: [
-                  {
-                    id: 'visual-3-3-1',
-                    description: `Stickman in a daily life scenario encountering ${topic}.`,
-                    timestamp: 0,
-                    duration: 15,
-                    visualType: 'image',
-                    position: 'center',
-                    transition: 'fade',
-                  }
-                ]
-              }
-            ],
-            totalDuration: 40,
-          },
-          {
-            id: 'section-4',
-            title: 'Conclusion',
-            content: `Summary of what we've learned about ${topic} and next steps.`,
-            segments: [
-              {
-                id: 'segment-4-1',
-                narrationText: `To summarize, we've explored the key concepts of ${topic}, including [concept 1] and [concept 2].`,
-                startTime: 0,
-                duration: 12,
-                visuals: [
-                  {
-                    id: 'visual-4-1-1',
-                    description: `A stickman standing next to a summary board with bullet points of the key concepts.`,
-                    timestamp: 0,
-                    duration: 12,
-                    visualType: 'image',
-                    position: 'center',
-                    transition: 'fade',
-                  }
-                ]
-              },
-              {
-                id: 'segment-4-2',
-                narrationText: `We've also seen how ${topic} is applied in both industrial settings and everyday life.`,
-                startTime: 12,
-                duration: 10,
-                visuals: [
-                  {
-                    id: 'visual-4-2-1',
-                    description: `Split screen showing the industrial and everyday applications of ${topic}.`,
-                    timestamp: 0,
-                    duration: 10,
-                    visualType: 'image',
-                    position: 'full',
-                    transition: 'fade',
-                  }
-                ]
-              },
-              {
-                id: 'segment-4-3',
-                narrationText: `Thank you for watching! If you'd like to learn more about ${topic}, check out the resources in the description below.`,
-                startTime: 22,
-                duration: 8,
-                visuals: [
-                  {
-                    id: 'visual-4-3-1',
-                    description: `A stickman waving goodbye with a speech bubble saying "Thanks for watching!"`,
-                    timestamp: 0,
-                    duration: 8,
-                    visualType: 'image',
-                    position: 'center',
-                    transition: 'fade',
-                  }
-                ]
-              }
-            ],
-            totalDuration: 30,
-          }
-        ],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        totalDuration: 135, // Sum of all section durations
-        status: 'draft',
-      };
-      
-      setGeneratedScript(mockScript);
+
+    try {
+      // Call the API to generate the script
+      const durationMinutes = parseFloat(duration);
+      const script = await generateScript(topic, audience, durationMinutes, style);
+      setGeneratedScript(script);
+    } catch (error) {
+      console.error('Error generating script:', error);
+      alert('Failed to generate script. Please try again.');
+    } finally {
       setIsGenerating(false);
-    }, 3000);
+    }
   };
+
 
   const handleSectionClick = (sectionId: string) => {
     setActiveSectionId(activeSectionId === sectionId ? null : sectionId);
@@ -324,36 +54,36 @@ export default function ScriptGenerator() {
 
   const handleSaveSegment = (updatedSegment: ScriptSegment) => {
     if (!generatedScript) return;
-    
+
     const updatedScript = { ...generatedScript };
-    
+
     // Find the section containing the segment
-    const sectionIndex = updatedScript.sections.findIndex(section => 
+    const sectionIndex = updatedScript.sections.findIndex(section =>
       section.segments.some(segment => segment.id === updatedSegment.id)
     );
-    
+
     if (sectionIndex === -1) return;
-    
+
     // Find the segment index
     const segmentIndex = updatedScript.sections[sectionIndex].segments.findIndex(
       segment => segment.id === updatedSegment.id
     );
-    
+
     if (segmentIndex === -1) return;
-    
+
     // Update the segment
     updatedScript.sections[sectionIndex].segments[segmentIndex] = updatedSegment;
-    
+
     // Recalculate section duration
     updatedScript.sections[sectionIndex].totalDuration = updatedScript.sections[sectionIndex].segments.reduce(
       (total, segment) => total + segment.duration, 0
     );
-    
+
     // Recalculate total script duration
     updatedScript.totalDuration = updatedScript.sections.reduce(
       (total, section) => total + section.totalDuration, 0
     );
-    
+
     setGeneratedScript(updatedScript);
     setShowSegmentEditor(false);
   };
@@ -376,12 +106,12 @@ export default function ScriptGenerator() {
 
   const getActiveSegment = () => {
     if (!generatedScript || !activeSegmentId) return null;
-    
+
     for (const section of generatedScript.sections) {
       const segment = section.segments.find(segment => segment.id === activeSegmentId);
       if (segment) return segment;
     }
-    
+
     return null;
   };
 
@@ -399,7 +129,7 @@ export default function ScriptGenerator() {
           <div className="bg-card shadow rounded-lg overflow-hidden">
             <div className="px-4 py-5 sm:p-6">
               <h1 className="text-2xl font-bold text-foreground mb-6">Create Video Script</h1>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="topic" className="block text-sm font-medium text-foreground mb-1">
@@ -415,7 +145,7 @@ export default function ScriptGenerator() {
                     required
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label htmlFor="audience" className="block text-sm font-medium text-foreground mb-1">
@@ -434,7 +164,7 @@ export default function ScriptGenerator() {
                       <option value="experts">Experts</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="duration" className="block text-sm font-medium text-foreground mb-1">
                       Approximate Duration (minutes)
@@ -452,7 +182,7 @@ export default function ScriptGenerator() {
                       <option value="20">20+ minutes</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="style" className="block text-sm font-medium text-foreground mb-1">
                       Presentation Style
@@ -471,7 +201,7 @@ export default function ScriptGenerator() {
                     </select>
                   </div>
                 </div>
-                
+
                 <div className="pt-4">
                   <button
                     type="submit"
@@ -518,7 +248,7 @@ export default function ScriptGenerator() {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="mt-6 flex flex-wrap gap-2">
                   <div className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
                     Audience: {generatedScript.targetAudience}
@@ -535,15 +265,15 @@ export default function ScriptGenerator() {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-card shadow rounded-lg overflow-hidden">
               <div className="px-4 py-5 sm:p-6">
                 <h2 className="text-xl font-semibold text-foreground mb-4">Script Sections</h2>
-                
+
                 <div className="space-y-4">
                   {generatedScript.sections.map((section) => (
                     <div key={section.id} className="border border-border rounded-lg overflow-hidden">
-                      <div 
+                      <div
                         className={`px-4 py-3 flex justify-between items-center cursor-pointer ${
                           activeSectionId === section.id ? 'bg-accent/50' : 'bg-card'
                         }`}
@@ -553,18 +283,18 @@ export default function ScriptGenerator() {
                           <span className="font-medium text-foreground">{section.title}</span>
                           <span className="ml-2 text-sm text-muted-foreground">({formatTime(section.totalDuration)})</span>
                         </div>
-                        <svg 
+                        <svg
                           className={`h-5 w-5 text-muted-foreground transition-transform ${
                             activeSectionId === section.id ? 'transform rotate-180' : ''
-                          }`} 
-                          fill="none" 
-                          viewBox="0 0 24 24" 
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
                           stroke="currentColor"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
-                      
+
                       {activeSectionId === section.id && (
                         <div className="px-4 py-3 border-t border-border">
                           <div className="prose prose-sm max-w-none text-foreground">
@@ -572,20 +302,20 @@ export default function ScriptGenerator() {
                             <div className="p-3 bg-muted/30 rounded-md mb-4">
                               <p>{section.content}</p>
                             </div>
-                            
+
                             {/* Section timeline */}
-                            <SegmentTimeline 
+                            <SegmentTimeline
                               section={section}
                               onSegmentSelect={handleSegmentClick}
                               selectedSegmentId={activeSegmentId}
                             />
-                            
+
                             {/* Segments */}
                             <h4 className="text-sm font-medium text-muted-foreground mt-4 mb-2">Segments</h4>
                             <div className="space-y-3">
                               {section.segments.map((segment) => (
-                                <div 
-                                  key={segment.id} 
+                                <div
+                                  key={segment.id}
                                   className={`p-3 border rounded-md ${
                                     activeSegmentId === segment.id ? 'border-primary bg-primary/5' : 'border-border'
                                   }`}
@@ -604,9 +334,9 @@ export default function ScriptGenerator() {
                                       {segment.visuals.length} visual{segment.visuals.length !== 1 ? 's' : ''}
                                     </div>
                                   </div>
-                                  
+
                                   <p className="text-sm text-foreground mb-2">{segment.narrationText}</p>
-                                  
+
                                   {activeSegmentId === segment.id && (
                                     <div className="mt-3">
                                       <h5 className="text-xs font-medium text-muted-foreground mb-2">Visuals</h5>
@@ -620,7 +350,7 @@ export default function ScriptGenerator() {
                                           </div>
                                         ))}
                                       </div>
-                                      
+
                                       <div className="flex justify-end mt-3 space-x-2">
                                         <button
                                           onClick={() => handleEditSegment(segment.id)}
@@ -634,7 +364,7 @@ export default function ScriptGenerator() {
                                 </div>
                               ))}
                             </div>
-                            
+
                             <div className="mt-4 flex justify-end space-x-3">
                               <button
                                 onClick={() => handleRegenerateSection(section.id)}
@@ -649,7 +379,7 @@ export default function ScriptGenerator() {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="mt-6 flex justify-between">
                   <button
                     className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90"
@@ -675,7 +405,7 @@ export default function ScriptGenerator() {
           </div>
         )}
       </div>
-      
+
       {/* Segment Editor Modal */}
       {showSegmentEditor && getActiveSegment() && (
         <SegmentEditor
@@ -684,7 +414,7 @@ export default function ScriptGenerator() {
           onCancel={() => setShowSegmentEditor(false)}
         />
       )}
-      
+
       {/* Section Regenerator Modal */}
       {showSectionRegenerator && getActiveSection() && (
         <SectionRegenerator
@@ -693,7 +423,7 @@ export default function ScriptGenerator() {
           onCancel={() => setShowSectionRegenerator(false)}
         />
       )}
-      
+
       {/* Script Visualizer Modal */}
       {showScriptVisualizer && generatedScript && (
         <ScriptVisualizer
