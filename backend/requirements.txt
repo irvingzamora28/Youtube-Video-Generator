@@ -6,7 +6,7 @@ python-dotenv>=1.0.0
 
 # LLM APIs
 openai>=1.72.0
-google-generativeai
+google-genai
 
 # Utilities
 httpx>=0.26.0
