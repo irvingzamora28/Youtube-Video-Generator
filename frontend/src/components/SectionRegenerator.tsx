@@ -11,13 +11,28 @@ export default function SectionRegenerator({ section, onRegenerate, onCancel }: 
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  // Focus the textarea when the component mounts
+  // Focus the textarea when the component mounts and handle escape key
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, []);
+
+    // Add event listener for the Escape key
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onCancel]);
 
   // Format time (seconds) to MM:SS format
   const formatTime = (seconds: number): string => {
@@ -37,9 +52,23 @@ export default function SectionRegenerator({ section, onRegenerate, onCancel }: 
     }, 2000);
   };
 
+  // Handle clicks outside the modal
+  const handleOutsideClick = (e: React.MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onCancel();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl border border-border">
+    <div
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+      onClick={handleOutsideClick}
+    >
+      <div
+        ref={modalRef}
+        className="bg-card rounded-lg shadow-xl w-full max-w-2xl border border-border"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="px-6 py-4 border-b border-border">
           <h2 className="text-xl font-semibold text-foreground">Regenerate Section</h2>
         </div>

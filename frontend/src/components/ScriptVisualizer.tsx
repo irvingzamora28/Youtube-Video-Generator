@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Script, Visual } from '../types/script';
 import SegmentTimeline from './SegmentTimeline';
 
@@ -12,6 +12,22 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
   const [currentSegmentId, setCurrentSegmentId] = useState<string | null>(null);
   const [currentVisualIndex, setCurrentVisualIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Handle escape key press
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose]);
 
   const currentSection = script.sections[currentSectionIndex];
 
@@ -168,9 +184,23 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
     );
   };
 
+  // Handle clicks outside the modal
+  const handleOutsideClick = (e: React.MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-card rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto border border-border">
+    <div
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+      onClick={handleOutsideClick}
+    >
+      <div
+        ref={modalRef}
+        className="bg-card rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto border border-border"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="px-6 py-4 border-b border-border flex justify-between items-center">
           <h2 className="text-xl font-semibold text-foreground">Script Preview</h2>
           <button

@@ -15,6 +15,7 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
   const [activeVisualIndex, setActiveVisualIndex] = useState<number | null>(null);
   const [selectedTextRange, setSelectedTextRange] = useState<{start: number, end: number} | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Effect to focus the textarea when the component mounts
   useEffect(() => {
@@ -25,6 +26,20 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
       const textLength = textareaRef.current.value.length;
       textareaRef.current.setSelectionRange(textLength, textLength);
     }
+
+    // Add event listener for the Escape key
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
   }, []); // Empty dependency array means this runs once on mount
 
   // Effect to highlight text when a visual is selected
@@ -115,9 +130,23 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Handle clicks outside the modal
+  const handleOutsideClick = (e: React.MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onCancel();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-card rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-border">
+    <div
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+      onClick={handleOutsideClick}
+    >
+      <div
+        ref={modalRef}
+        className="bg-card rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-border"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="px-6 py-4 border-b border-border">
           <h2 className="text-xl font-semibold text-foreground">Edit Segment</h2>
         </div>
