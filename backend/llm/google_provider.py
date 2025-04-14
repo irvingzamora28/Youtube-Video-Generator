@@ -202,13 +202,23 @@ class GoogleProvider(LLMProvider):
             Response from the Gemini API
         """
         # Generate content
-        response = await self.client.models.generate_content(
-            model=model_name,
-            contents=contents,
-            config=config
-        )
-
-        return response
+        # The new Gemini API might not be fully async, so we need to handle it properly
+        try:
+            # Try to use it as an awaitable
+            response = await self.client.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=config
+            )
+            return response
+        except TypeError:
+            # If it's not awaitable, use it directly
+            response = self.client.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=config
+            )
+            return response
 
     async def _generate_content_stream_async(self, model_name: str, contents: List[types.Content],
                                            config: types.GenerateContentConfig) -> AsyncGenerator:
@@ -224,11 +234,22 @@ class GoogleProvider(LLMProvider):
             Streaming response from the Gemini API
         """
         # Generate streaming content
-        stream = await self.client.models.generate_content(
-            model=model_name,
-            contents=contents,
-            config=config,
-            stream=True
-        )
-
-        return stream
+        # The new Gemini API might not be fully async, so we need to handle it properly
+        try:
+            # Try to use it as an awaitable
+            stream = await self.client.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=config,
+                stream=True
+            )
+            return stream
+        except TypeError:
+            # If it's not awaitable, use it directly
+            stream = self.client.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=config,
+                stream=True
+            )
+            return stream
