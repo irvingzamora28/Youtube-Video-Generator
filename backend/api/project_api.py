@@ -25,7 +25,7 @@ class ProjectCreate(BaseModel):
     title: str
     description: Optional[str] = ""
     target_audience: Optional[str] = ""
-    
+
 class ProjectUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -63,7 +63,7 @@ async def create_project(project_data: ProjectCreate):
         description=project_data.description,
         target_audience=project_data.target_audience
     )
-    
+
     if project.save():
         return {"success": True, "project": project.to_dict()}
     else:
@@ -75,7 +75,7 @@ async def get_project(project_id: int):
     Get a project by ID.
     """
     project = Project.get_by_id(project_id)
-    
+
     if project:
         return {"project": project.to_dict()}
     else:
@@ -87,10 +87,10 @@ async def update_project(project_id: int, project_data: ProjectUpdate):
     Update a project.
     """
     project = Project.get_by_id(project_id)
-    
+
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    
+
     # Update fields if provided
     if project_data.title is not None:
         project.title = project_data.title
@@ -102,7 +102,7 @@ async def update_project(project_id: int, project_data: ProjectUpdate):
         project.total_duration = project_data.total_duration
     if project_data.status is not None:
         project.status = project_data.status
-    
+
     if project.save():
         return {"success": True, "project": project.to_dict()}
     else:
@@ -114,10 +114,10 @@ async def delete_project(project_id: int):
     Delete a project.
     """
     project = Project.get_by_id(project_id)
-    
+
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    
+
     if project.delete():
         return {"success": True}
     else:
@@ -130,10 +130,10 @@ async def get_project_script(project_id: int):
     Get the script for a project.
     """
     project = Project.get_by_id(project_id)
-    
+
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    
+
     return {"script": project.content}
 
 @router.put("/{project_id}/script")
@@ -141,14 +141,22 @@ async def update_project_script(project_id: int, script_data: ScriptUpdate):
     """
     Update the script for a project.
     """
+    print(f"Updating script for project {project_id}")
+    print(f"Script data: {script_data}")
+
     project = Project.get_by_id(project_id)
-    
+
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    
+
+    print(f"Current project content: {project.content}")
+    print(f"New script content: {script_data.content}")
+
     if project.update_content(script_data.content):
+        print(f"Script updated successfully")
         return {"success": True, "script": project.content}
     else:
+        print(f"Failed to update script")
         raise HTTPException(status_code=500, detail="Failed to update script")
 
 # Asset routes
@@ -158,10 +166,10 @@ async def get_project_assets(project_id: int, asset_type: Optional[str] = None):
     Get all assets for a project.
     """
     project = Project.get_by_id(project_id)
-    
+
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    
+
     assets = Asset.get_by_project_id(project_id, asset_type)
     return {"assets": [asset.to_dict() for asset in assets]}
 
@@ -177,23 +185,23 @@ async def create_asset(
     Create a new asset for a project.
     """
     project = Project.get_by_id(project_id)
-    
+
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    
+
     # Parse metadata
     try:
         metadata_dict = json.loads(metadata)
     except json.JSONDecodeError:
         metadata_dict = {}
-    
+
     # Handle file upload or base64 data
     if file:
         # Read file data
         file_data = await file.read()
-        
+
         # Save the file
-        success, file_path = save_asset(file_data, project_id, asset_type, 
+        success, file_path = save_asset(file_data, project_id, asset_type,
                                        metadata_dict.get('id'), file.filename.split('.')[-1])
     elif base64_data:
         # Save base64 data
@@ -210,10 +218,10 @@ async def create_asset(
                 raise HTTPException(status_code=400, detail=f"Invalid base64 data: {str(e)}")
     else:
         raise HTTPException(status_code=400, detail="Either file or base64_data must be provided")
-    
+
     if not success:
         raise HTTPException(status_code=500, detail="Failed to save asset file")
-    
+
     # Create asset record
     asset = Asset(
         project_id=project_id,
@@ -221,7 +229,7 @@ async def create_asset(
         path=file_path,
         metadata=metadata_dict
     )
-    
+
     if asset.save():
         return {"success": True, "asset": asset.to_dict()}
     else:
@@ -233,12 +241,12 @@ async def get_asset(asset_id: int, include_data: bool = False):
     Get an asset by ID.
     """
     asset = Asset.get_by_id(asset_id)
-    
+
     if not asset:
         raise HTTPException(status_code=404, detail="Asset not found")
-    
+
     result = asset.to_dict()
-    
+
     # Include base64 data if requested
     if include_data and asset.path:
         if asset.asset_type == 'image':
@@ -246,7 +254,7 @@ async def get_asset(asset_id: int, include_data: bool = False):
             if success:
                 result['data'] = f"data:image/png;base64,{base64_data}"
         # Add support for other asset types as needed
-    
+
     return {"asset": result}
 
 @router.put("/assets/{asset_id}")
@@ -255,14 +263,14 @@ async def update_asset(asset_id: int, asset_data: AssetUpdate):
     Update an asset.
     """
     asset = Asset.get_by_id(asset_id)
-    
+
     if not asset:
         raise HTTPException(status_code=404, detail="Asset not found")
-    
+
     # Update fields if provided
     if asset_data.metadata is not None:
         asset.metadata = asset_data.metadata
-    
+
     if asset.save():
         return {"success": True, "asset": asset.to_dict()}
     else:
@@ -274,10 +282,10 @@ async def delete_asset(asset_id: int):
     Delete an asset.
     """
     asset = Asset.get_by_id(asset_id)
-    
+
     if not asset:
         raise HTTPException(status_code=404, detail="Asset not found")
-    
+
     if asset.delete():
         return {"success": True}
     else:

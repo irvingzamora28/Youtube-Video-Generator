@@ -41,42 +41,72 @@ export async function generateScript(
 /**
  * Transform the script from the API format to the frontend format
  */
-function transformScriptFromApi(apiScript: any): Script {
+export function transformScriptFromApi(apiScript: any): Script {
+  console.log('Transforming API script:', apiScript);
+
+  // Handle the case where apiScript might be null or undefined
+  if (!apiScript) {
+    console.log('API script is null or undefined, returning default script');
+    return {
+      id: '0',
+      title: '',
+      description: '',
+      targetAudience: '',
+      sections: [],
+      totalDuration: 0,
+      status: 'draft',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  // Check if the content field contains the actual script
+  if (apiScript.content && typeof apiScript.content === 'object' && apiScript.content.sections) {
+    console.log('Found script in content field, using that instead');
+    apiScript = apiScript.content;
+  }
+
+  console.log('Sections in API script:', apiScript.sections);
+
   // Convert the API script format to the frontend script format
   return {
-    id: apiScript.id,
-    title: apiScript.title,
-    description: apiScript.description,
-    targetAudience: apiScript.target_audience,
-    sections: apiScript.sections.map((section: any) => ({
-      id: section.id,
-      title: section.title,
-      content: section.content,
-      segments: section.segments.map((segment: any) => ({
-        id: segment.id,
-        narrationText: segment.narration_text,
-        startTime: segment.start_time,
-        duration: segment.duration,
-        visuals: segment.visuals.map((visual: any) => ({
-          id: visual.id,
-          description: visual.description,
-          timestamp: visual.timestamp,
-          duration: visual.duration,
-          imageUrl: visual.image_url,
-          altText: visual.alt_text,
-          visualType: visual.visual_type,
-          visualStyle: visual.visual_style,
-          position: visual.position,
-          zoomLevel: visual.zoom_level,
-          transition: visual.transition,
-        })),
-      })),
-      totalDuration: section.total_duration,
+    id: apiScript.id || 0,
+    title: apiScript.title || '',
+    description: apiScript.description || '',
+    targetAudience: apiScript.target_audience || '',
+    sections: (apiScript.sections || []).map((section: any) => ({
+      id: section.id || `section-${Math.random().toString(36).substring(2, 11)}`,
+      title: section.title || '',
+      content: section.content || '',
+      segments: (section.segments || []).map((segment: any) => {
+        console.log('Processing segment in transform:', segment);
+        console.log('Segment narration_text:', segment.narration_text);
+        return {
+          id: segment.id || `segment-${Math.random().toString(36).substring(2, 11)}`,
+          narrationText: segment.narration_text || segment.narrationText || '',
+          startTime: segment.start_time || 0,
+          duration: segment.duration || 0,
+          visuals: (segment.visuals || []).map((visual: any) => ({
+            id: visual.id || `visual-${Math.random().toString(36).substring(2, 11)}`,
+            description: visual.description || '',
+            timestamp: visual.timestamp || 0,
+            duration: visual.duration || 0,
+            imageUrl: visual.image_url || '',
+            altText: visual.alt_text || '',
+            visualType: visual.visual_type || 'image',
+            visualStyle: visual.visual_style || '',
+            position: visual.position || '',
+            zoomLevel: visual.zoom_level || 1,
+            transition: visual.transition || '',
+          }))
+        };
+      }),
+      totalDuration: section.total_duration || 0,
     })),
-    createdAt: new Date(apiScript.created_at),
-    updatedAt: new Date(apiScript.updated_at),
-    totalDuration: apiScript.total_duration,
-    status: apiScript.status,
+    createdAt: apiScript.created_at ? new Date(apiScript.created_at) : new Date(),
+    updatedAt: apiScript.updated_at ? new Date(apiScript.updated_at) : new Date(),
+    totalDuration: apiScript.total_duration || 0,
+    status: apiScript.status || 'draft',
   };
 }
 

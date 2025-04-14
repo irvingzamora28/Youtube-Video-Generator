@@ -16,6 +16,8 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
 
   // Handle escape key press
   useEffect(() => {
+    if (!onClose) return; // Skip if onClose is not provided
+
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
@@ -186,10 +188,11 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
 
   // Handle clicks outside the modal
   const handleOutsideClick = (e: React.MouseEvent) => {
-    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+    if (onClose && modalRef.current && !modalRef.current.contains(e.target as Node)) {
       onClose();
     }
   };
+
 
   return (
     <div

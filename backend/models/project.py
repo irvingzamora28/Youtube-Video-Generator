@@ -95,8 +95,16 @@ class Project:
         Returns:
             True if successful, False otherwise
         """
+        print(f"Saving project {self.id}")
+        print(f"Content before JSON conversion: {self.content}")
+
         # Convert content to JSON string
-        content_json = json.dumps(self.content)
+        try:
+            content_json = json.dumps(self.content)
+            print(f"Content JSON: {content_json[:100]}..." if len(content_json) > 100 else content_json)
+        except Exception as e:
+            print(f"Error converting content to JSON: {str(e)}")
+            return False
 
         if self.id is None:
             # Insert new project
@@ -175,5 +183,10 @@ class Project:
         Returns:
             True if successful, False otherwise
         """
+        print(f"Updating content for project {self.id}")
+        print(f"Content type: {type(content)}")
+        print(f"Content: {content}")
         self.content = content
-        return self.save()
+        result = self.save()
+        print(f"Save result: {result}")
+        return result

@@ -8,6 +8,12 @@ type SectionRegeneratorProps = {
 };
 
 export default function SectionRegenerator({ section, onRegenerate, onCancel }: SectionRegeneratorProps) {
+  console.log('SectionRegenerator received section:', section);
+  console.log('Section segments:', section.segments);
+  if (section.segments && section.segments.length > 0) {
+    console.log('First segment narration:', section.segments[0].narrationText);
+  }
+
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);

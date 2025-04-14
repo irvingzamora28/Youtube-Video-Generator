@@ -22,9 +22,10 @@ export default function HomePage() {
             </button>
             <button
               type="button"
+              onClick={() => navigate('/projects')}
               className="inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-card hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             >
-              Browse Examples
+              My Projects
             </button>
           </div>
         </div>

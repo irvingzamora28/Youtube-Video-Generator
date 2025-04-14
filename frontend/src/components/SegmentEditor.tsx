@@ -9,7 +9,10 @@ type SegmentEditorProps = {
 };
 
 export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEditorProps) {
-  const [narrationText, setNarrationText] = useState(segment.narrationText);
+  console.log('SegmentEditor received segment:', segment);
+  console.log('Segment narration text:', segment.narrationText);
+
+  const [narrationText, setNarrationText] = useState(segment.narrationText || '');
   const [startTime, setStartTime] = useState(segment.startTime);
   const [duration, setDuration] = useState(segment.duration);
   const [visuals, setVisuals] = useState<Visual[]>(segment.visuals);

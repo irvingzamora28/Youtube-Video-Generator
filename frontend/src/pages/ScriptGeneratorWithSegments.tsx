@@ -1,39 +1,118 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { Script, ScriptSegment } from '../types/script';
+import { Script, ScriptSegment, ScriptSection } from '../types/script';
 import SegmentEditor from '../components/SegmentEditor';
 import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
 import { generateScript } from '../services/api';
+import { getProject, updateProjectScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
+  const { id: projectId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
   const [topic, setTopic] = useState('');
   const [audience, setAudience] = useState('general');
   const [duration, setDuration] = useState('5');
   const [style, setStyle] = useState('educational');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [generatedScript, setGeneratedScript] = useState<Script | null>(null);
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
   const [showSegmentEditor, setShowSegmentEditor] = useState(false);
   const [showSectionRegenerator, setShowSectionRegenerator] = useState(false);
   const [showScriptVisualizer, setShowScriptVisualizer] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load project data if projectId is provided
+  useEffect(() => {
+    if (projectId) {
+      loadProjectData(parseInt(projectId));
+    }
+  }, [projectId]);
+
+  const loadProjectData = async (id: number) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const project = await getProject(id);
+
+      // If the project has content, use it
+      if (project) {
+        console.log('Project loaded for editing:', project);
+        console.log('Project sections:', project.sections);
+        if (project.sections && project.sections.length > 0) {
+          console.log('First section segments:', project.sections[0].segments);
+          if (project.sections[0].segments && project.sections[0].segments.length > 0) {
+            console.log('First segment narration:', project.sections[0].segments[0].narrationText);
+          }
+        }
+
+        setGeneratedScript(project);
+        setTopic(project.title || '');
+        setAudience(project.targetAudience || 'general');
+      }
+    } catch (err) {
+      console.error('Error loading project:', err);
+      setError('Failed to load project data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsGenerating(true);
+    setError(null);
 
     try {
       // Call the API to generate the script
       const durationMinutes = parseFloat(duration);
       const script = await generateScript(topic, audience, durationMinutes, style);
       setGeneratedScript(script);
+
+      // If we're editing a project, save the script to the project
+      if (projectId) {
+        await saveScriptToProject(script);
+      }
     } catch (error) {
       console.error('Error generating script:', error);
-      alert('Failed to generate script. Please try again.');
+      setError('Failed to generate script. Please try again.');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const saveScriptToProject = async (script: Script) => {
+    if (!projectId) return;
+
+    try {
+      setIsSaving(true);
+      await updateProjectScript(parseInt(projectId), script);
+    } catch (error) {
+      console.error('Error saving script to project:', error);
+      setError('Failed to save script to project. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveAndReturn = async () => {
+    if (!generatedScript || !projectId) return;
+
+    try {
+      setIsSaving(true);
+      await updateProjectScript(parseInt(projectId), generatedScript);
+      navigate(`/projects/${projectId}`);
+    } catch (error) {
+      console.error('Error saving script:', error);
+      setError('Failed to save script. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -48,6 +127,34 @@ export default function ScriptGenerator() {
   };
 
   const handleEditSegment = (segmentId: string) => {
+    console.log('Editing segment with ID:', segmentId);
+
+    if (!generatedScript) {
+      console.error('No script available');
+      return;
+    }
+
+    // Find the segment in the script
+    let foundSegment: ScriptSegment | null = null;
+    let sectionWithSegment: ScriptSection | null = null;
+
+    for (const section of generatedScript.sections) {
+      const segment = section.segments.find(seg => seg.id === segmentId);
+      if (segment) {
+        foundSegment = segment;
+        sectionWithSegment = section;
+        break;
+      }
+    }
+
+    if (foundSegment) {
+      console.log('Found segment to edit:', foundSegment);
+      console.log('Segment narration text:', foundSegment.narrationText);
+      console.log('In section:', sectionWithSegment?.title);
+    } else {
+      console.error('Segment not found with ID:', segmentId);
+    }
+
     setActiveSegmentId(segmentId);
     setShowSegmentEditor(true);
   };
@@ -105,13 +212,33 @@ export default function ScriptGenerator() {
   };
 
   const getActiveSegment = () => {
-    if (!generatedScript || !activeSegmentId) return null;
+    console.log('Getting active segment, ID:', activeSegmentId);
 
-    for (const section of generatedScript.sections) {
-      const segment = section.segments.find(segment => segment.id === activeSegmentId);
-      if (segment) return segment;
+    if (!generatedScript) {
+      console.log('No script available');
+      return null;
     }
 
+    if (!activeSegmentId) {
+      console.log('No active segment ID');
+      return null;
+    }
+
+    console.log('Searching for segment in sections:', generatedScript.sections.length);
+
+    for (const section of generatedScript.sections) {
+      console.log(`Checking section ${section.id} with ${section.segments.length} segments`);
+
+      const segment = section.segments.find(segment => segment.id === activeSegmentId);
+
+      if (segment) {
+        console.log('Found segment:', segment);
+        console.log('Segment narration text:', segment.narrationText);
+        return segment;
+      }
+    }
+
+    console.log('Segment not found');
     return null;
   };
 
@@ -124,11 +251,32 @@ export default function ScriptGenerator() {
 
   return (
     <Layout>
+      {/* Show error message if there is one */}
+      {error && (
+        <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md mb-4">
+          {error}
+        </div>
+      )}
+
+      {/* Show loading indicator */}
+      {isLoading && (
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto">
         {!generatedScript ? (
           <div className="bg-card shadow rounded-lg overflow-hidden">
             <div className="px-4 py-5 sm:p-6">
-              <h1 className="text-2xl font-bold text-foreground mb-6">Create Video Script</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-2">
+                {projectId ? 'Generate Script for Project' : 'Create Video Script'}
+              </h1>
+              {projectId && (
+                <p className="text-muted-foreground mb-6">
+                  Generate a script for your project based on the information below.
+                  You can edit the script after generation.
+                </p>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -313,7 +461,10 @@ export default function ScriptGenerator() {
                             {/* Segments */}
                             <h4 className="text-sm font-medium text-muted-foreground mt-4 mb-2">Segments</h4>
                             <div className="space-y-3">
-                              {section.segments.map((segment) => (
+                              {section.segments.map((segment) => {
+                                console.log('Rendering segment:', segment);
+                                console.log('Segment narration text:', segment.narrationText);
+                                return (
                                 <div
                                   key={segment.id}
                                   className={`p-3 border rounded-md ${
@@ -335,7 +486,14 @@ export default function ScriptGenerator() {
                                     </div>
                                   </div>
 
-                                  <p className="text-sm text-foreground mb-2">{segment.narrationText}</p>
+                                  <p className="text-sm text-foreground mb-2">
+                                    {segment.narrationText ? segment.narrationText : 'No narration text available'}
+                                  </p>
+                                  {!segment.narrationText && (
+                                    <div className="text-xs text-destructive mb-2">
+                                      Warning: Narration text is missing for this segment
+                                    </div>
+                                  )}
 
                                   {activeSegmentId === segment.id && (
                                     <div className="mt-3">
@@ -365,7 +523,8 @@ export default function ScriptGenerator() {
                                     </div>
                                   )}
                                 </div>
-                              ))}
+                              );
+                              })}
                             </div>
 
                             <div className="mt-4 flex justify-end space-x-3">
@@ -389,22 +548,22 @@ export default function ScriptGenerator() {
                 <div className="mt-6 flex justify-between">
                   <button
                     className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90"
-                    onClick={() => {
-                      // This would call the API to regenerate the entire script
-                      console.log('Regenerating entire script');
-                    }}
+                    onClick={handleSubmit}
                   >
-                    Regenerate Entire Script
+                    Regenerate Script
                   </button>
-                  <button
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90"
-                    onClick={() => {
-                      // This would proceed to the video creation step
-                      console.log('Proceeding to video creation');
-                    }}
-                  >
-                    Proceed to Video Creation
-                  </button>
+
+                  <div className="space-x-3">
+                    {projectId && (
+                      <button
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50"
+                        onClick={handleSaveAndReturn}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? 'Saving...' : 'Save & Return to Project'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

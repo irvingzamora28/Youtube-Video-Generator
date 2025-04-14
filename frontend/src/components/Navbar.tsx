@@ -21,17 +21,12 @@ export default function Navbar() {
               >
                 Dashboard
               </Link>
+
               <Link
-                to="/create"
-                className={`${location.pathname === '/create' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                to="/projects"
+                className={`${location.pathname.startsWith('/projects') ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
               >
-                Create Video
-              </Link>
-              <Link
-                to="/my-videos"
-                className={`${location.pathname === '/my-videos' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
-              >
-                My Videos
+                My Projects
               </Link>
               <Link
                 to="/settings"
@@ -118,19 +113,13 @@ export default function Navbar() {
             >
               Dashboard
             </Link>
+
             <Link
-              to="/create"
-              className={`${location.pathname === '/create' ? 'bg-accent text-accent-foreground border-primary' : 'border-transparent text-foreground hover:bg-accent hover:border-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              to="/projects"
+              className={`${location.pathname.startsWith('/projects') ? 'bg-accent text-accent-foreground border-primary' : 'border-transparent text-foreground hover:bg-accent hover:border-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
-              Create Video
-            </Link>
-            <Link
-              to="/my-videos"
-              className={`${location.pathname === '/my-videos' ? 'bg-accent text-accent-foreground border-primary' : 'border-transparent text-foreground hover:bg-accent hover:border-border'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              My Videos
+              My Projects
             </Link>
             <Link
               to="/settings"
