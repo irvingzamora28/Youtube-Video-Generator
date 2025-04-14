@@ -16,6 +16,17 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
   const [selectedTextRange, setSelectedTextRange] = useState<{start: number, end: number} | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Effect to focus the textarea when the component mounts
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+
+      // Optional: Place cursor at the end of the text
+      const textLength = textareaRef.current.value.length;
+      textareaRef.current.setSelectionRange(textLength, textLength);
+    }
+  }, []); // Empty dependency array means this runs once on mount
+
   // Effect to highlight text when a visual is selected
   useEffect(() => {
     if (activeVisualIndex !== null && textareaRef.current) {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Layout from '../components/Layout';
-import { Script, ScriptSection, ScriptSegment, Visual } from '../types/script';
+import { Script, ScriptSegment } from '../types/script';
 import SegmentEditor from '../components/SegmentEditor';
 import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
@@ -353,7 +353,10 @@ export default function ScriptGenerator() {
 
                                       <div className="flex justify-end mt-3 space-x-2">
                                         <button
-                                          onClick={() => handleEditSegment(segment.id)}
+                                          onClick={(e) => {
+                                            e.stopPropagation(); // Prevent event from bubbling up to parent
+                                            handleEditSegment(segment.id);
+                                          }}
                                           className="px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-md hover:bg-secondary/90"
                                         >
                                           Edit Segment
@@ -367,7 +370,10 @@ export default function ScriptGenerator() {
 
                             <div className="mt-4 flex justify-end space-x-3">
                               <button
-                                onClick={() => handleRegenerateSection(section.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent event from bubbling up to parent
+                                  handleRegenerateSection(section.id);
+                                }}
                                 className="px-3 py-1.5 bg-secondary text-secondary-foreground text-sm rounded-md hover:bg-secondary/90"
                               >
                                 Regenerate Section

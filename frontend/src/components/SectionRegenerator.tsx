@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ScriptSection } from '../types/script';
 
 type SectionRegeneratorProps = {
@@ -10,6 +10,14 @@ type SectionRegeneratorProps = {
 export default function SectionRegenerator({ section, onRegenerate, onCancel }: SectionRegeneratorProps) {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Focus the textarea when the component mounts
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, []);
 
   // Format time (seconds) to MM:SS format
   const formatTime = (seconds: number): string => {
@@ -54,6 +62,7 @@ export default function SectionRegenerator({ section, onRegenerate, onCancel }: 
               </label>
               <textarea
                 id="prompt"
+                ref={textareaRef}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 rows={4}
