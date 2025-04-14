@@ -18,6 +18,20 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backend/database/*.db
+backend/test_database.db
+
+# Storage directories
+backend/storage/*
+backend/test_storage/
+# Keep the storage directory structure
+!backend/storage/.gitkeep
+
 # Distribution / packaging
 dist/
 build/

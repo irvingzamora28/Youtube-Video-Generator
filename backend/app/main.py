@@ -5,7 +5,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api import llm, script, image
+from backend.api import llm, script, image, project_api
 
 # Create FastAPI app
 app = FastAPI(
@@ -27,6 +27,7 @@ app.add_middleware(
 app.include_router(llm.router)
 app.include_router(script.router)
 app.include_router(image.router)
+app.include_router(project_api.router)
 
 # Root endpoint
 @app.get("/")
