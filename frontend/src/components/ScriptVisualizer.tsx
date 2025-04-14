@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Script, ScriptSection, ScriptSegment, Visual } from '../types/script';
+import { Script, Visual } from '../types/script';
 import SegmentTimeline from './SegmentTimeline';
 
 type ScriptVisualizerProps = {
@@ -247,7 +247,35 @@ export default function ScriptVisualizer({ script, onClose }: ScriptVisualizerPr
               <h4 className="text-sm font-medium text-muted-foreground mb-2">Narration</h4>
               <div className="p-4 bg-muted/20 rounded-lg h-64 overflow-y-auto">
                 {currentSegment ? (
-                  <p className="text-foreground">{currentSegment.narrationText}</p>
+                  <div className="relative">
+                    <p className="text-foreground">{currentSegment.narrationText}</p>
+
+                    {/* Highlight the text that corresponds to the current visual */}
+                    {currentVisual && (
+                      <div className="absolute top-0 left-0 right-0 pointer-events-none">
+                        <p>
+                          {/* Calculate the approximate text range for the current visual */}
+                          {(() => {
+                            const charsPerSecond = currentSegment.narrationText.length / currentSegment.duration;
+                            const startChar = Math.floor(currentVisual.timestamp * charsPerSecond);
+                            const endChar = Math.min(
+                              Math.floor((currentVisual.timestamp + currentVisual.duration) * charsPerSecond),
+                              currentSegment.narrationText.length
+                            );
+
+                            return (
+                              <>
+                                <span className="invisible">{currentSegment.narrationText.substring(0, startChar)}</span>
+                                <span className="bg-primary/30 text-transparent">
+                                  {currentSegment.narrationText.substring(startChar, endChar)}
+                                </span>
+                              </>
+                            );
+                          })()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <p className="text-muted-foreground">No segment selected</p>
                 )}

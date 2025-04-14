@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ScriptSegment, Visual } from '../types/script';
 
 type SegmentEditorProps = {
@@ -13,13 +13,55 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
   const [duration, setDuration] = useState(segment.duration);
   const [visuals, setVisuals] = useState<Visual[]>(segment.visuals);
   const [activeVisualIndex, setActiveVisualIndex] = useState<number | null>(null);
+  const [selectedTextRange, setSelectedTextRange] = useState<{start: number, end: number} | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Effect to highlight text when a visual is selected
+  useEffect(() => {
+    if (activeVisualIndex !== null && textareaRef.current) {
+      const visual = visuals[activeVisualIndex];
+      const visualTimestamp = visual.timestamp;
+      const visualEndTime = visualTimestamp + visual.duration;
+
+      // Estimate character positions based on timing
+      // This is a simple approximation - in a real app, you'd need more sophisticated mapping
+      const charsPerSecond = narrationText.length / duration;
+      const startChar = Math.floor(visualTimestamp * charsPerSecond);
+      const endChar = Math.min(Math.floor(visualEndTime * charsPerSecond), narrationText.length);
+
+      setSelectedTextRange({ start: startChar, end: endChar });
+    } else {
+      setSelectedTextRange(null);
+    }
+  }, [activeVisualIndex, visuals, narrationText, duration]);
 
   const handleAddVisual = () => {
+    // Get selected text from textarea if any
+    let description = '';
+    let visualTimestamp = 0;
+    let visualDuration = Math.min(5, segment.duration);
+
+    if (textareaRef.current) {
+      const textarea = textareaRef.current;
+      const selectionStart = textarea.selectionStart;
+      const selectionEnd = textarea.selectionEnd;
+
+      if (selectionStart !== selectionEnd) {
+        // User has selected text, use it for the visual description
+        description = narrationText.substring(selectionStart, selectionEnd);
+
+        // Estimate timing based on text position
+        const charsPerSecond = narrationText.length / duration;
+        visualTimestamp = selectionStart / charsPerSecond;
+        visualDuration = Math.min((selectionEnd - selectionStart) / charsPerSecond, segment.duration - visualTimestamp);
+      }
+    }
+
     const newVisual: Visual = {
       id: `visual-${Date.now()}`,
-      description: '',
-      timestamp: 0,
-      duration: Math.min(5, segment.duration),
+      description: description || 'New visual',
+      timestamp: visualTimestamp,
+      duration: visualDuration,
       visualType: 'image',
       position: 'center',
       transition: 'fade',
@@ -75,14 +117,30 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
               <label htmlFor="narrationText" className="block text-sm font-medium text-foreground mb-1">
                 Narration Text
               </label>
-              <textarea
-                id="narrationText"
-                value={narrationText}
-                onChange={(e) => setNarrationText(e.target.value)}
-                rows={4}
-                className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                required
-              />
+              <div className="relative">
+                <textarea
+                  id="narrationText"
+                  ref={textareaRef}
+                  value={narrationText}
+                  onChange={(e) => setNarrationText(e.target.value)}
+                  rows={6}
+                  className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+                {selectedTextRange && (
+                  <div className="absolute top-0 left-0 right-0 pointer-events-none">
+                    <div className="px-4 py-2">
+                      <span className="invisible">{narrationText.substring(0, selectedTextRange.start)}</span>
+                      <span className="bg-primary/20 text-transparent">
+                        {narrationText.substring(selectedTextRange.start, selectedTextRange.end)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <div className="mt-1 text-xs text-muted-foreground">
+                  Select text to create a visual for that specific part of the narration.
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

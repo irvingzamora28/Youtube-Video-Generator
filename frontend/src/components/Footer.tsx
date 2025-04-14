@@ -23,7 +23,7 @@ export default function Footer() {
           </div>
           <div className="mt-8 md:mt-0">
             <p className="text-center text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} StickEdu. All rights reserved.
+              &copy; {new Date().getFullYear()} YT-Vidgen. All rights reserved.
             </p>
           </div>
         </div>

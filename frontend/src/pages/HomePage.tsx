@@ -8,7 +8,7 @@ export default function HomePage() {
     <Layout>
       <div className="bg-card shadow rounded-lg overflow-hidden">
         <div className="px-4 py-5 sm:p-6">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Welcome to StickEdu</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Welcome to YT-Vidgen</h1>
           <p className="text-muted-foreground mb-4">
             Create educational videos with stickman figures and visual explanations.
           </p>
