@@ -18,6 +18,7 @@ def get_image_provider() -> ImageGenerationProvider:
     Get the image provider from environment variables.
     """
     try:
+        print("DEBUG - Creating image provider from environment variables")
         return create_image_provider_from_env()
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -27,16 +28,18 @@ class ImageGenerationRequest(BaseModel):
     prompt: str
     model: Optional[str] = None
     size: Optional[str] = None
+    aspect_ratio: Optional[str] = None
 
 class ImageEditRequest(BaseModel):
     prompt: str
     model: Optional[str] = None
+    aspect_ratio: Optional[str] = None
 
 class MultipleImagesRequest(BaseModel):
     prompt: str
     count: int = 1
     model: Optional[str] = None
-    size: Optional[str] = None
+    aspect_ratio: Optional[str] = None
 
 # Routes
 @router.post("/generate")
@@ -49,7 +52,7 @@ async def generate_image(
     """
     try:
         print("DEBUG - Calling image_provider.generate_image")
-        result = await image_provider.generate_image(request.prompt, request.model, request.size)
+        result = await image_provider.generate_image(request.prompt, request.model, request.aspect_ratio)
         print(f"DEBUG - Result: success={result.get('success', False)}")
 
         if not result.get('success', False):
@@ -71,7 +74,7 @@ async def generate_image(
             "request": {
                 "prompt": request.prompt,
                 "model": request.model,
-                "size": request.size
+                "aspect_ratio": request.aspect_ratio
             }
         }
         print("Error generating image:", error_details)
@@ -109,7 +112,7 @@ async def generate_multiple_images(
         # Ensure count is within a reasonable range
         count = max(1, min(4, request.count))
 
-        results = await image_provider.generate_multiple_images(request.prompt, count, request.model, request.size)
+        results = await image_provider.generate_multiple_images(request.prompt, count, request.model, request.aspect_ratio)
         return {"images": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

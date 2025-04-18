@@ -123,6 +123,7 @@ export async function generateImage(description: string, model?: string): Promis
       body: JSON.stringify({
         prompt: description,
         model,
+        aspect_ratio: '16:9'
       }),
     });
 

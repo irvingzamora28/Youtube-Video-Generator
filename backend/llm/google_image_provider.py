@@ -31,16 +31,13 @@ class GoogleImageProvider(ImageGenerationProvider):
             self.client = client
         else:
             # Use API key from parameters or environment variable
-            if api_key:
-                self.client = genai.Client(api_key=api_key)
-            else:
-                # If no API key is provided, use environment variables
-                self.client = genai.Client()
+            print("DEBUG - Using API key from parameters or environment variable")
+            self.client = genai.Client(api_key=api_key)
 
     async def generate_image(self,
                            prompt: str,
                            model: Optional[str] = None,
-                           size: Optional[str] = None,
+                           aspect_ratio: Optional[str] = None,
                            **kwargs) -> Dict[str, Any]:
         """
         Generate an image based on a prompt using Gemini.
@@ -56,31 +53,39 @@ class GoogleImageProvider(ImageGenerationProvider):
         """
         model_name = model or self.default_model
 
-        # Configure response modalities to include image
+        # If using an Imagen model, delegate to generate_images
+        if "imagen" in model_name.lower():
+            imgs = await self._generate_with_imagen(prompt, count=1, model=model_name, aspect_ratio=aspect_ratio, **kwargs)
+            if not imgs or not imgs[0].get("success", False):
+                return imgs[0] if imgs else {"success": False, "error": "No images returned from Imagen"}
+            return imgs[0]
+
+        # Configure response modalities: flash-exp needs both Text and Image, others only Image
+        if "flash-exp" in model_name.lower():
+            modalities = ["Text", "Image"]
+        else:
+            modalities = ["Image"]
         config = types.GenerateContentConfig(
-            response_modalities=['Text', 'Image'],
+            response_modalities=modalities,
             **kwargs
         )
 
-        # Generate content
-        # The new Gemini API might not be fully async, so we need to handle it properly
+        # Generate content using generate_content
         try:
+            print("DEBUG - Generating image content")
             try:
-                # Try to use it as an awaitable
                 response = await self.client.models.generate_content(
                     model=model_name,
                     contents=prompt,
                     config=config
                 )
             except TypeError:
-                # If it's not awaitable, use it directly
                 response = self.client.models.generate_content(
                     model=model_name,
                     contents=prompt,
                     config=config
                 )
         except Exception as e:
-            # Return a detailed error message
             return {
                 "success": False,
                 "error": f"Failed to generate image: {str(e)}",
@@ -252,7 +257,7 @@ class GoogleImageProvider(ImageGenerationProvider):
                                     prompt: str,
                                     count: int = 1,
                                     model: Optional[str] = None,
-                                    size: Optional[str] = None,
+                                    aspect_ratio: Optional[str] = None,
                                     **kwargs) -> List[Dict[str, Any]]:
         """
         Generate multiple images based on a prompt using Imagen.
@@ -261,7 +266,7 @@ class GoogleImageProvider(ImageGenerationProvider):
             prompt: Text description of the desired images
             count: Number of images to generate (1-4)
             model: Optional model override (defaults to configured model)
-            size: Optional size specification (not directly supported by Gemini)
+            aspect_ratio: Optional aspect ratio specification (not directly supported by Gemini)
             **kwargs: Additional Gemini-specific parameters
 
         Returns:
@@ -284,6 +289,7 @@ class GoogleImageProvider(ImageGenerationProvider):
                                   prompt: str,
                                   count: int = 1,
                                   model: str = "imagen-3.0-generate-002",
+                                  aspect_ratio: Optional[str] = None,
                                   **kwargs) -> List[Dict[str, Any]]:
         """
         Generate images using Imagen model.
@@ -309,6 +315,7 @@ class GoogleImageProvider(ImageGenerationProvider):
                 prompt=prompt,
                 config=types.GenerateImagesConfig(
                     number_of_images=count,
+                    aspect_ratio=aspect_ratio,
                     **kwargs
                 )
             )
@@ -319,6 +326,7 @@ class GoogleImageProvider(ImageGenerationProvider):
                 prompt=prompt,
                 config=types.GenerateImagesConfig(
                     number_of_images=count,
+                    aspect_ratio=aspect_ratio,
                     **kwargs
                 )
             )
