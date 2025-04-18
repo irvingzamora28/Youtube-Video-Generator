@@ -44,6 +44,24 @@ export type Asset = {
 };
 
 /**
+ * Get images for a specific segment in a project
+ */
+export async function getSegmentImages(projectId: number, segmentId: string): Promise<Asset[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/project/${projectId}/segment/${segmentId}/images`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to fetch segment images');
+    }
+    const data = await response.json();
+    return data.assets.map(transformAssetFromApi);
+  } catch (error) {
+    console.error(`Error fetching images for project ${projectId}, segment ${segmentId}:`, error);
+    throw error;
+  }
+}
+
+/**
  * Transform project data from API format to frontend format
  */
 function transformProjectFromApi(apiProject: any): ProjectListItem {

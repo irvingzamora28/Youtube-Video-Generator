@@ -77,7 +77,12 @@ async def get_project(project_id: int):
     project = Project.get_by_id(project_id)
 
     if project:
-        return {"project": project.to_dict()}
+        # Also fetch all image assets for the project
+        from backend.models.asset import Asset
+        assets = Asset.get_by_project_id(project_id, asset_type="image")
+        assets_dict = [a.to_dict() for a in assets]
+        print(f"[get_project] Returning project with {len(assets_dict)} image assets.")
+        return {"project": project.to_dict(), "assets": assets_dict}
     else:
         raise HTTPException(status_code=404, detail="Project not found")
 
@@ -160,6 +165,34 @@ async def update_project_script(project_id: int, script_data: ScriptUpdate):
         raise HTTPException(status_code=500, detail="Failed to update script")
 
 # Asset routes
+@router.get("/{project_id}/segment/{segment_id}/images")
+async def get_segment_images(project_id: int, segment_id: str):
+    """
+    Get all image assets for a given project and segment.
+    """
+    import logging
+    logger = logging.getLogger("ytvidgen.segment_images")
+    project = Project.get_by_id(project_id)
+    print(f"[get_segment_images] Called with project_id={project_id}, segment_id={segment_id}")
+    if not project:
+        print(f"[get_segment_images] Project not found: {project_id}")
+        raise HTTPException(status_code=404, detail="Project not found")
+    # Fetch all image assets for the project
+    assets = Asset.get_by_project_id(project_id, asset_type="image")
+    print(f"[get_segment_images] Total image assets found for project {project_id}: {len(assets)}")
+    for idx, a in enumerate(assets):
+        print(f"[get_segment_images] Asset[{idx}]: id={a.id}, path={a.path}, metadata={a.metadata}")
+    # Filter by segment_id in metadata
+    segment_assets = [a.to_dict() for a in assets if a.metadata.get("segment_id") == segment_id]
+    print(f"[get_segment_images] Segment assets after filtering by segment_id={segment_id}: {len(segment_assets)}")
+    if segment_assets:
+        print(f"[get_segment_images] First segment asset: {segment_assets[0]}")
+    else:
+        print(f"[get_segment_images] No segment images found for segment_id={segment_id}. Printing all asset metadata:")
+        for a in assets:
+            print(f"[get_segment_images] Asset id={a.id} metadata={a.metadata}")
+    return {"assets": segment_assets}
+
 @router.get("/{project_id}/assets")
 async def get_project_assets(project_id: int, asset_type: Optional[str] = None):
     """

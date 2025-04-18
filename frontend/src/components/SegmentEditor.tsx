@@ -1,27 +1,64 @@
 import { useState, useRef, useEffect } from 'react';
 import { ScriptSegment, Visual } from '../types/script';
-import { generateImageForVisual } from '../services/api';
+import { generateImageForVisual, saveImageAsset } from '../services/api';
 
 type SegmentEditorProps = {
   segment: ScriptSegment;
+  projectId: number; // <-- Add projectId as a required prop
   onSave: (updatedSegment: ScriptSegment) => void;
   onCancel: () => void;
 };
 
-export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEditorProps) {
+import { getProjectAssets } from '../services/projectApi';
+
+export default function SegmentEditor({ segment, projectId, onSave, onCancel }: SegmentEditorProps) {
   console.log('SegmentEditor received segment:', segment);
   console.log('Segment narration text:', segment.narrationText);
 
   const [narrationText, setNarrationText] = useState(segment.narrationText || '');
   const [startTime, setStartTime] = useState(segment.startTime);
   const [duration, setDuration] = useState(segment.duration);
-  const [visuals, setVisuals] = useState<Visual[]>(segment.visuals);
+  // Utility to ensure imageUrl always starts with /static/ if not empty
+  const normalizeImageUrl = (path?: string) => path && path !== '' && !path.startsWith('/static/') ? `/static/${path}` : path || '';
+
+  // Initialize visuals from segment, normalizing imageUrl
+  const [visuals, setVisuals] = useState<Visual[]>(
+    segment.visuals.map(v => ({
+      ...v,
+      imageUrl: normalizeImageUrl(v.imageUrl),
+    }))
+  );
   const [activeVisualIndex, setActiveVisualIndex] = useState<number | null>(null);
   const [selectedTextRange, setSelectedTextRange] = useState<{start: number, end: number} | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  // Print all assets for this project on mount for debugging
+  useEffect(() => {
+    getProjectAssets(projectId, 'image').then(assets => {
+      console.log('All image assets for this project:', assets);
+    }).catch(err => {
+      console.error('Error fetching project assets:', err);
+    });
+  }, [projectId]);
+
+  // Effect to re-sync internal state if the segment prop changes
+  useEffect(() => {
+    console.log("[SegmentEditor] Segment prop changed, re-initializing state.");
+    setNarrationText(segment.narrationText || '');
+    setStartTime(segment.startTime);
+    setDuration(segment.duration);
+    setVisuals(
+      segment.visuals.map(v => ({
+        ...v,
+        imageUrl: normalizeImageUrl(v.imageUrl), // Re-normalize on prop change
+      }))
+    );
+    // Optionally reset active index if desired when the whole segment changes
+    // setActiveVisualIndex(null);
+  }, [segment]); // Re-run this effect if the segment object reference changes
 
   // Effect to focus the textarea when the component mounts
   useEffect(() => {
@@ -127,16 +164,61 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
     setGenerationError(null);
 
     try {
-      // Generate the image
-      const imageUrl = await generateImageForVisual(visual);
+      // Generate the image (base64 or URL)
+      const imageData = await generateImageForVisual(visual);
 
-      // Update the visual with the image URL
-      handleUpdateVisual(activeVisualIndex, 'imageUrl', imageUrl);
+      // Persist the image and metadata to backend
+      const saveResult = await saveImageAsset({
+        projectId: Number(projectId),
+        segmentId: segment.id,
+        visualId: visual.id,
+        timestamp: visual.timestamp,
+        duration: visual.duration,
+        imageData,
+        description: visual.description,
+      });
+
+      // Use the updated segment data returned from the backend
+      if (saveResult?.updated_segment) {
+        console.log("Received updated segment from backend:", saveResult.updated_segment);
+        // Find the specific visual within the updated segment data
+        const updatedVisual = saveResult.updated_segment.visuals.find(
+          (v: Visual) => v.id === visual.id
+        );
+        if (updatedVisual && activeVisualIndex !== null) { // Ensure activeVisualIndex is not null
+          console.log("Found updated visual in segment data:", updatedVisual);
+          // Update the entire visual object in the local state at once
+          const newVisuals = [...visuals];
+          newVisuals[activeVisualIndex] = {
+            ...newVisuals[activeVisualIndex], // Keep existing properties not returned by backend if any
+            ...updatedVisual, // Spread the updated properties from backend response
+            imageUrl: normalizeImageUrl(updatedVisual.imageUrl), // Ensure normalization after spreading
+          };
+          // Define the visualToUpdate object
+          const visualToUpdate = newVisuals[activeVisualIndex];
+
+          // Add detailed logging before state update
+          console.log("[SegmentEditor] Visual object prepared for state update:", visualToUpdate);
+          console.log("[SegmentEditor] Full visuals array prepared for state update:", JSON.stringify(newVisuals)); // Stringify for better inspection
+
+          setVisuals(newVisuals); // Single state update
+          console.log("[SegmentEditor] setVisuals called."); // Confirm setVisuals was called
+        } else {
+           console.error("Updated visual not found in returned segment data or activeVisualIndex is null.");
+           setGenerationError('Image saved, but failed to update preview.');
+        }
+      } else if (saveResult?.error) {
+         console.error("Error reported from backend during content update:", saveResult.error);
+         setGenerationError(`Image saved, but failed to update project content: ${saveResult.error}`);
+      }
+       else {
+        console.error("Backend did not return updated segment data.");
+        setGenerationError('Failed to get updated data from backend after saving asset.');
+      }
     } catch (error) {
-      console.error('Error generating image:', error);
-      // Extract the error message if available
+      console.error('Error generating or saving image:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setGenerationError(`Failed to generate image: ${errorMessage}`);
+      setGenerationError(`Failed to generate or save image: ${errorMessage}`);
     } finally {
       setIsGeneratingImage(false);
     }
@@ -267,9 +349,12 @@ export default function SegmentEditor({ segment, onSave, onCancel }: SegmentEdit
 
               {/* Visual thumbnails */}
               <div className="flex flex-wrap gap-2 mb-4">
-                {visuals.map((visual, index) => (
-                  <div
-                    key={visual.id}
+                {visuals
+                  .slice()
+                  .sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
+                  .map((visual, index) => (
+                    <div
+                      key={visual.id}
                     className={`relative p-2 border rounded-md cursor-pointer ${
                       activeVisualIndex === index
                         ? 'border-primary bg-primary/10'

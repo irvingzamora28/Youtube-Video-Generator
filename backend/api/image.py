@@ -52,6 +52,7 @@ async def generate_image(
     """
     try:
         print("DEBUG - Calling image_provider.generate_image")
+        print(f"DEBUG - Request: prompt={request.prompt}, model={request.model}, aspect_ratio={request.aspect_ratio}")
         result = await image_provider.generate_image(request.prompt, request.model, request.aspect_ratio)
         print(f"DEBUG - Result: success={result.get('success', False)}")
 

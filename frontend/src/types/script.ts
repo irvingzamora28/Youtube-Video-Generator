@@ -12,6 +12,7 @@ export type Visual = {
   position?: 'left' | 'right' | 'center' | 'full'; // Position on screen
   zoomLevel?: number; // For zoom effects
   transition?: 'fade' | 'slide' | 'zoom' | 'none'; // Transition to next visual
+  assetId?: number; // Optional: ID linking to the Asset table record
 };
 
 export type ScriptSegment = {

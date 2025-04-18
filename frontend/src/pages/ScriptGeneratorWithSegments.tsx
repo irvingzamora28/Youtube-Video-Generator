@@ -575,6 +575,7 @@ export default function ScriptGenerator() {
       {showSegmentEditor && getActiveSegment() && (
         <SegmentEditor
           segment={getActiveSegment()!}
+          projectId={projectId ? parseInt(projectId) : 0}
           onSave={handleSaveSegment}
           onCancel={() => setShowSegmentEditor(false)}
         />

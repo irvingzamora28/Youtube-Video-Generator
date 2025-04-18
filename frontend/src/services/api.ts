@@ -1,6 +1,7 @@
 import { Script, Visual } from '../types/script';
 
-const API_BASE_URL = 'http://localhost:8000';
+// Use backend URL from env or fallback
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /**
  * Generate a script using the backend API
@@ -91,12 +92,13 @@ export function transformScriptFromApi(apiScript: any): Script {
             description: visual.description || '',
             timestamp: visual.timestamp || 0,
             duration: visual.duration || 0,
-            imageUrl: visual.image_url || '',
-            altText: visual.alt_text || '',
-            visualType: visual.visual_type || 'image',
-            visualStyle: visual.visual_style || '',
+            imageUrl: visual.imageUrl || visual.image_url || '', // Use camelCase first, fallback to snake_case
+            assetId: visual.assetId, // Add assetId mapping
+            altText: visual.altText || visual.alt_text || '',
+            visualType: visual.visualType || visual.visual_type || 'image',
+            visualStyle: visual.visualStyle || visual.visual_style || '',
             position: visual.position || '',
-            zoomLevel: visual.zoom_level || 1,
+            zoomLevel: visual.zoomLevel || visual.zoom_level || 1,
             transition: visual.transition || '',
           }))
         };
@@ -161,4 +163,57 @@ export async function generateImageForVisual(visual: Visual): Promise<string> {
   This should be a stickman-style educational visual.`;
 
   return generateImage(prompt);
+}
+
+// Use backend URL from env or fallback
+
+export async function saveImageAsset({
+  projectId,
+  segmentId,
+  visualId,
+  timestamp,
+  duration,
+  imageData,
+  description = "",
+}: {
+  projectId: number;
+  segmentId: string;
+  visualId: string;
+  timestamp: number;
+  duration: number;
+  imageData: string;
+  description?: string;
+}) {
+  // Send data as JSON instead of FormData
+  // Ensure keys match the Pydantic model fields in the backend
+  const payload = {
+    project_id: projectId, // Matches backend model field name
+    segment_id: segmentId, // Matches backend model field name
+    visual_id: visualId,   // Matches backend model field name
+    timestamp: timestamp,
+    duration: duration,
+    image_data: imageData, // Matches backend model field name
+    description: description,
+  };
+
+  const response = await fetch(`${API_BASE_URL}/api/image/save`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json', // Set content type to JSON
+    },
+    body: JSON.stringify(payload), // Send JSON stringified payload
+  });
+
+  if (!response.ok) {
+    // Try to parse error details from the response
+    let errorDetail = "Failed to save image asset";
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) {
+      // Ignore JSON parsing error if response is not JSON
+    }
+    throw new Error(errorDetail);
+  }
+  return response.json();
 }
