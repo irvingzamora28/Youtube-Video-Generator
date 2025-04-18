@@ -159,8 +159,7 @@ export async function generateImage(description: string, model?: string): Promis
 export async function generateImageForVisual(visual: Visual): Promise<string> {
   // Create a prompt that includes all the relevant information from the visual
   const prompt = `Generate a ${visual.visualType} of: ${visual.description}.
-  Style: ${visual.visualStyle || 'simple, clear, educational'}.
-  This should be a stickman-style educational visual.`;
+  Style: ${visual.visualStyle || 'simple, clear, educational'}.`;
 
   return generateImage(prompt);
 }
