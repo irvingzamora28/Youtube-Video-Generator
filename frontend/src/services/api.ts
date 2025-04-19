@@ -85,8 +85,10 @@ export function transformScriptFromApi(apiScript: any): Script {
         return {
           id: segment.id || `segment-${Math.random().toString(36).substring(2, 11)}`,
           narrationText: segment.narration_text || segment.narrationText || '',
-          startTime: segment.start_time || 0,
+          startTime: segment.start_time || segment.startTime || 0, // Check both cases
           duration: segment.duration || 0,
+          audioUrl: segment.audioUrl || '', // Add audioUrl mapping
+          audioAssetId: segment.audioAssetId, // Add audioAssetId mapping
           visuals: (segment.visuals || []).map((visual: any) => ({
             id: visual.id || `visual-${Math.random().toString(36).substring(2, 11)}`,
             description: visual.description || '',
@@ -215,4 +217,38 @@ export async function saveImageAsset({
     throw new Error(errorDetail);
   }
   return response.json();
+}
+
+/**
+ * Generate audio for a specific segment
+ */
+export async function generateSegmentAudio({
+  projectId,
+  segmentId,
+}: {
+  projectId: number;
+  segmentId: string;
+}) {
+  const payload = {
+    project_id: projectId,
+    segment_id: segmentId,
+  };
+
+  const response = await fetch(`${API_BASE_URL}/api/audio/generate_segment_audio`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to generate segment audio";
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) { /* Ignore JSON parsing error */ }
+    throw new Error(errorDetail);
+  }
+  return response.json(); // Returns GenerateAudioResponse structure
 }

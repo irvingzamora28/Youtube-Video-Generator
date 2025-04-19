@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ScriptSegment, Visual } from '../types/script';
-import { generateImageForVisual, saveImageAsset } from '../services/api';
+// Import new audio generation API function
+import { generateImageForVisual, saveImageAsset, generateSegmentAudio } from '../services/api';
 
 type SegmentEditorProps = {
   segment: ScriptSegment;
@@ -31,9 +32,16 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
   const [activeVisualIndex, setActiveVisualIndex] = useState<number | null>(null);
   const [selectedTextRange, setSelectedTextRange] = useState<{start: number, end: number} | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false); // State for audio generation
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null); // State to hold generated audio URL for preview
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  // Initialize audioUrl state from segment prop
+  useEffect(() => {
+    setAudioUrl(segment.audioUrl ? normalizeImageUrl(segment.audioUrl) : null);
+  }, [segment.audioUrl]); // Depend on audioUrl from prop
 
   // Print all assets for this project on mount for debugging
   useEffect(() => {
@@ -58,6 +66,8 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
     );
     // Optionally reset active index if desired when the whole segment changes
     // setActiveVisualIndex(null);
+    // Also update audioUrl state when segment prop changes
+    setAudioUrl(segment.audioUrl ? normalizeImageUrl(segment.audioUrl) : null);
   }, [segment]); // Re-run this effect if the segment object reference changes
 
   // Effect to focus the textarea when the component mounts
@@ -149,6 +159,42 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
     setVisuals(updatedVisuals);
   };
 
+  // Function to handle audio generation
+  const handleGenerateAudio = async () => {
+    setIsGeneratingAudio(true);
+    setGenerationError(null);
+    try {
+      console.log(`Generating audio for segment: ${segment.id}, project: ${projectId}`);
+      const result = await generateSegmentAudio({
+        projectId: Number(projectId),
+        segmentId: segment.id,
+      });
+
+      console.log("Audio generation result:", result);
+
+      if (result.success && result.asset?.path) {
+        const normalizedPath = normalizeImageUrl(result.asset.path);
+        setAudioUrl(normalizedPath); // Update state for preview
+        // Update the main segment data being edited (will be saved on submit)
+        // This assumes the parent component handles the final save based on the 'visuals' state passed up
+        // We need a way to update the segment's audioUrl/audioAssetId in the state managed by this component
+        // Let's add a dedicated state for the segment being edited
+        // For now, we just update the preview URL. The final save needs adjustment.
+        console.log(`Audio generated successfully: ${normalizedPath}`);
+      } else {
+        throw new Error(result.error || "Audio generation failed, no asset path returned.");
+      }
+    } catch (error) {
+      console.error('Error generating audio:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setGenerationError(`Failed to generate audio: ${errorMessage}`);
+      setAudioUrl(null); // Clear URL on error
+    } finally {
+      setIsGeneratingAudio(false);
+    }
+  };
+
+
   const handleGenerateImage = async () => {
     if (activeVisualIndex === null) return;
 
@@ -232,13 +278,22 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      ...segment,
+    // Include the potentially updated audioUrl when saving
+    // Note: This relies on the audioUrl state. If the backend updated the segment
+    // object directly, we'd need a different approach or ensure the parent refetches.
+    // For now, we pass the current state including the potentially updated visuals array
+    // and the audioUrl state. The parent `handleSaveSegment` needs to merge this correctly.
+    const segmentToSave: ScriptSegment = {
+      ...segment, // Start with original segment data
       narrationText,
       startTime,
       duration,
-      visuals,
-    });
+      visuals, // Pass the current visuals state (updated by image generation)
+      audioUrl: audioUrl ? audioUrl.replace('/static/', '') : undefined, // Pass updated audioUrl (remove /static/ prefix for saving)
+      // audioAssetId might need to be updated here too if the API returns it and we store it
+    };
+    console.log("Saving segment data:", segmentToSave);
+    onSave(segmentToSave);
   };
 
   // Format seconds to MM:SS format for display
@@ -395,11 +450,33 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
                     <h4 className="text-sm font-medium text-foreground">
                       Edit Visual {activeVisualIndex + 1}
                     </h4>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 items-center">
+                       {/* Generate Audio Button - Placed before image button */}
+                       <button
+                        type="button"
+                        onClick={handleGenerateAudio}
+                        disabled={isGeneratingAudio || !narrationText.trim()}
+                        title={!narrationText.trim() ? "Narration text is required to generate audio" : "Generate audio for this segment"}
+                        className="px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded-md hover:bg-secondary/90 disabled:opacity-50 flex items-center"
+                      >
+                        {isGeneratingAudio ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-secondary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Generating Audio...
+                          </>
+                        ) : (
+                          'Generate Audio'
+                        )}
+                      </button>
+                      {/* Generate Image Button */}
                       <button
                         type="button"
                         onClick={handleGenerateImage}
-                        disabled={isGeneratingImage}
+                        disabled={isGeneratingImage || activeVisualIndex === null}
+                        title={activeVisualIndex === null ? "Select a visual first" : "Generate image for the selected visual"}
                         className="px-2 py-1 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center"
                       >
                         {isGeneratingImage ? (
@@ -419,10 +496,22 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
                         onClick={() => handleRemoveVisual(activeVisualIndex)}
                         className="text-destructive hover:text-destructive/90 text-sm"
                       >
-                        Remove
+                        Remove Visual
                       </button>
                     </div>
                   </div>
+
+                  {/* Display Audio Player if URL exists */}
+                  {audioUrl && (
+                    <div className="my-4">
+                       <label className="block text-sm font-medium text-foreground mb-1">
+                          Segment Audio Preview
+                        </label>
+                      <audio controls src={audioUrl} className="w-full">
+                        Your browser does not support the audio element.
+                      </audio>
+                    </div>
+                  )}
 
                   {generationError && (
                     <div className="mb-4 p-2 bg-destructive/10 border border-destructive/20 rounded-md text-sm text-destructive">

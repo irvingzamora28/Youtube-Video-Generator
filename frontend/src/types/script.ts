@@ -21,6 +21,8 @@ export type ScriptSegment = {
   startTime: number; // In seconds from the beginning of the section
   duration: number; // In seconds
   visuals: Visual[]; // Multiple visuals can be associated with a segment
+  audioUrl?: string; // Optional: URL to the generated audio for narration
+  audioAssetId?: number; // Optional: ID linking to the Asset table record for audio
 };
 
 export type ScriptSection = {

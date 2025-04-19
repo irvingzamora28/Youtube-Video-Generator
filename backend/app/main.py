@@ -6,7 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from backend.api import llm, script, image, project_api
+# Import API routers
+from backend.api import llm, script, image, project_api, audio # Add audio router import
 from backend.api.image_save import router as image_save_router
 
 # Create FastAPI app
@@ -31,9 +32,13 @@ app.include_router(script.router)
 app.include_router(image.router)
 app.include_router(project_api.router)
 app.include_router(image_save_router)
+app.include_router(audio.router) # Include the audio router
 
-# Serve static files (images, etc.)
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")), name="static")
+# Serve static files (images, audio etc.)
+# Use settings for consistency
+from backend.config.settings import settings
+static_dir_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), settings.static_dir)
+app.mount(f"/{settings.static_dir}", StaticFiles(directory=static_dir_path), name=settings.static_dir)
 
 # Root endpoint
 @app.get("/")
