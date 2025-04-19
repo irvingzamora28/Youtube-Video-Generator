@@ -281,6 +281,15 @@ const ProjectDetail: React.FC = () => {
             >
               {script.sections.length > 0 ? 'Regenerate Script' : 'Generate Script'}
             </button>
+             {/* Add Link to Timeline Editor */}
+             {script.sections.length > 0 && (
+               <button
+                onClick={() => navigate(`/projects/${id}/timeline`)}
+                className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold py-2 px-4 rounded"
+              >
+                Visual Timeline Editor
+              </button>
+             )}
           </div>
         </div>
 
