@@ -6,8 +6,8 @@ import SegmentEditor from '../components/SegmentEditor';
 import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
-// Import the new API function
-import { generateScript, generateAllProjectAudio } from '../services/api';
+// Import the new API functions
+import { generateScript, generateAllProjectAudio, generateAllProjectImages } from '../services/api';
 import { getProject, updateProjectScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
@@ -29,6 +29,7 @@ export default function ScriptGenerator() {
   const [showScriptVisualizer, setShowScriptVisualizer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bulkAudioStatus, setBulkAudioStatus] = useState<string | null>(null); // For bulk audio status message
+  const [bulkImageStatus, setBulkImageStatus] = useState<string | null>(null); // For bulk image status message
 
   // Load project data if projectId is provided
   useEffect(() => {
@@ -100,6 +101,22 @@ export default function ScriptGenerator() {
       setError('Failed to save script to project. Please try again.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Function to trigger bulk image generation
+  const handleGenerateAllImages = async () => {
+    if (!projectId) return;
+    setBulkImageStatus("Starting image generation...");
+    setError(null); // Clear previous errors
+    try {
+      const result = await generateAllProjectImages(parseInt(projectId));
+      setBulkImageStatus(result.message || "Image generation started in background.");
+    } catch (err) {
+      console.error("Error triggering bulk image generation:", err);
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setError(`Failed to start bulk image generation: ${message}`);
+      setBulkImageStatus(null);
     }
   };
 
@@ -583,6 +600,17 @@ export default function ScriptGenerator() {
                         title="Generate audio narration for all segments"
                       >
                         Generate All Audios
+                      </button>
+                     )}
+                     {/* Button to generate all images */}
+                     {projectId && (
+                       <button
+                        className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90 disabled:opacity-50"
+                        onClick={handleGenerateAllImages}
+                        disabled={isSaving || isGenerating} // Disable if other actions are running
+                        title="Generate images for all visuals"
+                      >
+                        Generate All Images
                       </button>
                      )}
                     {projectId && (
