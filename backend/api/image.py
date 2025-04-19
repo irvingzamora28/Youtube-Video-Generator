@@ -7,7 +7,7 @@ import base64
 from pydantic import BaseModel
 
 from backend.llm.image_generation import ImageGenerationProvider
-from backend.llm.image_factory import create_image_provider_from_env
+from backend.llm.image_factory import create_image_provider
 
 # Create router
 router = APIRouter(prefix="/api/image", tags=["Image"])
@@ -19,7 +19,7 @@ def get_image_provider() -> ImageGenerationProvider:
     """
     try:
         print("DEBUG - Creating image provider from environment variables")
-        return create_image_provider_from_env()
+        return create_image_provider()
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e))
 

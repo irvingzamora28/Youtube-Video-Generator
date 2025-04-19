@@ -7,6 +7,7 @@ from typing import Optional
 from .base import LLMProvider
 from .openai_provider import OpenAIProvider
 from .google_provider import GoogleProvider
+from backend.config.settings import Settings
 
 
 def create_llm_provider(
@@ -59,10 +60,12 @@ def create_llm_provider_from_env() -> LLMProvider:
     Raises:
         ValueError: If required environment variables are missing
     """
-    provider = os.getenv("LLM_API_PROVIDER")
-    api_key = os.getenv("LLM_API_KEY")
-    model = os.getenv("LLM_MODEL")
-    api_url = os.getenv("LLM_API_URL")
+    settings = Settings()
+    
+    provider = settings.llm_api_provider
+    api_key = settings.llm_api_key
+    model = settings.llm_model
+    api_url = settings.llm_api_url
     
     if not provider:
         raise ValueError("LLM_API_PROVIDER environment variable is required")
