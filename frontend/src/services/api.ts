@@ -277,6 +277,29 @@ export async function generateAllProjectAudio(projectId: number): Promise<{ mess
 }
 
 /**
+ * Trigger background visual timing organization for all segments in a project
+ */
+export async function organizeAllProjectVisuals(projectId: number): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/script/organize_all_visuals/${projectId}`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // No body needed
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to trigger bulk visual organization";
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) { /* Ignore JSON parsing error */ }
+    throw new Error(errorDetail);
+  }
+  return response.json(); // Returns { message: "..." }
+}
+
+/**
  * Organize visuals within a segment using the backend LLM
  */
 export async function organizeSegmentVisuals(segment: ScriptSegment): Promise<{ organized_segment: ScriptSegment }> {

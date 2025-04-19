@@ -9,8 +9,11 @@ from typing import Dict, Any, List # Import List
 from backend.llm.base import LLMProvider
 from backend.llm.factory import create_llm_provider_from_env
 # Import ScriptSegment and Visual models
+# Import BackgroundTasks
+from fastapi import BackgroundTasks
 from backend.models.script import ScriptRequest, ScriptResponse, ScriptSegment, Visual
 from backend.services.script_generator import ScriptGeneratorService
+from backend.models.project import Project # Import Project model
 
 # Create router
 router = APIRouter(prefix="/api/script", tags=["Script"])
@@ -200,3 +203,111 @@ async def organize_segment_visuals(
         print(f"Error in /organize_visuals: {e}")
         print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Error organizing visuals: {str(e)}")
+
+
+# --- Bulk Visual Organization ---
+
+async def _bulk_organize_visuals_task(project_id: int, llm_provider: LLMProvider):
+    """Background task to organize visuals for all segments in a project."""
+    print(f"[_bulk_organize_visuals_task] Starting bulk visual organization for project {project_id}")
+    project = Project.get_by_id(project_id)
+    if not project:
+        print(f"[ERROR][_bulk_organize_visuals_task] Project {project_id} not found.")
+        return
+
+    segments_processed = 0
+    segments_failed = 0
+    project_updated = False
+
+    # Iterate through all segments
+    for section in project.content.get('sections', []):
+        for i, segment in enumerate(section.get('segments', [])):
+            segment_id = segment.get('id')
+            visuals = segment.get('visuals', [])
+
+            if not segment_id or not visuals or len(visuals) < 2: # Need at least 2 visuals to organize
+                print(f"[_bulk_organize_visuals_task] Skipping segment {segment_id}: No visuals or less than 2 visuals.")
+                continue
+
+            print(f"[_bulk_organize_visuals_task] Processing segment {segment_id}...")
+            prompt = _create_visual_organization_prompt(segment)
+
+            try:
+                response = await llm_provider.generate_completion(
+                    messages=[
+                        {"role": "system", "content": "You are an expert video editor specializing in timing visuals to narration."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.5
+                )
+                llm_output = response["content"]
+
+                # Parse response
+                json_start = llm_output.find('[')
+                json_end = llm_output.rfind(']') + 1
+                if json_start == -1 or json_end == 0: raise ValueError("No JSON array found")
+                json_str = llm_output[json_start:json_end]
+                organized_visuals = json.loads(json_str)
+
+                if not isinstance(organized_visuals, list) or len(organized_visuals) != len(visuals):
+                    raise ValueError("LLM response invalid or incorrect visual count")
+
+                # Merge results
+                original_visuals_map = {v.get('id'): v for v in visuals}
+                merged_visuals = []
+                for llm_visual in organized_visuals:
+                    visual_id = llm_visual.get('id')
+                    original_visual = original_visuals_map.get(visual_id)
+                    if original_visual:
+                        merged_visual = original_visual.copy()
+                        merged_visual['timestamp'] = llm_visual.get('timestamp', original_visual.get('timestamp', 0))
+                        merged_visual['duration'] = llm_visual.get('duration', original_visual.get('duration', 5))
+                        merged_visuals.append(merged_visual)
+
+                if len(merged_visuals) == len(visuals):
+                    segment['visuals'] = merged_visuals # Update visuals in the project content dict
+                    project_updated = True
+                    segments_processed += 1
+                    print(f"[_bulk_organize_visuals_task] Successfully organized visuals for segment {segment_id}")
+                else:
+                     print(f"[ERROR][_bulk_organize_visuals_task] Failed to merge visuals for segment {segment_id}")
+                     segments_failed += 1
+
+            except Exception as e:
+                print(f"[ERROR][_bulk_organize_visuals_task] Failed to process segment {segment_id}: {e}")
+                segments_failed += 1
+
+            import time # Add delay between LLM calls
+            time.sleep(1) # Adjust as needed
+
+    # Save the project once if changes were made
+    if project_updated:
+        print(f"[_bulk_organize_visuals_task] Saving updated project {project_id} with reorganized visuals...")
+        save_success = project.save()
+        if save_success:
+            print(f"[_bulk_organize_visuals_task] Project {project_id} saved successfully.")
+        else:
+            print(f"[ERROR][_bulk_organize_visuals_task] Failed to save project {project_id} after bulk visual organization.")
+    else:
+         print(f"[_bulk_organize_visuals_task] No segments required visual organization for project {project_id}.")
+
+    print(f"[_bulk_organize_visuals_task] Finished bulk visual organization for project {project_id}. Processed: {segments_processed}, Failed: {segments_failed}")
+
+
+@router.post("/organize_all_visuals/{project_id}")
+async def organize_all_project_visuals(
+    project_id: int,
+    background_tasks: BackgroundTasks,
+    llm_provider: LLMProvider = Depends(get_llm_provider)
+):
+    """
+    Triggers background organization of visuals for all segments in a project.
+    """
+    project = Project.get_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail=f"Project {project_id} not found.")
+
+    print(f"[organize_all_project_visuals] Adding bulk visual organization task for project {project_id} to background.")
+    background_tasks.add_task(_bulk_organize_visuals_task, project_id, llm_provider)
+
+    return {"message": f"Visual organization for all segments of project {project_id} started in the background."}

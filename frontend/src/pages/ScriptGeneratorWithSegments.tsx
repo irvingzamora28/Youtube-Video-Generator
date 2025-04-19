@@ -7,7 +7,7 @@ import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
 // Import the new API functions
-import { generateScript, generateAllProjectAudio, generateAllProjectImages } from '../services/api';
+import { generateScript, generateAllProjectAudio, generateAllProjectImages, organizeAllProjectVisuals } from '../services/api'; // Add organizeAllProjectVisuals
 import { getProject, updateProjectScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
@@ -28,8 +28,9 @@ export default function ScriptGenerator() {
   const [showSectionRegenerator, setShowSectionRegenerator] = useState(false);
   const [showScriptVisualizer, setShowScriptVisualizer] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [bulkAudioStatus, setBulkAudioStatus] = useState<string | null>(null); // For bulk audio status message
-  const [bulkImageStatus, setBulkImageStatus] = useState<string | null>(null); // For bulk image status message
+  const [bulkAudioStatus, setBulkAudioStatus] = useState<string | null>(null);
+  const [bulkImageStatus, setBulkImageStatus] = useState<string | null>(null);
+  const [bulkOrganizeStatus, setBulkOrganizeStatus] = useState<string | null>(null); // For bulk organize status
 
   // Load project data if projectId is provided
   useEffect(() => {
@@ -117,6 +118,22 @@ export default function ScriptGenerator() {
       const message = err instanceof Error ? err.message : "Unknown error";
       setError(`Failed to start bulk image generation: ${message}`);
       setBulkImageStatus(null);
+    }
+  };
+
+  // Function to trigger bulk visual organization
+  const handleOrganizeAllVisuals = async () => {
+    if (!projectId) return;
+    setBulkOrganizeStatus("Starting visual organization...");
+    setError(null); // Clear previous errors
+    try {
+      const result = await organizeAllProjectVisuals(parseInt(projectId));
+      setBulkOrganizeStatus(result.message || "Visual organization started in background.");
+    } catch (err) {
+      console.error("Error triggering bulk visual organization:", err);
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setError(`Failed to start bulk visual organization: ${message}`);
+      setBulkOrganizeStatus(null);
     }
   };
 
@@ -622,6 +639,17 @@ export default function ScriptGenerator() {
                         title="Generate images for all visuals"
                       >
                         Generate All Images
+                      </button>
+                     )}
+                     {/* Button to organize all visuals */}
+                     {projectId && (
+                       <button
+                        className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90 disabled:opacity-50"
+                        onClick={handleOrganizeAllVisuals}
+                        disabled={isSaving || isGenerating} // Disable if other actions are running
+                        title="Organize timing for all visuals in all segments"
+                      >
+                        Organize All Visuals
                       </button>
                      )}
                     {projectId && (
