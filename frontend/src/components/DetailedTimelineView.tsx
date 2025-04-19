@@ -7,6 +7,7 @@ interface DetailedTimelineViewProps {
   currentTime: number;
   currentSegmentIndex: number;
   totalDuration: number;
+  onSegmentSelect: (segmentIndex: number) => void; // Add prop for handling clicks
 }
 
 const DetailedTimelineView: React.FC<DetailedTimelineViewProps> = ({
@@ -14,6 +15,7 @@ const DetailedTimelineView: React.FC<DetailedTimelineViewProps> = ({
   currentTime,
   currentSegmentIndex,
   totalDuration,
+  onSegmentSelect, // Destructure the new prop
 }) => {
   // Helper to determine visual block color (can be customized)
   const getVisualColor = (visualType: string | undefined): string => {
@@ -43,9 +45,10 @@ const DetailedTimelineView: React.FC<DetailedTimelineViewProps> = ({
         return (
           <div
             key={segment.id || `segment-${segIdx}`} // Use segment.id if available, fallback to index
-            className={`absolute h-full border-r border-border/50 ${segIdx === currentSegmentIndex ? 'bg-primary/10' : ''}`}
+            className={`absolute h-full border-r border-border/50 cursor-pointer hover:bg-primary/5 ${segIdx === currentSegmentIndex ? 'bg-primary/10 ring-1 ring-primary' : ''}`} // Add cursor, hover, and ring for selected
             style={{ left: `${segmentLeftPercent}%`, width: `${segmentWidthPercent}%` }}
-            title={`Segment ${segIdx + 1}: ${segment.narrationText?.substring(0, 50) ?? ''}...`}
+            title={`Segment ${segIdx + 1}: ${segment.narrationText?.substring(0, 50) ?? ''}... (Click to select)`}
+            onClick={() => onSegmentSelect(segIdx)} // Add onClick handler
           >
             {/* Render Visuals within the Segment */}
             {segment.visuals.map((visual, visIdx) => {

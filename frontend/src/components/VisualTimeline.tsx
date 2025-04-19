@@ -73,6 +73,24 @@ const VisualTimeline: React.FC<VisualTimelineProps> = ({ script }) => {
     seekAudio(seekTime, targetSegmentIdx);
   }, [allSegments, seekAudio]); // Dependencies: allSegments for calculation, seekAudio to call
 
+  // Handler for selecting a segment directly
+  const handleSegmentSelect = useCallback((selectedSegmentIndex: number) => {
+    console.log(`[VisualTimeline] handleSegmentSelect called. Selected Segment Index: ${selectedSegmentIndex}`);
+    // Calculate the start time of the selected segment
+    const startTime = allSegments.slice(0, selectedSegmentIndex).reduce((sum, s) => sum + (s.duration || 0), 0);
+    console.log(`[VisualTimeline] Calculated start time for segment ${selectedSegmentIndex + 1}: ${startTime.toFixed(2)}`);
+
+    // Use seekAudio to jump to the beginning of the selected segment
+    // Pass the selected index directly
+    seekAudio(startTime, selectedSegmentIndex);
+
+    // Optional: Pause playback if it was playing when a new segment is clicked
+    if (isPlaying && audioRef.current) {
+        handlePlayPause(); // Toggle to pause
+    }
+
+  }, [allSegments, seekAudio, isPlaying, handlePlayPause, audioRef]); // Include dependencies
+
   // --- Render ---
   return (
     <div className="space-y-4">
@@ -108,6 +126,7 @@ const VisualTimeline: React.FC<VisualTimelineProps> = ({ script }) => {
         currentTime={currentTime}
         currentSegmentIndex={currentSegmentIndex}
         totalDuration={totalDuration}
+        onSegmentSelect={handleSegmentSelect} // Pass the handler down
       />
     </div>
   );
