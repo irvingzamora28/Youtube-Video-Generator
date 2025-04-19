@@ -252,3 +252,26 @@ export async function generateSegmentAudio({
   }
   return response.json(); // Returns GenerateAudioResponse structure
 }
+
+/**
+ * Trigger background audio generation for all segments in a project
+ */
+export async function generateAllProjectAudio(projectId: number): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/audio/generate_all_project_audio/${projectId}`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json', // Content-Type might not be strictly needed for POST without body, but good practice
+    },
+    // No body needed for this request
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to trigger bulk audio generation";
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) { /* Ignore JSON parsing error */ }
+    throw new Error(errorDetail);
+  }
+  return response.json(); // Returns { message: "..." }
+}

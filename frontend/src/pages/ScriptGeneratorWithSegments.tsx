@@ -6,7 +6,8 @@ import SegmentEditor from '../components/SegmentEditor';
 import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
-import { generateScript } from '../services/api';
+// Import the new API function
+import { generateScript, generateAllProjectAudio } from '../services/api';
 import { getProject, updateProjectScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
@@ -27,6 +28,7 @@ export default function ScriptGenerator() {
   const [showSectionRegenerator, setShowSectionRegenerator] = useState(false);
   const [showScriptVisualizer, setShowScriptVisualizer] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bulkAudioStatus, setBulkAudioStatus] = useState<string | null>(null); // For bulk audio status message
 
   // Load project data if projectId is provided
   useEffect(() => {
@@ -98,6 +100,24 @@ export default function ScriptGenerator() {
       setError('Failed to save script to project. Please try again.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Function to trigger bulk audio generation
+  const handleGenerateAllAudios = async () => {
+    if (!projectId) return;
+    setBulkAudioStatus("Starting audio generation...");
+    setError(null);
+    try {
+      const result = await generateAllProjectAudio(parseInt(projectId));
+      setBulkAudioStatus(result.message || "Audio generation started in background.");
+      // Optionally disable button while running? Might need websockets or polling for status.
+      // For now, just show the initial message.
+    } catch (err) {
+      console.error("Error triggering bulk audio generation:", err);
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setError(`Failed to start bulk audio generation: ${message}`);
+      setBulkAudioStatus(null);
     }
   };
 
@@ -554,6 +574,17 @@ export default function ScriptGenerator() {
                   </button>
 
                   <div className="space-x-3">
+                     {/* Button to generate all audios */}
+                     {projectId && (
+                       <button
+                        className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90 disabled:opacity-50"
+                        onClick={handleGenerateAllAudios}
+                        disabled={isSaving || isGenerating} // Disable if other actions are running
+                        title="Generate audio narration for all segments"
+                      >
+                        Generate All Audios
+                      </button>
+                     )}
                     {projectId && (
                       <button
                         className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50"

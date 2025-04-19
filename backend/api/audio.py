@@ -3,17 +3,11 @@ API endpoints for audio generation and management.
 """
 import os
 import uuid
-import os
-import uuid
-import os
-import uuid
-import os
-import uuid
 import math # For rounding duration
 import subprocess # For calling ffprobe
 import shutil # To check if ffprobe exists
 import time # For delay
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks # Added BackgroundTasks
 from pydantic import BaseModel, Field
 
 from backend.models.project import Project
@@ -23,6 +17,92 @@ from backend.llm.audio_base import AIAudioProvider
 from backend.config.settings import settings # Import the instantiated settings
 
 router = APIRouter(prefix="/api/audio", tags=["Audio"])
+
+# --- Helper Function ---
+
+async def _generate_and_link_audio_for_segment(
+    project_id: int,
+    segment_id: str,
+    segment_narration: str,
+    audio_provider: AIAudioProvider
+) -> tuple[dict | None, dict | None, float | None]:
+    """
+    Internal helper to generate audio, create asset, and prepare segment update data.
+    Does NOT save the project itself.
+
+    Returns:
+        tuple[dict | None, dict | None, float | None]: (asset_dict, segment_update_data, audio_duration) or (None, None, None) on failure.
+    """
+    if not segment_narration:
+        print(f"[_generate_and_link_audio] Skipping segment {segment_id}: No narration text.")
+        return None, None, None
+
+    print(f"[_generate_and_link_audio] Generating for segment {segment_id}. Narration: '{segment_narration[:50]}...'")
+
+    # Prepare file paths
+    audio_dir = os.path.join(settings.static_dir, "projects", str(project_id), "segments", str(segment_id), "audio")
+    os.makedirs(audio_dir, exist_ok=True)
+    filename = f"{uuid.uuid4().hex}.mp3"
+    output_path = os.path.join(audio_dir, filename)
+    rel_path = os.path.relpath(output_path, start=settings.static_dir).replace("\\", "/")
+
+    # Generate Audio
+    success = audio_provider.generate_audio(text=segment_narration, output_path=output_path)
+    if not success:
+        print(f"[ERROR] Audio generation failed for segment {segment_id}")
+        return None, None, None # Indicate failure
+
+    # Get Duration using ffprobe
+    audio_duration = 0.0
+    if os.path.exists(output_path) and shutil.which("ffprobe"):
+        try:
+            time.sleep(0.1) # Short delay
+            print(f"[_generate_and_link_audio] Attempting duration read with ffprobe: {output_path}")
+            command = ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", output_path]
+            result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=10)
+            ffprobe_duration_str = result.stdout.strip()
+            if ffprobe_duration_str:
+                audio_duration = math.ceil(float(ffprobe_duration_str) * 10) / 10
+                print(f"[_generate_and_link_audio] Duration via ffprobe for {segment_id}: {audio_duration:.1f}s")
+            else:
+                 print(f"[WARNING] ffprobe returned empty duration for {segment_id}")
+        except Exception as e:
+            print(f"[WARNING] ffprobe error for {segment_id}: {e}")
+    else:
+        if not os.path.exists(output_path):
+             print(f"[WARNING] Audio file missing before ffprobe check for {segment_id}")
+        if not shutil.which("ffprobe"):
+             print("[WARNING] ffprobe command not found in PATH.")
+        print(f"[WARNING] Cannot determine duration for segment {segment_id}.")
+
+
+    # Create Asset
+    metadata = {
+        "segment_id": segment_id,
+        "narration_text_preview": segment_narration[:100],
+        "duration_seconds": audio_duration
+    }
+    asset = Asset(project_id=project_id, asset_type="audio", path=rel_path, metadata=metadata)
+    asset_saved = asset.save()
+    if not asset_saved or asset.id is None:
+        print(f"[ERROR] Failed to save audio asset to DB for segment {segment_id}")
+        if os.path.exists(output_path): os.remove(output_path) # Cleanup attempt
+        return None, None, None # Indicate failure
+
+    print(f"[_generate_and_link_audio] Asset saved for {segment_id}: ID {asset.id}")
+
+    # Prepare segment update data (don't modify original dict here)
+    segment_update_data = {
+        'audioUrl': asset.path,
+        'audioAssetId': asset.id
+    }
+    if audio_duration > 0:
+        segment_update_data['duration'] = audio_duration
+
+    return asset.to_dict(), segment_update_data, audio_duration
+
+
+# --- API Endpoints ---
 
 class GenerateAudioPayload(BaseModel):
     project_id: int
@@ -34,7 +114,7 @@ class GenerateAudioPayload(BaseModel):
 class GenerateAudioResponse(BaseModel):
     success: bool
     asset: dict | None = None
-    updated_segment: dict | None = None
+    updated_segment: dict | None = None # Segment data *after* update
     error: str | None = None
 
 @router.post("/generate_segment_audio", response_model=GenerateAudioResponse)
@@ -49,184 +129,170 @@ async def generate_segment_audio(
     print(f"[generate_segment_audio] Received request for project {payload.project_id}, segment {payload.segment_id}")
 
     try:
-        # 1. Get Project and Segment
+        # 1. Get Project (needed for saving later)
         project = Project.get_by_id(payload.project_id)
         if not project:
             raise HTTPException(status_code=404, detail=f"Project {payload.project_id} not found.")
 
-        target_segment = None
+        # Find the specific segment's narration
+        target_segment_data = None
         segment_narration = ""
         for section in project.content.get('sections', []):
             for segment in section.get('segments', []):
                 if str(segment.get('id')) == str(payload.segment_id):
-                    target_segment = segment
-                    segment_narration = target_segment.get('narrationText', '')
+                    target_segment_data = segment # Keep original data
+                    segment_narration = target_segment_data.get('narrationText', '')
                     break
-            if target_segment:
+            if target_segment_data:
                 break
 
-        if not target_segment:
+        if not target_segment_data:
             raise HTTPException(status_code=404, detail=f"Segment {payload.segment_id} not found in project {payload.project_id}.")
 
-        if not segment_narration:
-             raise HTTPException(status_code=400, detail=f"Segment {payload.segment_id} has no narration text to generate audio from.")
-
-        print(f"[generate_segment_audio] Found segment. Narration: '{segment_narration[:50]}...'")
-
-        # 2. Prepare file paths
-        # Use a consistent structure like static/projects/{id}/segments/{segment_id}/audio/
-        audio_dir = os.path.join(settings.static_dir, "projects", str(payload.project_id), "segments", str(payload.segment_id), "audio")
-        os.makedirs(audio_dir, exist_ok=True)
-        filename = f"{uuid.uuid4().hex}.mp3" # Google provider generates MP3
-        output_path = os.path.join(audio_dir, filename)
-        # Relative path for DB and URL generation
-        rel_path = os.path.relpath(output_path, start=settings.static_dir)
-        print(f"[generate_segment_audio] Target audio path: {output_path}")
-        print(f"[generate_segment_audio] Relative path for DB: {rel_path}")
-
-        # 3. Generate Audio using the provider
-        # Add language_code, voice_name from payload if implemented
-        success = audio_provider.generate_audio(
-            text=segment_narration,
-            output_path=output_path
-            # language_code=payload.language_code, # Example
-            # voice_name=payload.voice_name # Example
-        )
-
-        if not success:
-            raise HTTPException(status_code=500, detail="Audio generation failed.")
-
-        # --- Get Audio Duration using ffprobe ---
-        audio_duration = 0.0
-        duration_source = "unknown"
-
-        # Ensure file exists before trying ffprobe
-        if os.path.exists(output_path):
-            # Check if ffprobe command exists in PATH
-            if shutil.which("ffprobe"):
-                try:
-                    # Add a small delay just in case
-                    time.sleep(0.1)
-                    print(f"[generate_segment_audio] Attempting duration read with ffprobe: {output_path}")
-                    command = [
-                        "ffprobe",
-                        "-v", "error",
-                        "-show_entries", "format=duration",
-                        "-of", "default=noprint_wrappers=1:nokey=1",
-                        output_path
-                    ]
-                    result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=10)
-                    ffprobe_duration_str = result.stdout.strip()
-                    if ffprobe_duration_str:
-                        audio_duration = math.ceil(float(ffprobe_duration_str) * 10) / 10
-                        # minus 1 second to account for fade out
-                        audio_duration = max(0, audio_duration - 1)
-                        duration_source = "ffprobe"
-                        print(f"[generate_segment_audio] Duration via ffprobe: {audio_duration:.1f}s")
-                    else:
-                        print(f"[WARNING] ffprobe ran but returned empty duration for {output_path}")
-                        duration_source = "ffprobe_empty_output"
-                except FileNotFoundError: # Should be caught by shutil.which, but belt-and-suspenders
-                     print("[WARNING] ffprobe command not found during execution. Cannot determine duration.")
-                     duration_source = "ffprobe_not_found"
-                except subprocess.TimeoutExpired:
-                     print(f"[WARNING] ffprobe timed out reading duration for {output_path}")
-                     duration_source = "ffprobe_timeout"
-                except (subprocess.CalledProcessError, ValueError, Exception) as e:
-                    print(f"[WARNING] ffprobe error reading duration for {output_path}: {e}")
-                    duration_source = "ffprobe_error"
-            else:
-                 print("[WARNING] ffprobe command not found in PATH. Cannot determine audio duration.")
-                 duration_source = "ffprobe_missing"
-        else:
-            print(f"[WARNING] Audio file not found at {output_path} before ffprobe check.")
-            duration_source = "file_missing"
-        # --- End Get Audio Duration ---
-
-
-        # 4. Create Asset record
-        metadata = {
-            "segment_id": payload.segment_id,
-            "narration_text_preview": segment_narration[:100], # Store a preview
-            "duration_seconds": audio_duration, # Store the calculated duration
-            "duration_source": duration_source # Store the source of the duration
-            # Add other relevant metadata like voice used?
-        }
-        asset = Asset(
+        # 2. Generate Audio and Asset using helper
+        asset_dict, segment_update_data, audio_duration = await _generate_and_link_audio_for_segment(
             project_id=payload.project_id,
-            asset_type="audio",
-            path=rel_path.replace("\\", "/"), # Ensure forward slashes for URLs
-            metadata=metadata
+            segment_id=payload.segment_id,
+            segment_narration=segment_narration,
+            audio_provider=audio_provider
         )
-        asset_saved = asset.save()
-        if not asset_saved or asset.id is None:
-             # Attempt cleanup if DB save fails?
-             if os.path.exists(output_path):
-                 os.remove(output_path)
-             raise HTTPException(status_code=500, detail="Failed to save audio asset to database.")
 
-        print(f"[generate_segment_audio] Audio asset saved to DB: {asset.to_dict()}")
+        if not asset_dict or not segment_update_data:
+             raise HTTPException(status_code=500, detail="Failed to generate audio or save asset.")
 
-        # 5. Update Project Content JSON
-        # Find the segment again in the *current* project content and update it
+        # 3. Update Project Content JSON
         updated = False
-        current_content = project.content # Re-access potentially modified content dict
+        final_updated_segment = None
+        current_content = project.content # Use the content from the loaded project
         for section in current_content.get('sections', []):
-            for segment in section.get('segments', []):
+            for i, segment in enumerate(section.get('segments', [])):
                 if str(segment.get('id')) == str(payload.segment_id):
-                    segment['audioUrl'] = asset.path # Add audioUrl field
-                    segment['audioAssetId'] = asset.id # Add audioAssetId field
-                    if audio_duration > 0: # Only update duration if we got a valid one
-                        segment['duration'] = audio_duration
-                        print(f"[generate_segment_audio] Updated segment duration to {audio_duration:.1f}s")
-                    else:
-                        print(f"[generate_segment_audio] Keeping original segment duration.")
-
+                    # Update the segment in the project content dict
+                    segment.update(segment_update_data)
+                    final_updated_segment = segment # Capture the segment dict *after* update
                     updated = True
-                    target_segment = segment # Capture the updated segment data
-                    print(f"[generate_segment_audio] Updated segment JSON: {target_segment}")
+                    print(f"[generate_segment_audio] Updated segment JSON in project content: {final_updated_segment}")
                     break
             if updated:
                 break
 
+        # 4. Save Updated Project
         if updated:
             project_save_success = project.save()
             if not project_save_success:
-                 # Rollback asset? Difficult. Log error.
-                 print(f"[ERROR] Failed to save updated project content after adding audio asset {asset.id}")
-                 # Return success=True but indicate content save failure? Or raise 500?
-                 # For now, let's return the asset but signal the content issue
+                 print(f"[ERROR] Failed to save updated project content after adding audio asset {asset_dict.get('id')}")
+                 # Return success=True (asset created) but signal content save failure
                  return GenerateAudioResponse(
-                     success=True, # Asset was created
-                     asset=asset.to_dict(),
-                     updated_segment=target_segment, # Return segment as it *should* be
+                     success=True,
+                     asset=asset_dict,
+                     updated_segment=final_updated_segment, # Return segment as it *should* be
                      error="Failed to save updated project content to database."
                  )
             print("[generate_segment_audio] Project content updated successfully.")
         else:
             # Should not happen if segment was found initially
             print(f"[ERROR] Could not find segment {payload.segment_id} in project content during update phase.")
-            # Asset exists but isn't linked. Return asset but signal error.
             return GenerateAudioResponse(
                 success=True, # Asset was created
-                asset=asset.to_dict(),
+                asset=asset_dict,
                 updated_segment=None,
                 error=f"Audio asset created, but failed to find segment {payload.segment_id} in project content for linking."
             )
 
-        # 6. Return Response
+        # 5. Return Response
         return GenerateAudioResponse(
             success=True,
-            asset=asset.to_dict(),
-            updated_segment=target_segment # Return the segment with new audioUrl/audioAssetId
+            asset=asset_dict,
+            updated_segment=final_updated_segment # Return the segment with new audioUrl/audioAssetId/duration
         )
 
     except HTTPException as http_exc:
-        # Re-raise FastAPI HTTP exceptions
-        raise http_exc
+        raise http_exc # Re-raise FastAPI HTTP exceptions
     except Exception as e:
         print(f"[generate_segment_audio] Unexpected error: {str(e)}")
         import traceback
         print(traceback.format_exc())
-        # Return a generic 500 error response
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
+# --- Bulk Generation Endpoint ---
+
+async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProvider):
+    """Background task to generate audio for all segments in a project."""
+    print(f"[_bulk_generate_audio_task] Starting bulk audio generation for project {project_id}")
+    project = Project.get_by_id(project_id)
+    if not project:
+        print(f"[ERROR][_bulk_generate_audio_task] Project {project_id} not found.")
+        return
+
+    segments_processed = 0
+    segments_failed = 0
+    project_updated = False
+
+    # Iterate through all segments
+    for section in project.content.get('sections', []):
+        for i, segment in enumerate(section.get('segments', [])):
+            segment_id = segment.get('id')
+            segment_narration = segment.get('narrationText', '')
+
+            if not segment_id or not segment_narration:
+                print(f"[_bulk_generate_audio_task] Skipping segment at section '{section.get('title')}', index {i}: Missing ID or narration.")
+                continue
+
+            # Skip if audio already exists (optional, based on audioUrl presence)
+            if segment.get('audioUrl'):
+                 print(f"[_bulk_generate_audio_task] Skipping segment {segment_id}: Audio already exists.")
+                 continue
+
+            print(f"[_bulk_generate_audio_task] Processing segment {segment_id}...")
+            asset_dict, segment_update_data, _ = await _generate_and_link_audio_for_segment(
+                project_id=project_id,
+                segment_id=segment_id,
+                segment_narration=segment_narration,
+                audio_provider=audio_provider
+            )
+
+            if asset_dict and segment_update_data:
+                # Update the segment data *within the project.content dictionary*
+                segment.update(segment_update_data)
+                project_updated = True
+                segments_processed += 1
+                print(f"[_bulk_generate_audio_task] Successfully processed segment {segment_id}")
+            else:
+                segments_failed += 1
+                print(f"[ERROR][_bulk_generate_audio_task] Failed to process segment {segment_id}")
+
+            time.sleep(1) # Add a small delay between segments
+
+    # Save the project *once* after processing all segments if any updates were made
+    if project_updated:
+        print(f"[_bulk_generate_audio_task] Saving updated project {project_id} with new audio data...")
+        save_success = project.save()
+        if save_success:
+            print(f"[_bulk_generate_audio_task] Project {project_id} saved successfully.")
+        else:
+            print(f"[ERROR][_bulk_generate_audio_task] Failed to save project {project_id} after bulk audio generation.")
+    else:
+         print(f"[_bulk_generate_audio_task] No segments required audio generation for project {project_id}.")
+
+
+    print(f"[_bulk_generate_audio_task] Finished bulk audio generation for project {project_id}. Processed: {segments_processed}, Failed: {segments_failed}")
+
+
+@router.post("/generate_all_project_audio/{project_id}")
+async def generate_all_project_audio(
+    project_id: int,
+    background_tasks: BackgroundTasks,
+    audio_provider: AIAudioProvider = Depends(get_audio_provider)
+):
+    """
+    Triggers background generation of audio for all segments in a project.
+    """
+    # Check if project exists first
+    project = Project.get_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail=f"Project {project_id} not found.")
+
+    print(f"[generate_all_project_audio] Adding bulk audio generation task for project {project_id} to background.")
+    background_tasks.add_task(_bulk_generate_audio_task, project_id, audio_provider)
+
+    return {"message": f"Audio generation for all segments of project {project_id} started in the background."}
