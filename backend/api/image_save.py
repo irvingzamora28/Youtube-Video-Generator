@@ -24,6 +24,52 @@ async def save_image_asset(payload: SaveImagePayload): # Accept payload model
     print(f"[save_image_asset] Called with project_id={payload.project_id}, segment_id={payload.segment_id}, timestamp={payload.timestamp}, duration={payload.duration}, description={payload.description}")
     print(f"[save_image_asset] image_data length: {len(payload.image_data)}")
     try:
+        # --- Pre-check and Delete existing asset if necessary ---
+        try:
+            from backend.models.project import Project # Import here to avoid circular dependency issues if any
+            from backend.config.settings import settings # Import settings for static path
+
+            project_for_check = Project.get_by_id(payload.project_id)
+            if project_for_check:
+                existing_visual_asset_id = None
+                for section in project_for_check.content.get('sections', []):
+                    for segment in section.get('segments', []):
+                         if str(segment.get('id')) == str(payload.segment_id):
+                              for visual in segment.get('visuals', []):
+                                   if str(visual.get('id')) == str(payload.visual_id):
+                                        existing_visual_asset_id = visual.get('assetId')
+                                        break
+                              if existing_visual_asset_id: break # Found visual
+                    if existing_visual_asset_id: break # Found visual
+
+                if existing_visual_asset_id:
+                    print(f"[save_image_asset] Found existing asset ID {existing_visual_asset_id} for visual {payload.visual_id}. Attempting deletion.")
+                    old_asset = Asset.get_by_id(existing_visual_asset_id)
+                    if old_asset and old_asset.asset_type == 'image':
+                        old_file_path = os.path.join(settings.static_dir, old_asset.path)
+                        if os.path.exists(old_file_path):
+                            os.remove(old_file_path)
+                            print(f"[save_image_asset] Deleted old image file: {old_file_path}")
+                        else:
+                            print(f"[save_image_asset] Old image file not found, skipping deletion: {old_file_path}")
+                        deleted_db = old_asset.delete()
+                        if deleted_db:
+                            print(f"[save_image_asset] Deleted old image asset record ID: {existing_visual_asset_id}")
+                        else:
+                            print(f"[WARNING] Failed to delete old image asset record ID: {existing_visual_asset_id}")
+                    elif old_asset:
+                        print(f"[WARNING] Asset ID {existing_visual_asset_id} found but is not an image asset ({old_asset.asset_type}). Skipping deletion.")
+                    else:
+                        print(f"[WARNING] Old asset ID {existing_visual_asset_id} not found in database.")
+            else:
+                 print(f"[WARNING] Project {payload.project_id} not found during pre-check for deletion.")
+
+        except Exception as e:
+             print(f"[ERROR] Failed during pre-check and deletion of old image asset: {e}")
+             # Decide whether to proceed or fail? Let's proceed for now.
+        # --- End Deletion ---
+
+
         # Decode base64 image
         header, _, data = payload.image_data.partition(",")
         if data:
