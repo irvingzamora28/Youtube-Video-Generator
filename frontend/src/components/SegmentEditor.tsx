@@ -172,17 +172,24 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
 
       console.log("Audio generation result:", result);
 
-      if (result.success && result.asset?.path) {
+      if (result.success && result.asset?.path && result.updated_segment) {
         const normalizedPath = normalizeImageUrl(result.asset.path);
+        const newDuration = result.updated_segment.duration; // Get duration from response
+
         setAudioUrl(normalizedPath); // Update state for preview
-        // Update the main segment data being edited (will be saved on submit)
-        // This assumes the parent component handles the final save based on the 'visuals' state passed up
-        // We need a way to update the segment's audioUrl/audioAssetId in the state managed by this component
-        // Let's add a dedicated state for the segment being edited
-        // For now, we just update the preview URL. The final save needs adjustment.
-        console.log(`Audio generated successfully: ${normalizedPath}`);
+
+        // Update the duration state if it changed
+        if (newDuration && newDuration !== duration) {
+          console.log(`Updating segment duration from ${duration} to ${newDuration}`);
+          setDuration(newDuration);
+        }
+
+        // We also need to store the audioAssetId if we want to pass it up on save
+        // For now, just logging it. Add state if needed later.
+        console.log(`Audio generated successfully: ${normalizedPath}, Asset ID: ${result.updated_segment.audioAssetId}, Duration: ${newDuration}`);
+
       } else {
-        throw new Error(result.error || "Audio generation failed, no asset path returned.");
+        throw new Error(result.error || "Audio generation failed or backend did not return expected data.");
       }
     } catch (error) {
       console.error('Error generating audio:', error);

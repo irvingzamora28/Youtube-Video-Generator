@@ -3,6 +3,16 @@ API endpoints for audio generation and management.
 """
 import os
 import uuid
+import os
+import uuid
+import os
+import uuid
+import os
+import uuid
+import math # For rounding duration
+import subprocess # For calling ffprobe
+import shutil # To check if ffprobe exists
+import time # For delay
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 
@@ -86,11 +96,61 @@ async def generate_segment_audio(
         if not success:
             raise HTTPException(status_code=500, detail="Audio generation failed.")
 
+        # --- Get Audio Duration using ffprobe ---
+        audio_duration = 0.0
+        duration_source = "unknown"
+
+        # Ensure file exists before trying ffprobe
+        if os.path.exists(output_path):
+            # Check if ffprobe command exists in PATH
+            if shutil.which("ffprobe"):
+                try:
+                    # Add a small delay just in case
+                    time.sleep(0.1)
+                    print(f"[generate_segment_audio] Attempting duration read with ffprobe: {output_path}")
+                    command = [
+                        "ffprobe",
+                        "-v", "error",
+                        "-show_entries", "format=duration",
+                        "-of", "default=noprint_wrappers=1:nokey=1",
+                        output_path
+                    ]
+                    result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=10)
+                    ffprobe_duration_str = result.stdout.strip()
+                    if ffprobe_duration_str:
+                        audio_duration = math.ceil(float(ffprobe_duration_str) * 10) / 10
+                        # minus 1 second to account for fade out
+                        audio_duration = max(0, audio_duration - 1)
+                        duration_source = "ffprobe"
+                        print(f"[generate_segment_audio] Duration via ffprobe: {audio_duration:.1f}s")
+                    else:
+                        print(f"[WARNING] ffprobe ran but returned empty duration for {output_path}")
+                        duration_source = "ffprobe_empty_output"
+                except FileNotFoundError: # Should be caught by shutil.which, but belt-and-suspenders
+                     print("[WARNING] ffprobe command not found during execution. Cannot determine duration.")
+                     duration_source = "ffprobe_not_found"
+                except subprocess.TimeoutExpired:
+                     print(f"[WARNING] ffprobe timed out reading duration for {output_path}")
+                     duration_source = "ffprobe_timeout"
+                except (subprocess.CalledProcessError, ValueError, Exception) as e:
+                    print(f"[WARNING] ffprobe error reading duration for {output_path}: {e}")
+                    duration_source = "ffprobe_error"
+            else:
+                 print("[WARNING] ffprobe command not found in PATH. Cannot determine audio duration.")
+                 duration_source = "ffprobe_missing"
+        else:
+            print(f"[WARNING] Audio file not found at {output_path} before ffprobe check.")
+            duration_source = "file_missing"
+        # --- End Get Audio Duration ---
+
+
         # 4. Create Asset record
         metadata = {
             "segment_id": payload.segment_id,
-            "narration_text_preview": segment_narration[:100] # Store a preview
-            # Add other relevant metadata like voice used, duration? (needs ffprobe/librosa)
+            "narration_text_preview": segment_narration[:100], # Store a preview
+            "duration_seconds": audio_duration, # Store the calculated duration
+            "duration_source": duration_source # Store the source of the duration
+            # Add other relevant metadata like voice used?
         }
         asset = Asset(
             project_id=payload.project_id,
@@ -116,6 +176,12 @@ async def generate_segment_audio(
                 if str(segment.get('id')) == str(payload.segment_id):
                     segment['audioUrl'] = asset.path # Add audioUrl field
                     segment['audioAssetId'] = asset.id # Add audioAssetId field
+                    if audio_duration > 0: # Only update duration if we got a valid one
+                        segment['duration'] = audio_duration
+                        print(f"[generate_segment_audio] Updated segment duration to {audio_duration:.1f}s")
+                    else:
+                        print(f"[generate_segment_audio] Keeping original segment duration.")
+
                     updated = True
                     target_segment = segment # Capture the updated segment data
                     print(f"[generate_segment_audio] Updated segment JSON: {target_segment}")
