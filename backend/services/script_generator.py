@@ -68,18 +68,19 @@ class ScriptGeneratorService:
         """
         return f"""
         Create a detailed script for an educational video about "{request.topic}".
-        
+
         Target audience: {request.target_audience}
         Approximate duration: {request.duration_minutes} minutes
         Style: {request.style}
-        
-        The script should be structured with sections (like Introduction, Key Concepts, etc.).
-        Each section should have multiple segments, and each segment should have one or more visuals.
-        
-        For each visual, provide:
-        - A detailed description for image generation
-        - Timestamp within the segment
-        - Duration
+
+        **Instructions:**
+        1.  Structure the script into logical sections (e.g., Introduction, Key Point 1, Key Point 2, Example, Conclusion).
+        2.  Divide each section into multiple short, focused segments. Each segment represents a few sentences of narration.
+        3.  **Crucially, for EACH segment, generate AT LEAST TWO distinct visual suggestions.**
+        4.  **For EACH visual, provide a VERY DETAILED description suitable for an AI image generator.** This description MUST directly relate to the specific content of the segment's narration text. Avoid generic descriptions. Think about what action, concept, or emotion is being conveyed in the narration and describe a visual scene that illustrates it clearly.
+        5.  For each visual, also provide:
+            - Timestamp: When the visual should appear within the segment (relative to the segment's start time, in seconds).
+            - Duration: How long the visual should be displayed (in seconds).
         - Visual type (image, animation, diagram, or text)
         - Position (left, right, center, full)
         - Transition (fade, slide, zoom, none)
@@ -101,7 +102,7 @@ class ScriptGeneratorService:
                             "duration": duration_in_seconds,
                             "visuals": [
                                 {{
-                                    "description": "Detailed description for image generation",
+                                    "description": "Detailed description for image generation, directly reflecting the narration text.",
                                     "timestamp": timestamp_in_seconds,
                                     "duration": duration_in_seconds,
                                     "visual_type": "image|animation|diagram|text",
@@ -116,8 +117,7 @@ class ScriptGeneratorService:
             ]
         }}
         
-        Make sure the script is engaging, educational, and appropriate for the target audience.
-        The visuals should complement the narration and help explain the concepts.
+        **Important:** Make sure the script is engaging, educational, and appropriate for the target audience. Ensure the total duration is respected, segment timings are sequential, and visual timestamps/durations fit within their parent segment. The visual descriptions are critical – make them specific and evocative. Generate AT LEAST TWO visuals per segment.
         """
 
     def _parse_llm_response(self, response: str, request: ScriptRequest) -> Dict[str, Any]:
