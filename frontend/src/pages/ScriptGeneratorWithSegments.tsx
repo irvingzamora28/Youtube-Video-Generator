@@ -228,8 +228,19 @@ export default function ScriptGenerator() {
       (total, section) => total + section.totalDuration, 0
     );
 
+    // Update local state first for immediate UI feedback
     setGeneratedScript(updatedScript);
     setShowSegmentEditor(false);
+
+    // Now, persist the entire updated script to the backend
+    if (projectId) {
+      saveScriptToProject(updatedScript).catch(err => {
+        // Handle potential save errors if needed, e.g., show an error message
+        console.error("Error saving script after segment update:", err);
+        setError("Failed to save segment changes to the server. Please try saving the entire script again.");
+        // Optionally, revert local state or prompt user
+      });
+    }
   };
 
   const handleRegenerateSection = (sectionId: string) => {
