@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     # Audio Generation settings
     default_audio_provider: str = "google" # Default audio provider
     # Add audio provider specific keys if necessary, e.g., GOOGLE_AUDIO_API_KEY
+    audio_api_voice: str = "en-US-Journey-F" # Default voice
 
     # API settings
     api_host: str = "0.0.0.0"

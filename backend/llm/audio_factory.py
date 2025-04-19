@@ -21,6 +21,7 @@ def get_audio_provider(provider_name: str | None = None) -> AIAudioProvider:
     """
     settings = Settings()
     selected_provider = provider_name or settings.default_audio_provider
+    audio_api_voice = settings.audio_api_voice
 
     print(f"Attempting to get audio provider: {selected_provider}")
 
@@ -28,7 +29,7 @@ def get_audio_provider(provider_name: str | None = None) -> AIAudioProvider:
         # You might want to load specific configurations for Google here
         # e.g., voice name, speaking rate from settings if needed
         print("Instantiating GoogleTextToSpeech provider.")
-        return GoogleTextToSpeech()
+        return GoogleTextToSpeech(default_voice_name=audio_api_voice)
     # Add other providers here with elif selected_provider == "other_provider":
     else:
         raise ValueError(f"Unsupported or unconfigured audio provider: {selected_provider}")
