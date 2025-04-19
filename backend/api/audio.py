@@ -24,7 +24,8 @@ async def _generate_and_link_audio_for_segment(
     project_id: int,
     segment_id: str,
     segment_narration: str,
-    audio_provider: AIAudioProvider
+    audio_provider: AIAudioProvider,
+    existing_audio_asset_id: int | None = None # Add param for existing asset ID
 ) -> tuple[dict | None, dict | None, float | None]:
     """
     Internal helper to generate audio, create asset, and prepare segment update data.
@@ -36,6 +37,35 @@ async def _generate_and_link_audio_for_segment(
     if not segment_narration:
         print(f"[_generate_and_link_audio] Skipping segment {segment_id}: No narration text.")
         return None, None, None
+
+    # --- Delete existing asset and file if regenerating ---
+    if existing_audio_asset_id:
+        print(f"[_generate_and_link_audio] Regenerating audio for segment {segment_id}. Deleting old asset ID: {existing_audio_asset_id}")
+        try:
+            old_asset = Asset.get_by_id(existing_audio_asset_id)
+            if old_asset and old_asset.asset_type == 'audio':
+                old_file_path = os.path.join(settings.static_dir, old_asset.path)
+                # Delete file
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+                    print(f"[_generate_and_link_audio] Deleted old audio file: {old_file_path}")
+                else:
+                    print(f"[_generate_and_link_audio] Old audio file not found, skipping deletion: {old_file_path}")
+                # Delete DB record
+                deleted_db = old_asset.delete()
+                if deleted_db:
+                    print(f"[_generate_and_link_audio] Deleted old asset record ID: {existing_audio_asset_id}")
+                else:
+                    print(f"[WARNING] Failed to delete old asset record ID: {existing_audio_asset_id}")
+            elif old_asset:
+                 print(f"[WARNING] Asset ID {existing_audio_asset_id} found but is not an audio asset ({old_asset.asset_type}). Skipping deletion.")
+            else:
+                 print(f"[WARNING] Old asset ID {existing_audio_asset_id} not found in database.")
+        except Exception as e:
+            print(f"[ERROR] Failed to delete old audio asset {existing_audio_asset_id}: {e}")
+            # Decide if we should proceed or fail? For now, let's proceed but log the error.
+    # --- End Deletion ---
+
 
     print(f"[_generate_and_link_audio] Generating for segment {segment_id}. Narration: '{segment_narration[:50]}...'")
 
@@ -134,27 +164,30 @@ async def generate_segment_audio(
         if not project:
             raise HTTPException(status_code=404, detail=f"Project {payload.project_id} not found.")
 
-        # Find the specific segment's narration
-        target_segment_data = None
+        # Find the specific segment's data
+        target_segment_dict = None
         segment_narration = ""
+        existing_audio_asset_id = None
         for section in project.content.get('sections', []):
             for segment in section.get('segments', []):
                 if str(segment.get('id')) == str(payload.segment_id):
-                    target_segment_data = segment # Keep original data
-                    segment_narration = target_segment_data.get('narrationText', '')
+                    target_segment_dict = segment # Keep original data
+                    segment_narration = target_segment_dict.get('narrationText', '')
+                    existing_audio_asset_id = target_segment_dict.get('audioAssetId') # Get existing ID
                     break
-            if target_segment_data:
+            if target_segment_dict:
                 break
 
-        if not target_segment_data:
+        if not target_segment_dict:
             raise HTTPException(status_code=404, detail=f"Segment {payload.segment_id} not found in project {payload.project_id}.")
 
-        # 2. Generate Audio and Asset using helper
+        # 2. Generate Audio and Asset using helper (pass existing ID)
         asset_dict, segment_update_data, audio_duration = await _generate_and_link_audio_for_segment(
             project_id=payload.project_id,
             segment_id=payload.segment_id,
             segment_narration=segment_narration,
-            audio_provider=audio_provider
+            audio_provider=audio_provider,
+            existing_audio_asset_id=existing_audio_asset_id # Pass the ID
         )
 
         if not asset_dict or not segment_update_data:
@@ -233,22 +266,25 @@ async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProv
         for i, segment in enumerate(section.get('segments', [])):
             segment_id = segment.get('id')
             segment_narration = segment.get('narrationText', '')
+            existing_audio_asset_id = segment.get('audioAssetId') # Get existing ID
 
             if not segment_id or not segment_narration:
                 print(f"[_bulk_generate_audio_task] Skipping segment at section '{section.get('title')}', index {i}: Missing ID or narration.")
                 continue
 
-            # Skip if audio already exists (optional, based on audioUrl presence)
-            if segment.get('audioUrl'):
-                 print(f"[_bulk_generate_audio_task] Skipping segment {segment_id}: Audio already exists.")
-                 continue
+            # Decide whether to skip or regenerate based on existing ID
+            # For now, let's regenerate if called, deleting the old one via the helper
+            # if existing_audio_asset_id:
+            #      print(f"[_bulk_generate_audio_task] Skipping segment {segment_id}: Audio already exists (Asset ID: {existing_audio_asset_id}).")
+            #      continue
 
-            print(f"[_bulk_generate_audio_task] Processing segment {segment_id}...")
+            print(f"[_bulk_generate_audio_task] Processing segment {segment_id} (Existing Asset ID: {existing_audio_asset_id})...")
             asset_dict, segment_update_data, _ = await _generate_and_link_audio_for_segment(
                 project_id=project_id,
                 segment_id=segment_id,
                 segment_narration=segment_narration,
-                audio_provider=audio_provider
+                audio_provider=audio_provider,
+                existing_audio_asset_id=existing_audio_asset_id # Pass existing ID for deletion
             )
 
             if asset_dict and segment_update_data:
