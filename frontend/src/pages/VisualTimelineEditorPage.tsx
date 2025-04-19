@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Script } from '../types/script';
@@ -41,10 +41,13 @@ const VisualTimelineEditorPage: React.FC = () => {
     }
   };
 
-  // Placeholder for audio playback logic
+  // Ref to control VisualTimeline
+  const timelineRef = useRef<{ playAllSegments: () => void }>(null);
+
   const handlePlayAllAudio = () => {
-    console.log("TODO: Implement sequential audio playback");
-    // Logic to get all segment audio URLs and play them in order
+    if (timelineRef.current) {
+      timelineRef.current.playAllSegments();
+    }
   };
 
   if (loading) {
@@ -104,7 +107,7 @@ const VisualTimelineEditorPage: React.FC = () => {
 
         {/* Placeholder for Timeline Component */}
         {/* Render Timeline Component */}
-        <VisualTimeline script={script} />
+        <VisualTimeline ref={timelineRef} script={script} />
 
       </div>
     </Layout>

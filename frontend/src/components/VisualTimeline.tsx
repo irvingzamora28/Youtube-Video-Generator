@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useImperativeHandle, forwardRef, useRef } from 'react';
 import { Script, ScriptSegment, Visual } from '../types/script';
 import { useTimelineState } from '../hooks/useTimelineState';
 import { useAudioPlayback } from '../hooks/useAudioPlayback';
@@ -11,7 +11,10 @@ type VisualTimelineProps = {
   script: Script;
 };
 
-const VisualTimeline: React.FC<VisualTimelineProps> = ({ script }) => {
+const VisualTimeline = forwardRef(function VisualTimeline(
+  { script }: VisualTimelineProps,
+  ref: React.Ref<{ playAllSegments: () => void }>
+) {
   // --- Prepare Data ---
   const allSegments = script.sections.flatMap(section => section.segments);
   const totalDuration = script.totalDuration || allSegments.reduce((sum, seg) => sum + (seg.duration || 0), 0);
@@ -48,6 +51,67 @@ const VisualTimeline: React.FC<VisualTimelineProps> = ({ script }) => {
     setCurrentTime,
     normalizeUrl, // Pass the memoized normalizeUrl
   });
+
+  // --- Full Audio Preload and Playback Orchestration ---
+  const audioRefs = useRef<(HTMLAudioElement | null)[]>([]);
+  const isFullPlaybackRef = useRef(false);
+  const [fullPlaybackIndex, setFullPlaybackIndex] = React.useState<number | null>(null);
+
+  // Preload all audios
+  const playAllSegments = React.useCallback(() => {
+    if (allSegments.length === 0) return;
+    isFullPlaybackRef.current = true;
+    setFullPlaybackIndex(0);
+    setCurrentSegmentIndex(0);
+    setCurrentTime(0);
+    // Play the first audio and reset to start
+    setTimeout(() => {
+      const audio = audioRefs.current[0];
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play();
+      }
+    }, 0);
+  }, [allSegments, setCurrentSegmentIndex, setCurrentTime]);
+
+  // Sequential playback logic
+  // Track last played segment index to detect new segment
+  const lastPlaybackIndexRef = React.useRef<number | null>(null);
+  React.useEffect(() => {
+    if (fullPlaybackIndex === null) return;
+    // Sync visuals/timeline
+    setCurrentSegmentIndex(fullPlaybackIndex);
+    // Attach timeupdate handler to update currentTime
+    const audio = audioRefs.current[fullPlaybackIndex];
+    if (audio) {
+      const segmentStartTime = allSegments.slice(0, fullPlaybackIndex).reduce((sum, s) => sum + (s.duration || 0), 0);
+      const handleTimeUpdate = () => {
+        setCurrentTime(segmentStartTime + audio.currentTime);
+      };
+      audio.addEventListener('timeupdate', handleTimeUpdate);
+      // Only track segment change, do not control playback here
+      lastPlaybackIndexRef.current = fullPlaybackIndex;
+      // Cleanup
+      return () => {
+        audio.removeEventListener('timeupdate', handleTimeUpdate);
+      };
+    }
+  }, [fullPlaybackIndex, setCurrentSegmentIndex, setCurrentTime, allSegments]);
+
+  // Handler for when an audio ends
+  const handleAudioEnded = (idx: number) => {
+    if (!isFullPlaybackRef.current) return;
+    if (idx < allSegments.length - 1) {
+      setFullPlaybackIndex(idx + 1);
+    } else {
+      // End of playback
+      isFullPlaybackRef.current = false;
+      setFullPlaybackIndex(null);
+    }
+  };
+
+  // Expose the playAllSegments method to parent via ref
+  useImperativeHandle(ref, () => ({ playAllSegments }), [playAllSegments]);
 
   // --- Derived State ---
   const currentSegment: ScriptSegment | undefined = allSegments[currentSegmentIndex];
@@ -91,10 +155,46 @@ const VisualTimeline: React.FC<VisualTimelineProps> = ({ script }) => {
 
   }, [allSegments, seekAudio, isPlaying, handlePlayPause, audioRef]); // Include dependencies
 
+  // --- Play/Pause logic for TimelineControls ---
+  // Use a unified isPlaying state: true if either full playback audio or single audio is playing
+  const unifiedIsPlaying =
+    (fullPlaybackIndex !== null && audioRefs.current[fullPlaybackIndex]?.paused === false) ||
+    (fullPlaybackIndex === null && isPlaying);
+
+  // Unified play/pause handler
+  const unifiedHandlePlayPause = () => {
+    if (fullPlaybackIndex !== null) {
+      // Full playback mode
+      const audio = audioRefs.current[fullPlaybackIndex];
+      if (audio) {
+        if (audio.paused) {
+          audio.play();
+        } else {
+          audio.pause();
+        }
+      }
+    } else {
+      // Single segment mode
+      handlePlayPause();
+    }
+  };
+
   // --- Render ---
   return (
     <div className="space-y-4">
-      {/* Hidden Audio Element - controlled by useAudioPlayback hook */}
+      {/* Hidden Audio Elements for Full Playback - preload all */}
+      <div style={{ display: 'none' }}>
+        {allSegments.map((segment, idx) => (
+          <audio
+            key={segment.id || `segment-audio-${idx}`}
+            ref={el => { audioRefs.current[idx] = el; }}
+            src={segment.audioUrl ? normalizeUrl(segment.audioUrl) : undefined}
+            preload="auto"
+            onEnded={() => handleAudioEnded(idx)}
+          />
+        ))}
+      </div>
+      {/* Single Audio Element for Individual Playback */}
       <audio ref={audioRef} />
 
       {/* Visual Preview Area - uses VisualPreview component */}
@@ -107,8 +207,8 @@ const VisualTimeline: React.FC<VisualTimelineProps> = ({ script }) => {
       <div className="flex items-center gap-4">
         {/* Uses TimelineControls component */}
         <TimelineControls
-          isPlaying={isPlaying}
-          handlePlayPause={handlePlayPause}
+          isPlaying={unifiedIsPlaying}
+          handlePlayPause={unifiedHandlePlayPause}
           currentTime={currentTime}
           totalDuration={totalDuration}
         />
@@ -130,6 +230,6 @@ const VisualTimeline: React.FC<VisualTimelineProps> = ({ script }) => {
       />
     </div>
   );
-};
+});
 
 export default VisualTimeline;
