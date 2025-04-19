@@ -1,4 +1,4 @@
-import { Script, Visual } from '../types/script';
+import { Script, Visual, ScriptSegment } from '../types/script'; // Add ScriptSegment import
 
 // Use backend URL from env or fallback
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -274,6 +274,31 @@ export async function generateAllProjectAudio(projectId: number): Promise<{ mess
     throw new Error(errorDetail);
   }
   return response.json(); // Returns { message: "..." }
+}
+
+/**
+ * Organize visuals within a segment using the backend LLM
+ */
+export async function organizeSegmentVisuals(segment: ScriptSegment): Promise<{ organized_segment: ScriptSegment }> {
+  const payload = { segment }; // Send the whole segment object
+
+  const response = await fetch(`${API_BASE_URL}/api/script/organize_visuals`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to organize visuals";
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) { /* Ignore JSON parsing error */ }
+    throw new Error(errorDetail);
+  }
+  return response.json(); // Returns { organized_segment: ScriptSegment }
 }
 
 /**
