@@ -43,4 +43,5 @@ export type Script = {
   updatedAt: Date;
   totalDuration: number; // Total duration in seconds
   status: 'draft' | 'complete' | 'in_progress';
+  styling?: string;
 };

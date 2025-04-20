@@ -24,6 +24,7 @@ class ProjectCreate(BaseModel):
     title: str
     description: Optional[str] = ""
     target_audience: Optional[str] = ""
+    styling: Optional[str] = None
     
 class ProjectUpdate(BaseModel):
     title: Optional[str] = None
@@ -31,6 +32,7 @@ class ProjectUpdate(BaseModel):
     target_audience: Optional[str] = None
     total_duration: Optional[float] = None
     status: Optional[str] = None
+    styling: Optional[str] = None
 
 class SectionCreate(BaseModel):
     title: str
@@ -96,7 +98,8 @@ async def create_project(project_data: ProjectCreate):
     project = Project(
         title=project_data.title,
         description=project_data.description,
-        target_audience=project_data.target_audience
+        target_audience=project_data.target_audience,
+        styling=project_data.styling
     )
     
     if project.save():
@@ -137,6 +140,8 @@ async def update_project(project_id: int, project_data: ProjectUpdate):
         project.total_duration = project_data.total_duration
     if project_data.status is not None:
         project.status = project_data.status
+    if project_data.styling is not None:
+        project.styling = project_data.styling
     
     if project.save():
         return {"success": True, "project": project.to_dict()}

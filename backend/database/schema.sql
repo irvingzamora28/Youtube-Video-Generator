@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS projects (
     description TEXT,
     target_audience TEXT,
     content JSON,  -- Stores the entire script structure (sections, segments, etc.)
+    styling TEXT,
     total_duration REAL,
     status TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

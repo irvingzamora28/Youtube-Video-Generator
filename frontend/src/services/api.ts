@@ -75,38 +75,41 @@ export function transformScriptFromApi(apiScript: any): Script {
     title: apiScript.title || '',
     description: apiScript.description || '',
     targetAudience: apiScript.target_audience || '',
-    sections: (apiScript.sections || []).map((section: any) => ({
-      id: section.id || `section-${Math.random().toString(36).substring(2, 11)}`,
-      title: section.title || '',
-      content: section.content || '',
-      segments: (section.segments || []).map((segment: any) => {
-        console.log('Processing segment in transform:', segment);
-        console.log('Segment narration_text:', segment.narration_text);
-        return {
-          id: segment.id || `segment-${Math.random().toString(36).substring(2, 11)}`,
-          narrationText: segment.narration_text || segment.narrationText || '',
-          startTime: segment.start_time || segment.startTime || 0, // Check both cases
-          duration: segment.duration || 0,
-          audioUrl: segment.audioUrl || '', // Add audioUrl mapping
-          audioAssetId: segment.audioAssetId, // Add audioAssetId mapping
-          visuals: (segment.visuals || []).map((visual: any) => ({
-            id: visual.id || `visual-${Math.random().toString(36).substring(2, 11)}`,
-            description: visual.description || '',
-            timestamp: visual.timestamp || 0,
-            duration: visual.duration || 0,
-            imageUrl: visual.imageUrl || visual.image_url || '', // Use camelCase first, fallback to snake_case
-            assetId: visual.assetId, // Add assetId mapping
-            altText: visual.altText || visual.alt_text || '',
-            visualType: visual.visualType || visual.visual_type || 'image',
-            visualStyle: visual.visualStyle || visual.visual_style || '',
-            position: visual.position || '',
-            zoomLevel: visual.zoomLevel || visual.zoom_level || 1,
-            transition: visual.transition || '',
-          }))
-        };
-      }),
-      totalDuration: section.total_duration || 0,
-    })),
+    styling: apiScript.styling || apiScript.content?.styling || '',
+    sections: (apiScript.sections || []).map((section: any) => {
+      return {
+        id: section.id || `section-${Math.random().toString(36).substring(2, 11)}`,
+        title: section.title || '',
+        content: section.content || '',
+        segments: (section.segments || []).map((segment: any) => {
+          console.log('Processing segment in transform:', segment);
+          console.log('Segment narration_text:', segment.narration_text);
+          return {
+            id: segment.id || `segment-${Math.random().toString(36).substring(2, 11)}`,
+            narrationText: segment.narration_text || segment.narrationText || '',
+            startTime: segment.start_time || segment.startTime || 0, // Check both cases
+            duration: segment.duration || 0,
+            audioUrl: segment.audioUrl || '', // Add audioUrl mapping
+            audioAssetId: segment.audioAssetId, // Add audioAssetId mapping
+            visuals: (segment.visuals || []).map((visual: any) => ({
+              id: visual.id || `visual-${Math.random().toString(36).substring(2, 11)}`,
+              description: visual.description || '',
+              timestamp: visual.timestamp || 0,
+              duration: visual.duration || 0,
+              imageUrl: visual.imageUrl || visual.image_url || '', // Use camelCase first, fallback to snake_case
+              assetId: visual.assetId, // Add assetId mapping
+              altText: visual.altText || visual.alt_text || '',
+              visualType: visual.visualType || visual.visual_type || 'image',
+              visualStyle: visual.visualStyle || visual.visual_style || '',
+              position: visual.position || '',
+              zoomLevel: visual.zoomLevel || visual.zoom_level || 1,
+              transition: visual.transition || '',
+            }))
+          };
+        }),
+        totalDuration: section.total_duration || 0,
+      };
+    }),
     createdAt: apiScript.created_at ? new Date(apiScript.created_at) : new Date(),
     updatedAt: apiScript.updated_at ? new Date(apiScript.updated_at) : new Date(),
     totalDuration: apiScript.total_duration || 0,

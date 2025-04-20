@@ -21,6 +21,7 @@ export type ProjectCreateParams = {
   title: string;
   description?: string;
   targetAudience?: string;
+  styling?: string;
 };
 
 export type ProjectUpdateParams = {
@@ -28,6 +29,7 @@ export type ProjectUpdateParams = {
   description?: string;
   targetAudience?: string;
   status?: string;
+  styling?: string;
 };
 
 export type AssetType = 'image' | 'audio' | 'video';
@@ -224,10 +226,11 @@ export async function updateProject(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        title: params.title,
-        description: params.description,
-        target_audience: params.targetAudience,
-        status: params.status,
+        ...(params.title !== undefined && { title: params.title }),
+        ...(params.description !== undefined && { description: params.description }),
+        ...(params.targetAudience !== undefined && { target_audience: params.targetAudience }),
+        ...(params.status !== undefined && { status: params.status }),
+        ...(params.styling !== undefined && { styling: params.styling }),
       }),
     });
 

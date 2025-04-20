@@ -16,6 +16,7 @@ const ProjectDetail: React.FC = () => {
     title: '',
     description: '',
     targetAudience: '',
+    styling: '',
   });
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const ProjectDetail: React.FC = () => {
         title: data.title,
         description: data.description,
         targetAudience: data.targetAudience,
+        styling: data.styling || '',
       });
     } catch (err) {
       setError('Failed to load project. Please try again.');
@@ -216,6 +218,21 @@ const ProjectDetail: React.FC = () => {
               />
             </div>
 
+            <div className="mb-6">
+              <label htmlFor="styling" className="block text-sm font-medium mb-1">
+                Styling (optional)
+              </label>
+              <input
+                type="text"
+                id="styling"
+                name="styling"
+                value={formData.styling}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+                placeholder="Describe desired visual style (e.g. stickman, minimal, whiteboard, etc.)"
+              />
+            </div>
+
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
@@ -241,6 +258,11 @@ const ProjectDetail: React.FC = () => {
           {script.description && (
             <p className="text-muted-foreground mb-4">{script.description}</p>
           )}
+
+          <div className="mb-4">
+            <span className="text-muted-foreground">Styling:</span>
+            <span className="ml-2 text-foreground">{script.styling ? script.styling : 'Not specified'}</span>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
