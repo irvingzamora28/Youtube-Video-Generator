@@ -5,6 +5,7 @@ import { Script } from '../types/script';
 import { getProject } from '../services/projectApi';
 // Import the new timeline component
 import VisualTimeline from '../components/VisualTimeline';
+import VisualTimelineEditor from '../components/VisualTimelineEditor';
 
 const VisualTimelineEditorPage: React.FC = () => {
   const { id: projectId } = useParams<{ id: string }>();
@@ -105,9 +106,10 @@ const VisualTimelineEditorPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Placeholder for Timeline Component */}
-        {/* Render Timeline Component */}
         <VisualTimeline ref={timelineRef} script={script} />
+
+        {/* Enhanced Timeline Editor Component */}
+        <VisualTimelineEditor script={script} onScriptUpdate={setScript} projectId={projectId ? parseInt(projectId) : 0} />
 
       </div>
     </Layout>
