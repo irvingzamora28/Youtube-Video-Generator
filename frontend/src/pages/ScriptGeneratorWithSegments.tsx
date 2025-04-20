@@ -17,6 +17,7 @@ export default function ScriptGenerator() {
   const [topic, setTopic] = useState('');
   const [audience, setAudience] = useState('general');
   const [duration, setDuration] = useState('5');
+  const [style, setStyle] = useState('educational');
   const [visualStyle, setVisualStyle] = useState('stick-man');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -58,6 +59,7 @@ export default function ScriptGenerator() {
 
         setGeneratedScript(project);
         setTopic(project.title || '');
+        setStyle(project.style || 'educational');
         setAudience(project.targetAudience || 'general');
         setVisualStyle(project.visualStyle || 'stick-man');
       }
@@ -77,7 +79,7 @@ export default function ScriptGenerator() {
     try {
       // Call the API to generate the script
       const durationMinutes = parseFloat(duration);
-      const script = await generateScript(topic, audience, durationMinutes, visualStyle);
+      const script = await generateScript(topic, audience, durationMinutes, visualStyle, style);
       setGeneratedScript(script);
 
       // If we're editing a project, save the script to the project

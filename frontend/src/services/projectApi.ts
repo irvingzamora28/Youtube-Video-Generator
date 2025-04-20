@@ -22,6 +22,7 @@ export type ProjectCreateParams = {
   description?: string;
   targetAudience?: string;
   visualStyle?: string;
+  style?: string;
 };
 
 export type ProjectUpdateParams = {
@@ -30,6 +31,7 @@ export type ProjectUpdateParams = {
   targetAudience?: string;
   status?: string;
   visualStyle?: string;
+  style?: string;
 };
 
 export type AssetType = 'image' | 'audio' | 'video';

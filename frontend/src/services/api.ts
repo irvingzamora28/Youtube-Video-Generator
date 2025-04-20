@@ -10,7 +10,8 @@ export async function generateScript(
   topic: string,
   targetAudience: string,
   durationMinutes: number,
-  visualStyle: string
+  visualStyle: string,
+  style: string
 ): Promise<Script> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/script/generate`, {
@@ -22,6 +23,7 @@ export async function generateScript(
         topic,
         target_audience: targetAudience,
         duration_minutes: durationMinutes,
+        style: style,
         visual_style: visualStyle,
       }),
     });

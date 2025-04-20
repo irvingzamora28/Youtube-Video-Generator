@@ -48,6 +48,7 @@ class ScriptGeneratorService:
             description=script_data["description"],
             target_audience=request.target_audience,
             style=request.style,
+            visual_style=request.visual_style,
             sections=self._create_sections(script_data["sections"]),
             created_at=datetime.now(),
             updated_at=datetime.now(),

@@ -11,6 +11,7 @@ const NewProjectPage: React.FC = () => {
     description: '',
     targetAudience: '',
     visualStyle: '',
+    style: 'educational',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,6 +115,21 @@ const NewProjectPage: React.FC = () => {
             onChange={handleChange}
             className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
             placeholder="Describe desired visual style (e.g. stickman, minimal, whiteboard, etc.)"
+          />
+        </div>
+
+        <div className="mb-6">
+          <label htmlFor="style" className="block text-sm font-medium mb-1 text-foreground">
+            Style (optional)
+          </label>
+          <input
+            type="text"
+            id="style"
+            name="style"
+            value={formData.style}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+            placeholder="Describe desired style (e.g. educational, entertaining, etc.)"
           />
         </div>
 
