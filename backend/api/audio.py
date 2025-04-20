@@ -289,7 +289,10 @@ async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProv
 
             if asset_dict and segment_update_data:
                 # Update the segment data *within the project.content dictionary*
+                print(f"[_bulk_generate_audio_task][DEBUG] Segment BEFORE update: {segment}")
+                print(f"[_bulk_generate_audio_task][DEBUG] segment_update_data: {segment_update_data}")
                 segment.update(segment_update_data)
+                print(f"[_bulk_generate_audio_task][DEBUG] Segment AFTER update: {segment}")
                 project_updated = True
                 segments_processed += 1
                 print(f"[_bulk_generate_audio_task] Successfully processed segment {segment_id}")
@@ -301,6 +304,7 @@ async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProv
 
     # Save the project *once* after processing all segments if any updates were made
     if project_updated:
+        print(f"[_bulk_generate_audio_task][DEBUG] Project content before save: {project.content}")
         print(f"[_bulk_generate_audio_task] Saving updated project {project_id} with new audio data...")
         save_success = project.save()
         if save_success:
