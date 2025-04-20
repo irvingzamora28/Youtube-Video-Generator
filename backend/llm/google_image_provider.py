@@ -334,15 +334,22 @@ class GoogleImageProvider(ImageGenerationProvider):
         results = []
 
         # Process each generated image
-        for generated_image in response.generated_images:
-            image_bytes = generated_image.image.image_bytes
-            image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+        if response.generated_images is None:
+            print("ERROR: response.generated_images is None")
+        else:
+            for generated_image in response.generated_images:
+                if not hasattr(generated_image, '__iter__'):
+                    print(f"ERROR: generated_image is not iterable: {generated_image}")
+                    continue
 
-            results.append({
-                "success": True,
-                "image_data": image_base64,
-                "mime_type": "image/png",  # Imagen generates PNG images
-                "model": model
-            })
+                image_bytes = generated_image.image.image_bytes
+                image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+
+                results.append({
+                    "success": True,
+                    "image_data": image_base64,
+                    "mime_type": "image/png",  # Imagen generates PNG images
+                    "model": model
+                })
 
         return results
