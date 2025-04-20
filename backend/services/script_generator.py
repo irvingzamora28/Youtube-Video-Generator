@@ -73,21 +73,25 @@ class ScriptGeneratorService:
         return f"""
         Create a detailed script for an educational video about "{request.topic}".
 
+        Instead of addressing a general audience, write the script as if you are speaking directly to a single person, making it personal and conversational. Use 'you' and 'your' to address the viewer, and make the tone friendly and engaging.
         Target audience: {request.target_audience}
         Approximate duration: {request.duration_minutes} minutes
         Style: {request.style}
 
         **Instructions:**
-        1.  Structure the script into logical sections (e.g., Introduction, Key Point 1, Key Point 2, Example, Conclusion).
-        2.  Divide each section into multiple short, focused segments. Each segment represents a few sentences of narration.
-        3.  **Crucially, for EACH segment, generate AT LEAST TWO distinct visual suggestions.**
-        4.  **For EACH visual, provide a VERY DETAILED description suitable for an AI image generator.** This description MUST directly relate to the specific content of the segment's narration text. Avoid generic descriptions. Think about what action, concept, or emotion is being conveyed in the narration and describe a visual scene that illustrates it clearly.
-        5.  For each visual, also provide:
-            - Timestamp: When the visual should appear within the segment (relative to the segment's start time, in seconds).
-            - Duration: How long the visual should be displayed (in seconds).
-        - Visual type (image, animation, diagram, or text)
-        - Position (left, right, center, full)
-        - Transition (fade, slide, zoom, none)
+        1. Structure the script into logical sections (e.g., Introduction, Key Point 1, Key Point 2, Example, Conclusion).
+        2. Divide each section into multiple short, focused segments. Each segment represents a few sentences of narration.
+        3. **For EACH segment, generate AT LEAST THREE distinct visual suggestions.**
+        4. **For EACH visual, you MUST ensure it is tightly aligned with the narration text at the visual's timestamp:**
+           - If a segment has multiple visuals, break down the narration text so that each visual matches the exact part being spoken at its timestamp.
+           - The visual's description MUST be contextually and temporally relevant—do NOT use generic illustrations. The visual should clearly reflect what is being narrated at that moment.
+           - Optionally, for each visual, include a `text_span` or short excerpt from the narration text that is being visualized at that timestamp.
+        5. For each visual, also provide:
+           - Timestamp: When the visual should appear within the segment (relative to the segment's start time, in seconds).
+           - Duration: How long the visual should be displayed (in seconds).
+           - Visual type (image, animation, diagram, or text)
+           - Position (left, right, center, full)
+           - Transition (fade, slide, zoom, none)
         
         Format your response as a JSON object with the following structure:
         {{
@@ -106,12 +110,13 @@ class ScriptGeneratorService:
                             "duration": duration_in_seconds,
                             "visuals": [
                                 {{
-                                    "description": "Detailed description for image generation, directly reflecting the narration text.",
+                                    "description": "Description for image generation, directly reflecting the narration text (MINIMALISTIC VISUAL).",
                                     "timestamp": timestamp_in_seconds,
                                     "duration": duration_in_seconds,
                                     "visual_type": "image|animation|diagram|text",
                                     "visual_style": "Style guidance (optional)",
                                     "position": "left|right|center|full",
+                                    "text_span": "Text span for text visuals (optional)",
                                     "transition": "fade|slide|zoom|none"
                                 }}
                             ]
