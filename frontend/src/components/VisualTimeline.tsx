@@ -103,6 +103,13 @@ const VisualTimeline = forwardRef(function VisualTimeline(
     if (!isFullPlaybackRef.current) return;
     if (idx < allSegments.length - 1) {
       setFullPlaybackIndex(idx + 1);
+      setTimeout(() => {
+        const nextAudio = audioRefs.current[idx + 1];
+        if (nextAudio) {
+          nextAudio.currentTime = 0;
+          nextAudio.play();
+        }
+      }, 0);
     } else {
       // End of playback
       isFullPlaybackRef.current = false;
