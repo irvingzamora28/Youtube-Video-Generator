@@ -79,7 +79,9 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
             );
           })}
         </div>
+        {/* RULER_HEIGHT ensures segments start below the ruler */}
         {allSegments.map((segment, segmentIdx) => {
+          const RULER_HEIGHT = 24;
           // Calculate the global start time for snapping
           const segmentStart = segment.startTime;
           const segmentEnd = segment.startTime + segment.duration;
@@ -96,7 +98,7 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
             <Rnd
               key={segment.id}
               size={{ width: segment.duration * pixelsPerSecond, height: SEGMENT_LANE_HEIGHT + 38 }}
-              position={{ x: segment.startTime * pixelsPerSecond, y: segmentIdx * (SEGMENT_LANE_HEIGHT + 46) }}
+              position={{ x: segment.startTime * pixelsPerSecond, y: RULER_HEIGHT + segmentIdx * (SEGMENT_LANE_HEIGHT + 46) }}
               bounds=".timeline-scroll-area"
               minWidth={segment.duration * pixelsPerSecond}
               maxWidth={segment.duration * pixelsPerSecond}
@@ -141,13 +143,7 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
               {/* Segment Label and Audio Controls */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '2px 8px', background: '#262a36', borderRadius: '8px 8px 0 0' }}>
                 <span style={{ fontWeight: 700, color: '#8fd3ff' }}>Segment {segmentIdx + 1}</span>
-                <span style={{ fontSize: 12, color: '#b3b3b3' }}>{segment.narrationText.slice(0, 40)}...</span>
-                <audio
-                  src={segment.audioUrl}
-                  controls
-                  style={{ height: 24, background: '#181c23', borderRadius: 4 }}
-                  preload="auto"
-                />
+                <span style={{ fontSize: 12, color: '#b3b3b3' }}>{segment.narrationText.slice(0, 120)}...</span>
                 <span style={{ marginLeft: 'auto', fontSize: 12, color: '#aaa' }}>
                   {segment.duration.toFixed(1)}s
                 </span>
