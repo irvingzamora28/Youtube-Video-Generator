@@ -17,7 +17,7 @@ export default function ScriptGenerator() {
   const [topic, setTopic] = useState('');
   const [audience, setAudience] = useState('general');
   const [duration, setDuration] = useState('5');
-  const [style, setStyle] = useState('educational');
+  const [visualStyle, setVisualStyle] = useState('stick-man');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +59,7 @@ export default function ScriptGenerator() {
         setGeneratedScript(project);
         setTopic(project.title || '');
         setAudience(project.targetAudience || 'general');
+        setVisualStyle(project.visualStyle || 'stick-man');
       }
     } catch (err) {
       console.error('Error loading project:', err);
@@ -76,7 +77,7 @@ export default function ScriptGenerator() {
     try {
       // Call the API to generate the script
       const durationMinutes = parseFloat(duration);
-      const script = await generateScript(topic, audience, durationMinutes, style);
+      const script = await generateScript(topic, audience, durationMinutes, visualStyle);
       setGeneratedScript(script);
 
       // If we're editing a project, save the script to the project
@@ -398,19 +399,19 @@ export default function ScriptGenerator() {
 
                   <div>
                     <label htmlFor="style" className="block text-sm font-medium text-foreground mb-1">
-                      Presentation Style
+                      Visual Style
                     </label>
                     <select
                       id="style"
-                      value={style}
-                      onChange={(e) => setStyle(e.target.value)}
+                      value={visualStyle}
+                      onChange={(e) => setVisualStyle(e.target.value)}
                       className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="educational">Educational</option>
-                      <option value="entertaining">Entertaining</option>
-                      <option value="professional">Professional</option>
-                      <option value="casual">Casual</option>
-                      <option value="storytelling">Storytelling</option>
+                      <option value="stick-man">Stick Man</option>
+                      <option value="realistic">Realistic</option>
+                      <option value="cartoon">Cartoon</option>
+                      <option value="3d">3D</option>
+                      <option value="3d-cartoon">3D Cartoon</option>
                     </select>
                   </div>
                 </div>

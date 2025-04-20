@@ -10,7 +10,7 @@ export async function generateScript(
   topic: string,
   targetAudience: string,
   durationMinutes: number,
-  style: string
+  visualStyle: string
 ): Promise<Script> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/script/generate`, {
@@ -22,7 +22,7 @@ export async function generateScript(
         topic,
         target_audience: targetAudience,
         duration_minutes: durationMinutes,
-        style,
+        visual_style: visualStyle,
       }),
     });
 
@@ -56,6 +56,7 @@ export function transformScriptFromApi(apiScript: any): Script {
       sections: [],
       totalDuration: 0,
       status: 'draft',
+      visualStyle: '',
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -75,7 +76,7 @@ export function transformScriptFromApi(apiScript: any): Script {
     title: apiScript.title || '',
     description: apiScript.description || '',
     targetAudience: apiScript.target_audience || '',
-    styling: apiScript.styling || apiScript.content?.styling || '',
+    visualStyle: apiScript.visual_style || apiScript.content?.visual_style || '',
     sections: (apiScript.sections || []).map((section: any) => {
       return {
         id: section.id || `section-${Math.random().toString(36).substring(2, 11)}`,

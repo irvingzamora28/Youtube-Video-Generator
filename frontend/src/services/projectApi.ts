@@ -21,7 +21,7 @@ export type ProjectCreateParams = {
   title: string;
   description?: string;
   targetAudience?: string;
-  styling?: string;
+  visualStyle?: string;
 };
 
 export type ProjectUpdateParams = {
@@ -29,7 +29,7 @@ export type ProjectUpdateParams = {
   description?: string;
   targetAudience?: string;
   status?: string;
-  styling?: string;
+  visualStyle?: string;
 };
 
 export type AssetType = 'image' | 'audio' | 'video';
@@ -196,6 +196,7 @@ export async function createProject(params: ProjectCreateParams): Promise<Projec
         title: params.title,
         description: params.description || '',
         target_audience: params.targetAudience || '',
+        visual_style: params.visualStyle || '',
       }),
     });
 
@@ -230,7 +231,7 @@ export async function updateProject(
         ...(params.description !== undefined && { description: params.description }),
         ...(params.targetAudience !== undefined && { target_audience: params.targetAudience }),
         ...(params.status !== undefined && { status: params.status }),
-        ...(params.styling !== undefined && { styling: params.styling }),
+        ...(params.visualStyle !== undefined && { visual_style: params.visualStyle }),
       }),
     });
 

@@ -10,7 +10,7 @@ const NewProjectPage: React.FC = () => {
     title: '',
     description: '',
     targetAudience: '',
-    styling: '',
+    visualStyle: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,14 +103,14 @@ const NewProjectPage: React.FC = () => {
         </div>
 
         <div className="mb-6">
-          <label htmlFor="styling" className="block text-sm font-medium mb-1 text-foreground">
-            Styling (optional)
+          <label htmlFor="visualStyle" className="block text-sm font-medium mb-1 text-foreground">
+            Visual Style (optional)
           </label>
           <input
             type="text"
-            id="styling"
-            name="styling"
-            value={formData.styling}
+            id="visualStyle"
+            name="visualStyle"
+            value={formData.visualStyle}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
             placeholder="Describe desired visual style (e.g. stickman, minimal, whiteboard, etc.)"

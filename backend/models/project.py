@@ -13,7 +13,8 @@ class Project:
     def __init__(self, id: Optional[int] = None, title: str = "", description: str = "",
                  target_audience: str = "", content: Dict[str, Any] = None,
                  total_duration: float = 0.0, status: str = "draft",
-                 styling: Optional[str] = None,
+                 style: Optional[str] = None,
+                 visual_style: Optional[str] = None,
                  created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None):
         """
         Initialize a Project instance.
@@ -36,7 +37,8 @@ class Project:
         self.content = content or {}
         self.total_duration = total_duration
         self.status = status
-        self.styling = styling
+        self.style = style
+        self.visual_style = visual_style
         self.created_at = created_at or datetime.now()
         self.updated_at = updated_at or datetime.now()
 
@@ -67,7 +69,8 @@ class Project:
             content=content,
             total_duration=data.get('total_duration', 0.0),
             status=data.get('status', "draft"),
-            styling=data.get('styling'),
+            style=data.get('style'),
+            visual_style=data.get('visual_style'),
             created_at=data.get('created_at'),
             updated_at=data.get('updated_at')
         )
@@ -87,7 +90,8 @@ class Project:
             'content': self.content,
             'total_duration': self.total_duration,
             'status': self.status,
-            'styling': self.styling,
+            'style': self.style,
+            'visual_style': self.visual_style,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -113,11 +117,11 @@ class Project:
         if self.id is None:
             # Insert new project
             sql = """
-                INSERT INTO projects (title, description, target_audience, content, total_duration, status, styling, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO projects (title, description, target_audience, content, total_duration, status, style, visual_style, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             params = (self.title, self.description, self.target_audience, content_json,
-                     self.total_duration, self.status, self.styling, self.created_at, self.updated_at)
+                     self.total_duration, self.status, self.style, self.visual_style, self.created_at, self.updated_at)
             self.id = execute(sql, params)
             return self.id is not None
         else:
@@ -126,11 +130,11 @@ class Project:
             sql = """
                 UPDATE projects
                 SET title = ?, description = ?, target_audience = ?, content = ?,
-                    total_duration = ?, status = ?, styling = ?, updated_at = ?
+                    total_duration = ?, status = ?, style = ?, visual_style = ?, updated_at = ?
                 WHERE id = ?
             """
             params = (self.title, self.description, self.target_audience, content_json,
-                     self.total_duration, self.status, self.styling, self.updated_at, self.id)
+                     self.total_duration, self.status, self.style, self.visual_style, self.updated_at, self.id)
             return execute(sql, params) is not None
 
     @classmethod

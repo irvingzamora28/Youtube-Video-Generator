@@ -47,6 +47,7 @@ class ScriptGeneratorService:
             title=script_data["title"],
             description=script_data["description"],
             target_audience=request.target_audience,
+            style=request.style,
             sections=self._create_sections(script_data["sections"]),
             created_at=datetime.now(),
             updated_at=datetime.now(),
@@ -66,6 +67,8 @@ class ScriptGeneratorService:
         Returns:
             A prompt for the LLM
         """
+        print("Creating script generation prompt")
+        print(request)
         return f"""
         Create a detailed script for an educational video about "{request.topic}".
 
@@ -152,6 +155,21 @@ class ScriptGeneratorService:
                 # Estimate total duration based on request
                 script_data["total_duration"] = request.duration_minutes * 60
             
+            # If visual style is set, override all visual_style fields in visuals
+            if getattr(request, 'visual_style', None):
+                def set_visual_style(obj):
+                    if isinstance(obj, dict):
+                        for k, v in obj.items():
+                            if k == 'visuals' and isinstance(v, list):
+                                for visual in v:
+                                    if isinstance(visual, dict):
+                                        visual['visual_style'] = request.visual_style
+                            else:
+                                set_visual_style(v)
+                    elif isinstance(obj, list):
+                        for item in obj:
+                            set_visual_style(item)
+                set_visual_style(script_data)
             return script_data
         except Exception as e:
             # If parsing fails, create a fallback script

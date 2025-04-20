@@ -45,6 +45,7 @@ class ScriptRequest(BaseModel):
     target_audience: str = Field(..., description="The target audience for the script")
     duration_minutes: float = Field(..., description="Approximate duration in minutes")
     style: str = Field(..., description="Presentation style (e.g., educational, entertaining)")
+    visual_style: str = Field(..., description="Style guidance for visuals")
 
 
 class Script(BaseModel):
@@ -58,6 +59,8 @@ class Script(BaseModel):
     updated_at: datetime
     total_duration: float = Field(..., description="Total duration in seconds")
     status: Literal["draft", "complete", "in_progress"] = "draft"
+    style: str = Field(..., description="Presentation style (e.g., educational, entertaining)")
+    visual_style: str = Field(..., description="Style guidance for visuals")
 
 
 class ScriptResponse(BaseModel):
