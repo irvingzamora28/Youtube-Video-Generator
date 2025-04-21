@@ -47,7 +47,43 @@ class MultipleImagesRequest(BaseModel):
     model: Optional[str] = None
     aspect_ratio: Optional[str] = None
 
+# Request model for image description generation
+class ImageDescriptionRequest(BaseModel):
+    script: str
+    narration: str
+    selected_text: str
+
 # Routes
+@router.post("/generate-description")
+async def generate_image_description(request: ImageDescriptionRequest):
+    """
+    Generate an image description for the selected text, using the full script and narration as context.
+    """
+    try:
+        from backend.llm.factory import create_llm_provider_from_env
+        llm_provider = create_llm_provider_from_env()
+        prompt = (
+            "You are an expert at writing vivid, concise image descriptions for video generation. "
+            "Given the full script, the current segment narration, and a specific text selection, "
+            "generate an improved, detailed image description that best represents the selected text. "
+            "The description should be visual, specific, MINIMALISTIC and suitable for an image generation model.\n"
+            f"Full Script:\n{request.script}\n"
+            f"Current Segment Narration:\n{request.narration}\n"
+            f"Selected Text (to represent):\n{request.selected_text}\n"
+            "Image Description:"
+        )
+        # Call the LLM provider (sync or async depending on your setup)
+        response = await llm_provider.generate_completion(
+            messages=[{"role": "user", "content": prompt}],
+            model=None, temperature=0.7, max_tokens=400
+        )
+        description = response["content"] if isinstance(response, dict) else str(response)
+        return {"description": description.strip()}
+    except Exception as e:
+        import traceback
+        print("[generate_image_description] Error:", traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/generate")
 async def generate_image(
     request: ImageGenerationRequest,

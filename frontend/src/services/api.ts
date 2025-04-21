@@ -4,6 +4,37 @@ import { Script, Visual, ScriptSegment } from '../types/script'; // Add ScriptSe
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /**
+ * Generate an image description for a visual, using script, narration, and selected text as context
+ */
+export async function generateImageDescription({
+  script,
+  narration,
+  selectedText,
+}: {
+  script: string;
+  narration: string;
+  selectedText: string;
+}): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/api/image/generate-description`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ script, narration, selected_text: selectedText }),
+  });
+  if (!response.ok) {
+    let errorDetail = 'Failed to generate image description';
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) { /* Ignore JSON parsing error */ }
+    throw new Error(errorDetail);
+  }
+  const data = await response.json();
+  return data.description;
+}
+
+/**
  * Generate a script using the backend API
  */
 export async function generateScript(
