@@ -51,12 +51,10 @@ def preview_bg_removal(payload: BgRemovalPreviewRequest):
             bg = bg.resize(img.size)
         else:
             bg = Image.new("RGBA", img.size, (255,255,255,0))
-        # Save temp files if needed, or use remove_background_from_image directly
         # Save img and bg to temp files because remove_background_from_image expects file paths
         with tempfile.NamedTemporaryFile(suffix='.png') as img_tmp, tempfile.NamedTemporaryFile(suffix='.png') as bg_tmp:
             img.save(img_tmp.name)
             bg.save(bg_tmp.name)
-            from backend.api.bg_removal import remove_background_from_image
             composite = remove_background_from_image(
                 img_tmp.name,
                 bg_tmp.name,
