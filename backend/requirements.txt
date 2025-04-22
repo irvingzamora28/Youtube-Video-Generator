@@ -5,6 +5,9 @@ pydantic>=2.6.0
 pydantic-settings>=2.0.0 # Added for BaseSettings
 python-dotenv>=1.0.0
 pytest
+moviepy
+ffmpeg
+ffmpeg-python
 
 # LLM APIs
 openai>=1.72.0

@@ -3,11 +3,56 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Script } from '../types/script';
 import { getProject } from '../services/projectApi';
+import { generateVideo, getVideoStatus } from '../services/api';
 // Import the new timeline component
 import VisualTimeline from '../components/VisualTimeline';
 import VisualTimelineEditor from '../components/VisualTimelineEditor';
 
 const VisualTimelineEditorPage: React.FC = () => {
+  const [videoTaskId, setVideoTaskId] = useState<string | null>(null);
+  const [videoStatus, setVideoStatus] = useState<'idle'|'pending'|'processing'|'completed'|'error'>('idle');
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoError, setVideoError] = useState<string | null>(null);
+
+  // Poll video status if a task is running
+  useEffect(() => {
+    let interval: any = null; // Use 'any' to avoid NodeJS namespace error
+    if (videoTaskId && (videoStatus === 'pending' || videoStatus === 'processing')) {
+      interval = setInterval(async () => {
+        try {
+          const statusResp = await getVideoStatus(videoTaskId);
+          setVideoStatus(statusResp.status as any);
+          if (statusResp.status === 'completed' && statusResp.video_url) {
+            setVideoUrl(statusResp.video_url);
+            if (interval) clearInterval(interval);
+          } else if (statusResp.status === 'error') {
+            setVideoError(statusResp.error || 'Video generation failed');
+            if (interval) clearInterval(interval);
+          }
+        } catch (err: any) {
+          setVideoError(err.message || 'Failed to get video status');
+          if (interval) clearInterval(interval);
+        }
+      }, 2000);
+    }
+    return () => { if (interval) clearInterval(interval); };
+  }, [videoTaskId, videoStatus]);
+
+  const handleGenerateVideo = async () => {
+    if (!projectId) return;
+    setVideoTaskId(null);
+    setVideoStatus('idle');
+    setVideoUrl(null);
+    setVideoError(null);
+    try {
+      const resp = await generateVideo(Number(projectId));
+      setVideoTaskId(resp.task_id);
+      setVideoStatus('pending');
+    } catch (err: any) {
+      setVideoError(err.message || 'Failed to start video generation');
+    }
+  };
+
   const { id: projectId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [script, setScript] = useState<Script | null>(null);
@@ -97,23 +142,60 @@ const VisualTimelineEditorPage: React.FC = () => {
             >
               Play Full Audio
             </button>
-             <button
+            <button
+              onClick={handleGenerateVideo}
+              className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold py-2 px-4 rounded mr-2"
+              disabled={videoStatus === 'pending' || videoStatus === 'processing'}
+              title="Generate a YouTube-ready video from this project"
+            >
+              {videoStatus === 'pending' || videoStatus === 'processing' ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Generating Video...
+                </>
+              ) : (
+                'Generate Video'
+              )}
+            </button>
+            <button
               onClick={() => navigate(`/projects/${projectId}`)} // Link back to project detail
               className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold py-2 px-4 rounded"
             >
               Back to Project
             </button>
+        </div>
+        </div>
+        {/* Video Generation Status & Link */}
+        {(videoStatus === 'pending' || videoStatus === 'processing') && (
+          <div className="mb-4 flex items-center text-accent">
+            <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Generating video... This may take a few minutes.
           </div>
+        )}
+        {videoStatus === 'completed' && videoUrl && (
+          <div className="mb-4">
+            <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="text-green-700 font-bold underline">
+              Download/View Generated Video
+            </a>
+          </div>
+        )}
+        {videoStatus === 'error' && videoError && (
+          <div className="mb-4 text-destructive font-bold">
+            Video generation failed: {videoError}
+          </div>
+        )}
         </div>
 
         <VisualTimeline ref={timelineRef} script={script} />
-
-        {/* Enhanced Timeline Editor Component */}
         <VisualTimelineEditor script={script} onScriptUpdate={setScript} projectId={projectId ? parseInt(projectId) : 0} />
-
-      </div>
     </Layout>
   );
-};
+}
 
 export default VisualTimelineEditorPage;

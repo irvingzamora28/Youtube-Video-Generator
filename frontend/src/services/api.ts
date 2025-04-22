@@ -6,6 +6,42 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 /**
  * Generate an image description for a visual, using script, narration, and selected text as context
  */
+/**
+ * Start video generation for a project (asynchronous)
+ */
+export async function generateVideo(projectId: number): Promise<{ status: string; task_id: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/video/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ project_id: projectId }),
+  });
+  if (!response.ok) {
+    let errorDetail = 'Failed to start video generation';
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) {}
+    throw new Error(errorDetail);
+  }
+  return response.json();
+}
+
+/**
+ * Poll video generation status by task ID
+ */
+export async function getVideoStatus(taskId: string): Promise<{ status: string; video_url?: string; error?: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/video/status/${taskId}`);
+  if (!response.ok) {
+    let errorDetail = 'Failed to get video status';
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) {}
+    throw new Error(errorDetail);
+  }
+  return response.json();
+}
+
 export async function generateImageDescription({
   script,
   narration,
