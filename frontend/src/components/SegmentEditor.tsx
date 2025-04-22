@@ -146,6 +146,7 @@ const [isGeneratingImageDescription, setIsGeneratingImageDescription] = useState
       visualType: 'image',
       position: 'center',
       transition: 'fade',
+      removeBackground: false, // Ensure initialized
     };
 
     setVisuals([...visuals, newVisual]);
@@ -191,6 +192,7 @@ const [isGeneratingImageDescription, setIsGeneratingImageDescription] = useState
           result.organized_segment.visuals.map(v => ({
             ...v,
             imageUrl: normalizeImageUrl(v.imageUrl), // Re-normalize URLs
+            removeBackground: !!v.removeBackground // Ensure all visuals have removeBackground
           }))
         );
         // Update duration if it was changed by the LLM (though prompt asks not to)
@@ -297,6 +299,7 @@ const [isGeneratingImageDescription, setIsGeneratingImageDescription] = useState
             ...newVisuals[activeVisualIndex], // Keep existing properties not returned by backend if any
             ...updatedVisual, // Spread the updated properties from backend response
             imageUrl: normalizeImageUrl(updatedVisual.imageUrl), // Ensure normalization after spreading
+            removeBackground: !!updatedVisual.removeBackground // Ensure all visuals have removeBackground
           };
           // Define the visualToUpdate object
           const visualToUpdate = newVisuals[activeVisualIndex];
@@ -346,7 +349,10 @@ const [isGeneratingImageDescription, setIsGeneratingImageDescription] = useState
       narrationText,
       startTime,
       duration,
-      visuals, // Pass the current visuals state (updated by image generation)
+      visuals: visuals.map(v => ({
+        ...v,
+        removeBackground: !!v.removeBackground // Always send boolean
+      })), // Ensure all visuals have removeBackground
       audioUrl: audioUrl ? audioUrl.replace('/static/', '') : undefined, // Pass updated audioUrl (remove /static/ prefix for saving)
       // audioAssetId might need to be updated here too if the API returns it and we store it
     };
@@ -783,6 +789,19 @@ const [isGeneratingImageDescription, setIsGeneratingImageDescription] = useState
                           placeholder="e.g., cartoon, realistic, minimalist"
                         />
                       </div>
+                    </div>
+
+                    <div className="mt-4 flex items-center">
+                      <input
+                        id="remove-background-toggle"
+                        type="checkbox"
+                        className="mr-2 h-4 w-4 text-primary border-border rounded focus:ring-primary"
+                        checked={!!visuals[activeVisualIndex].removeBackground}
+                        onChange={e => handleUpdateVisual(activeVisualIndex, 'removeBackground', e.target.checked)}
+                      />
+                      <label htmlFor="remove-background-toggle" className="text-sm text-foreground select-none cursor-pointer">
+                        Remove background from this visual (use project background image)
+                      </label>
                     </div>
                   </div>
                 </div>

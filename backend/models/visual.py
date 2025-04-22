@@ -14,7 +14,7 @@ class Visual:
                  timestamp: float = 0.0, duration: float = 0.0, image_path: Optional[str] = None,
                  alt_text: str = "", visual_type: str = "image", visual_style: str = "",
                  position: int = 0, zoom_level: float = 1.0, transition: str = "",
-                 created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None):
+                 created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None, remove_background: bool = False):
         """
         Initialize a Visual instance.
         
@@ -77,7 +77,8 @@ class Visual:
             zoom_level=data.get('zoom_level', 1.0),
             transition=data.get('transition', ""),
             created_at=data.get('created_at'),
-            updated_at=data.get('updated_at')
+            updated_at=data.get('updated_at'),
+            remove_background=data.get('remove_background', False)
         )
     
     def to_dict(self, include_image_data: bool = False) -> Dict[str, Any]:
@@ -104,7 +105,8 @@ class Visual:
             'zoom_level': self.zoom_level,
             'transition': self.transition,
             'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'updated_at': self.updated_at,
+            'remove_background': self.remove_background
         }
         
         # Include base64 image data if requested

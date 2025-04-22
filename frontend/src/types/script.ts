@@ -1,6 +1,10 @@
 // Types for the script generation and editing
 
 export type Visual = {
+  /**
+   * If true, remove the background from the image and use the project's background image during video generation.
+   */
+  removeBackground?: boolean;
   id: string;
   description: string; // Description for image generation
   timestamp: number; // Specific timestamp within the segment (in seconds)

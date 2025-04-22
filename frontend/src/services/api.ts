@@ -174,6 +174,7 @@ export function transformScriptFromApi(apiScript: any): Script {
               position: visual.position || '',
               zoomLevel: visual.zoomLevel || visual.zoom_level || 1,
               transition: visual.transition || '',
+              removeBackground: typeof visual.removeBackground !== 'undefined' ? visual.removeBackground : (typeof visual.remove_background !== 'undefined' ? visual.remove_background : false),
             }))
           };
         }),
