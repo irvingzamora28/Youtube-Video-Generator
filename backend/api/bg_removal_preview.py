@@ -17,6 +17,8 @@ router = APIRouter(prefix="/api/bg_removal", tags=["Background Removal"])
 class BgRemovalPreviewRequest(BaseModel):
     image_url: str
     background_url: Optional[str] = None
+    method: Optional[str] = 'color'  # 'color' or 'rembg'
+    tolerance: Optional[int] = None
 
 @router.post("/preview")
 def preview_bg_removal(payload: BgRemovalPreviewRequest):
@@ -55,7 +57,13 @@ def preview_bg_removal(payload: BgRemovalPreviewRequest):
             img.save(img_tmp.name)
             bg.save(bg_tmp.name)
             from backend.api.bg_removal import remove_background_from_image
-            composite = remove_background_from_image(img_tmp.name, bg_tmp.name, output_path=None)
+            composite = remove_background_from_image(
+                img_tmp.name,
+                bg_tmp.name,
+                output_path=None,
+                method=payload.method or 'color',
+                tolerance=payload.tolerance if payload.tolerance is not None else 20
+            )
         # Encode to base64
         buf = io.BytesIO()
         composite.save(buf, format="PNG")
