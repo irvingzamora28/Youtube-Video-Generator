@@ -45,4 +45,5 @@ export type Script = {
   status: 'draft' | 'complete' | 'in_progress';
   visualStyle?: string;
   style?: string;
+  background_image?: string; // Optional background image path
 };

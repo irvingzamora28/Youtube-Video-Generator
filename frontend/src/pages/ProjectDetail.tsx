@@ -282,6 +282,55 @@ const ProjectDetail: React.FC = () => {
               <span className="ml-2 text-foreground">{new Date(script.updatedAt).toLocaleDateString()}</span>
             </div>
           </div>
+
+          {/* Background Image Upload */}
+          <div className="mb-4">
+            <span className="text-muted-foreground font-semibold">Background Image:</span>
+            <div className="flex items-center mt-2 space-x-4">
+              {script.background_image && (
+                <img
+                  src={`/${script.background_image}`}
+                  alt="Background Preview"
+                  style={{ maxWidth: 200, maxHeight: 120, borderRadius: 8, border: '1px solid #ddd' }}
+                />
+              )}
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const input = e.currentTarget.elements.namedItem('bgImage') as HTMLInputElement;
+                  if (!input?.files?.[0] || !id) return;
+                  setLoading(true);
+                  setError(null);
+                  try {
+                    // @ts-ignore
+                    const { uploadBackgroundImage } = await import('../services/projectApi');
+                    await uploadBackgroundImage(parseInt(id), input.files[0]);
+                    await fetchProject(parseInt(id));
+                  } catch (err: any) {
+                    setError('Failed to upload background image.');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+              >
+                <input
+                  type="file"
+                  name="bgImage"
+                  accept="image/*"
+                  className="block text-sm text-foreground file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80"
+                  disabled={loading}
+                />
+                <button
+                  type="submit"
+                  className="ml-2 px-3 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50"
+                  disabled={loading}
+                >
+                  {loading ? 'Uploading...' : 'Upload'}
+                </button>
+              </form>
+            </div>
+            <span className="block text-xs text-muted-foreground mt-1">Accepted: PNG, JPG, JPEG. For best results, use a 16:9 aspect ratio.</span>
+          </div>
         </div>
       )}
 

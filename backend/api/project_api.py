@@ -6,8 +6,12 @@ from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
 import base64
 import json
+import shutil
+import os
 from io import BytesIO
-
+from backend.models.visual import Visual
+from backend.models.segment import Segment
+from backend.models.section import Section
 from backend.models.project import Project
 from backend.models.asset import Asset
 from backend.database.db import init_db
@@ -48,7 +52,31 @@ class AssetCreate(BaseModel):
 class AssetUpdate(BaseModel):
     metadata: Optional[Dict[str, Any]] = None
 
-# Project routes
+@router.post("/{project_id}/background-image")
+async def upload_background_image(project_id: int, file: UploadFile = File(...)):
+    """
+    Upload a background image for a project. Stores the image locally and updates the project.
+    """
+    project = Project.get_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    # Create directory if needed
+    bg_dir = f"static/projects/{project_id}/background"
+    os.makedirs(bg_dir, exist_ok=True)
+    # Save file
+    file_ext = os.path.splitext(file.filename)[1]
+    filename = f"background{file_ext}"
+    file_path = os.path.join(bg_dir, filename)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    # Store relative path
+    rel_path = os.path.relpath(file_path, start=".")
+    project.background_image = rel_path
+    if project.save():
+        return {"success": True, "background_image": rel_path, "project": project.to_dict()}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to update project with background image")
+
 @router.get("/")
 async def get_all_projects():
     """
@@ -333,3 +361,89 @@ async def delete_asset(asset_id: int):
         return {"success": True}
     else:
         raise HTTPException(status_code=500, detail="Failed to delete asset")
+
+
+@router.post("/segments/{segment_id}/visuals")
+async def create_visual(segment_id: int, visual_data: dict):
+    """
+    Create a new visual for a segment.
+    """
+    segment = Segment.get_by_id(segment_id)
+    if not segment:
+        raise HTTPException(status_code=404, detail="Segment not found")
+    # Get the project ID for the segment
+    section = Section.get_by_id(segment.section_id)
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    project_id = section.project_id
+    visual = Visual(
+        segment_id=segment_id,
+        description=visual_data.get("description"),
+        timestamp=visual_data.get("timestamp"),
+        duration=visual_data.get("duration"),
+        alt_text=visual_data.get("alt_text"),
+        visual_type=visual_data.get("visual_type"),
+        visual_style=visual_data.get("visual_style"),
+        position=visual_data.get("position"),
+        zoom_level=visual_data.get("zoom_level"),
+        transition=visual_data.get("transition")
+    )
+    # Set image data if provided
+    if visual_data.get("image_data"):
+        visual.set_image_data(visual_data["image_data"])
+    if visual.save(project_id):
+        return {"success": True, "visual": visual.to_dict()}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to create visual")
+
+@router.get("/visuals/{visual_id}")
+async def get_visual(visual_id: int, include_image_data: bool = False):
+    """
+    Get a visual by ID.
+    """
+    visual = Visual.get_by_id(visual_id, include_image_data)
+    if visual:
+        return {"visual": visual.to_dict(include_image_data)}
+    else:
+        raise HTTPException(status_code=404, detail="Visual not found")
+
+@router.put("/visuals/{visual_id}")
+async def update_visual(visual_id: int, visual_data: dict):
+    """
+    Update a visual.
+    """
+    visual = Visual.get_by_id(visual_id)
+    if not visual:
+        raise HTTPException(status_code=404, detail="Visual not found")
+    # Get the project ID for the visual
+    segment = Segment.get_by_id(visual.segment_id)
+    if not segment:
+        raise HTTPException(status_code=404, detail="Segment not found")
+    section = Section.get_by_id(segment.section_id)
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    project_id = section.project_id
+    # Update fields if provided
+    for field in ["description", "timestamp", "duration", "alt_text", "visual_type", "visual_style", "position", "zoom_level", "transition"]:
+        if visual_data.get(field) is not None:
+            setattr(visual, field, visual_data[field])
+    # Set image data if provided
+    if visual_data.get("image_data"):
+        visual.set_image_data(visual_data["image_data"])
+    if visual.save(project_id):
+        return {"success": True, "visual": visual.to_dict()}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to update visual")
+
+@router.delete("/visuals/{visual_id}")
+async def delete_visual(visual_id: int):
+    """
+    Delete a visual.
+    """
+    visual = Visual.get_by_id(visual_id)
+    if not visual:
+        raise HTTPException(status_code=404, detail="Visual not found")
+    if visual.delete():
+        return {"success": True}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete visual")

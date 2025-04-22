@@ -120,6 +120,21 @@ export async function getProjects(): Promise<ProjectListItem[]> {
 /**
  * Get a project by ID
  */
+export async function uploadBackgroundImage(projectId: number, file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await fetch(`${API_BASE_URL}/api/project/${projectId}/background-image`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to upload background image');
+  }
+  const data = await response.json();
+  return data.background_image;
+}
+
 export async function getProject(projectId: number): Promise<Script> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/project/${projectId}`);

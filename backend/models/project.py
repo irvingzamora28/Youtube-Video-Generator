@@ -15,6 +15,7 @@ class Project:
                  total_duration: float = 0.0, status: str = "draft",
                  style: Optional[str] = None,
                  visual_style: Optional[str] = None,
+                 background_image: Optional[str] = None,
                  created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None):
         """
         Initialize a Project instance.
@@ -41,6 +42,7 @@ class Project:
         self.visual_style = visual_style
         self.created_at = created_at or datetime.now()
         self.updated_at = updated_at or datetime.now()
+        self.background_image = background_image
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Project':
@@ -71,6 +73,7 @@ class Project:
             status=data.get('status', "draft"),
             style=data.get('style'),
             visual_style=data.get('visual_style'),
+            background_image=data.get('background_image'),
             created_at=data.get('created_at'),
             updated_at=data.get('updated_at')
         )
@@ -92,6 +95,7 @@ class Project:
             'status': self.status,
             'style': self.style,
             'visual_style': self.visual_style,
+            'background_image': self.background_image,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -117,11 +121,11 @@ class Project:
         if self.id is None:
             # Insert new project
             sql = """
-                INSERT INTO projects (title, description, target_audience, content, total_duration, status, style, visual_style, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO projects (title, description, target_audience, content, style, visual_style, total_duration, status, background_image, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             params = (self.title, self.description, self.target_audience, content_json,
-                     self.total_duration, self.status, self.style, self.visual_style, self.created_at, self.updated_at)
+                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.created_at, self.updated_at)
             self.id = execute(sql, params)
             return self.id is not None
         else:
@@ -130,11 +134,11 @@ class Project:
             sql = """
                 UPDATE projects
                 SET title = ?, description = ?, target_audience = ?, content = ?,
-                    total_duration = ?, status = ?, style = ?, visual_style = ?, updated_at = ?
+                    style = ?, visual_style = ?, total_duration = ?, status = ?, background_image = ?, updated_at = ?
                 WHERE id = ?
             """
             params = (self.title, self.description, self.target_audience, content_json,
-                     self.total_duration, self.status, self.style, self.visual_style, self.updated_at, self.id)
+                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.updated_at, self.id)
             return execute(sql, params) is not None
 
     @classmethod
