@@ -4,6 +4,29 @@ import { Script, Visual, ScriptSegment } from '../types/script'; // Add ScriptSe
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /**
+ * Preview background removal for an image and optional background.
+ * Returns a base64 PNG string.
+ */
+export async function previewBackgroundRemoval({ imageUrl, backgroundUrl }: { imageUrl: string; backgroundUrl?: string }): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/api/bg_removal/preview`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image_url: imageUrl, background_url: backgroundUrl }),
+  });
+  if (!response.ok) {
+    let errorDetail = 'Failed to preview background removal';
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) {}
+    throw new Error(errorDetail);
+  }
+  const data = await response.json();
+  return data.base64_png;
+}
+
+
+/**
  * Generate an image description for a visual, using script, narration, and selected text as context
  */
 /**

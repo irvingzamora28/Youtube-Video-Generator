@@ -7,6 +7,7 @@ from typing import Dict
 import os
 import uuid
 from backend.models.project import Project
+from backend.api.bg_removal import remove_background_from_image
 
 router = APIRouter(prefix="/api/video", tags=["Video"])
 
@@ -123,13 +124,24 @@ def _generate_video_task(project_id: int, task_id: str):
                             image_path = image_path.replace('/static/', 'static/')
                         elif not image_path.startswith('static/'):
                             image_path = 'static/' + image_path.lstrip('/')
-                    base, ext = os.path.splitext(image_path)
-                    resized_img_path = f"{base}_resized{ext}"
-                    resize(image_path, resized_img_path, 1920, 1080)
-                    start = visual.get('timestamp', 0)
-                    duration = visual.get('duration', segment_duration)
-                    img_clip = ImageClip(resized_img_path).with_start(start).with_duration(duration)
-                    visual_clips.append(img_clip)
+                        base, ext = os.path.splitext(image_path)
+                        resized_img_path = f"{base}_resized{ext}"
+                        # Check for removeBackground and background_image
+                        remove_bg = visual.get('removeBackground') or visual.get('remove_background', False)
+                        is_image = (visual.get('visualType') or visual.get('visual_type', 'image')) == 'image'
+                        project_bg = project.background_image
+                        if remove_bg and is_image and project_bg and os.path.exists(project_bg):
+                            # Compose over project background
+                            composited_path = f"{base}_composited{ext}"
+                            remove_background_from_image(image_path, project_bg, composited_path)
+                            resize(composited_path, resized_img_path, 1920, 1080)
+                        else:
+                            resize(image_path, resized_img_path, 1920, 1080)
+                        start = visual.get('timestamp', 0)
+                        duration = visual.get('duration', segment_duration)
+                        img_clip = ImageClip(resized_img_path).with_start(start).with_duration(duration)
+                        visual_clips.append(img_clip)
+
                 audio_clip = AudioFileClip(audio_abspath)
                 composite = CompositeVideoClip(visual_clips, size=(1920, 1080)).with_duration(segment_duration).with_audio(audio_clip)
                 clips.append(composite)

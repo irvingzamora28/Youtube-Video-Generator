@@ -8,6 +8,8 @@ pytest
 moviepy
 ffmpeg
 ffmpeg-python
+onnxruntime
+rembg
 
 # LLM APIs
 openai>=1.72.0

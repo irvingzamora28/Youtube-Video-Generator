@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ScriptSegment, Visual } from '../types/script';
 // Import new API functions
-import { generateImageForVisual, saveImageAsset, generateSegmentAudio, organizeSegmentVisuals, generateImageDescription } from '../services/api';
+import { generateImageForVisual, saveImageAsset, generateSegmentAudio, organizeSegmentVisuals, generateImageDescription, previewBackgroundRemoval } from '../services/api';
 
 type SegmentEditorProps = {
   segment: ScriptSegment;
@@ -33,6 +33,8 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
   const [selectedTextRange, setSelectedTextRange] = useState<{start: number, end: number} | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 const [isGeneratingImageDescription, setIsGeneratingImageDescription] = useState(false);
+const [isPreviewingBgRemoval, setIsPreviewingBgRemoval] = useState(false);
+const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [isOrganizingVisuals, setIsOrganizingVisuals] = useState(false); // State for organizing visuals
   const [generationError, setGenerationError] = useState<string | null>(null);
@@ -662,6 +664,51 @@ const [isGeneratingImageDescription, setIsGeneratingImageDescription] = useState
                       {generationError}
                     </div>
                   )}
+
+                  {/* Background Removal Preview Button and Result */}
+                  <div className="mb-4 flex flex-col gap-2">
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-accent text-accent-foreground text-xs rounded-md hover:bg-accent/90 disabled:opacity-50 flex items-center w-fit"
+                      disabled={isPreviewingBgRemoval || !visuals[activeVisualIndex].imageUrl}
+                      onClick={async () => {
+                        setIsPreviewingBgRemoval(true);
+                        setBgRemovalPreview(null);
+                        setGenerationError(null);
+                        try {
+                          const imageUrl = visuals[activeVisualIndex].imageUrl;
+                          // Optionally pass project background image URL here if you want to use it for preview
+                          const previewBase64 = await previewBackgroundRemoval({ imageUrl });
+                          setBgRemovalPreview(`data:image/png;base64,${previewBase64}`);
+                        } catch (err: any) {
+                          setGenerationError(err.message || 'Failed to preview background removal');
+                        } finally {
+                          setIsPreviewingBgRemoval(false);
+                        }
+                      }}
+                    >
+                      {isPreviewingBgRemoval ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-accent-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Previewing...
+                        </>
+                      ) : (
+                        'Preview Background Removal'
+                      )}
+                    </button>
+                    {bgRemovalPreview && (
+                      <div className="border border-border rounded-md p-2 flex justify-center bg-background">
+                        <img
+                          src={bgRemovalPreview}
+                          alt="Background Removal Preview"
+                          className="max-h-48 object-contain"
+                        />
+                      </div>
+                    )}
+                  </div>
 
                   <div className="space-y-4">
                     {/* Preview the generated image */}
