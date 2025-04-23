@@ -7,11 +7,20 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
  * Preview background removal for an image and optional background.
  * Returns a base64 PNG string.
  */
-export async function previewBackgroundRemoval({ imageUrl, backgroundUrl }: { imageUrl: string; backgroundUrl?: string }): Promise<string> {
+/**
+ * Preview background removal for an image and optional background.
+ * Returns a base64 PNG string.
+ * Accepts an optional removeBackgroundMethod ('color' or 'rembg').
+ */
+export async function previewBackgroundRemoval({ imageUrl, backgroundUrl, removeBackgroundMethod }: { imageUrl: string; backgroundUrl?: string; removeBackgroundMethod?: string }): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/api/bg_removal/preview`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image_url: imageUrl, background_url: backgroundUrl }),
+    body: JSON.stringify({
+      image_url: imageUrl,
+      background_url: backgroundUrl,
+      removeBackgroundMethod: removeBackgroundMethod
+    }),
   });
   if (!response.ok) {
     let errorDetail = 'Failed to preview background removal';

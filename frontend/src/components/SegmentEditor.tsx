@@ -29,7 +29,48 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
       imageUrl: normalizeImageUrl(v.imageUrl),
     }))
   );
+
   const [activeVisualIndex, setActiveVisualIndex] = useState<number | null>(null);
+
+  // Helper: Preview background removal for active visual
+  const handlePreviewBgRemoval = async () => {
+    if (activeVisualIndex === null) return;
+    const visual = visuals[activeVisualIndex];
+    if (!visual.imageUrl || !visual.removeBackground) return;
+    setIsPreviewingBgRemoval(true);
+    setGenerationError(null);
+    try {
+      const base64 = await previewBackgroundRemoval({
+        imageUrl: visual.imageUrl,
+        removeBackgroundMethod: visual.removeBackgroundMethod || 'color',
+        // Optionally add backgroundUrl here if you want project background
+      });
+      setBgRemovalPreview(base64);
+    } catch (err) {
+      setGenerationError(err instanceof Error ? err.message : String(err));
+      setBgRemovalPreview(null);
+    } finally {
+      setIsPreviewingBgRemoval(false);
+    }
+  };
+
+  // Helper: Change method and auto-preview if valid
+  const handleBgMethodChange = (method: 'color' | 'rembg') => {
+    if (activeVisualIndex === null) return;
+    const updatedVisuals = visuals.map((v, i) =>
+      i === activeVisualIndex ? { ...v, removeBackgroundMethod: method } : v
+    );
+    setVisuals(updatedVisuals);
+  };
+
+  // Optionally: Clear preview if imageUrl or removeBackground changes
+  useEffect(() => {
+    if (activeVisualIndex === null) return;
+    setBgRemovalPreview(null);
+    setGenerationError(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeVisualIndex, activeVisualIndex !== null ? visuals[activeVisualIndex]?.imageUrl : undefined, activeVisualIndex !== null ? visuals[activeVisualIndex]?.removeBackground : undefined]);
+
   const [selectedTextRange, setSelectedTextRange] = useState<{start: number, end: number} | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 const [isGeneratingImageDescription, setIsGeneratingImageDescription] = useState(false);
@@ -667,50 +708,6 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
                     </div>
                   )}
 
-                  {/* Background Removal Preview Button and Result */}
-                  <div className="mb-4 flex flex-col gap-2">
-                    <button
-                      type="button"
-                      className="px-2 py-1 bg-accent text-accent-foreground text-xs rounded-md hover:bg-accent/90 disabled:opacity-50 flex items-center w-fit"
-                      disabled={isPreviewingBgRemoval || !visuals[activeVisualIndex].imageUrl}
-                      onClick={async () => {
-                        setIsPreviewingBgRemoval(true);
-                        setBgRemovalPreview(null);
-                        setGenerationError(null);
-                        try {
-                          const imageUrl = visuals[activeVisualIndex].imageUrl;
-                          // Optionally pass project background image URL here if you want to use it for preview
-                          const previewBase64 = await previewBackgroundRemoval({ imageUrl });
-                          setBgRemovalPreview(`data:image/png;base64,${previewBase64}`);
-                        } catch (err: any) {
-                          setGenerationError(err.message || 'Failed to preview background removal');
-                        } finally {
-                          setIsPreviewingBgRemoval(false);
-                        }
-                      }}
-                    >
-                      {isPreviewingBgRemoval ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-accent-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Previewing...
-                        </>
-                      ) : (
-                        'Preview Background Removal'
-                      )}
-                    </button>
-                    {bgRemovalPreview && (
-                      <div className="border border-border rounded-md p-2 flex justify-center bg-background">
-                        <img
-                          src={bgRemovalPreview}
-                          alt="Background Removal Preview"
-                          className="max-h-48 object-contain"
-                        />
-                      </div>
-                    )}
-                  </div>
 
                   <div className="space-y-4">
                     {/* Preview the generated image */}
@@ -862,7 +859,7 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
                           value="color"
                           disabled={!visuals[activeVisualIndex].removeBackground}
                           checked={(visuals[activeVisualIndex].removeBackgroundMethod || 'color') === 'color'}
-                          onChange={() => handleUpdateVisual(activeVisualIndex, 'removeBackgroundMethod', 'color')}
+                          onChange={() => handleBgMethodChange('color')}
                         />
                         <span>Color</span>
                       </label>
@@ -873,11 +870,31 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
                           value="rembg"
                           disabled={!visuals[activeVisualIndex].removeBackground}
                           checked={visuals[activeVisualIndex].removeBackgroundMethod === 'rembg'}
-                          onChange={() => handleUpdateVisual(activeVisualIndex, 'removeBackgroundMethod', 'rembg')}
+                          onChange={() => handleBgMethodChange('rembg')}
                         />
                         <span>Rembg</span>
                       </label>
+                      <button
+                        type="button"
+                        className="ml-4 px-2 py-1 border border-border rounded text-xs hover:bg-muted/40 disabled:opacity-50"
+                        disabled={!visuals[activeVisualIndex].removeBackground || !visuals[activeVisualIndex].imageUrl}
+                        onClick={handlePreviewBgRemoval}
+                      >
+                        Preview
+                      </button>
+                      {isPreviewingBgRemoval && <span className="ml-2 text-xs text-muted-foreground">Loading...</span>}
+                      {generationError && <span className="ml-2 text-xs text-red-600">{generationError}</span>}
                     </div>
+                    {bgRemovalPreview && visuals[activeVisualIndex].removeBackground && (
+                      <div className="mt-3">
+                        <div className="text-xs text-muted-foreground mb-1">Preview:</div>
+                        <img
+                          src={`data:image/png;base64,${bgRemovalPreview}`}
+                          alt="Background Removal Preview"
+                          className="rounded border border-border max-w-full max-h-48"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

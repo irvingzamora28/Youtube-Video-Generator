@@ -18,6 +18,7 @@ class BgRemovalPreviewRequest(BaseModel):
     image_url: str
     background_url: Optional[str] = None
     method: Optional[str] = 'color'  # 'color' or 'rembg'
+    removeBackgroundMethod: Optional[str] = None  # camelCase for frontend compatibility
     tolerance: Optional[int] = None
 
 @router.post("/preview")
@@ -55,11 +56,12 @@ def preview_bg_removal(payload: BgRemovalPreviewRequest):
         with tempfile.NamedTemporaryFile(suffix='.png') as img_tmp, tempfile.NamedTemporaryFile(suffix='.png') as bg_tmp:
             img.save(img_tmp.name)
             bg.save(bg_tmp.name)
+            method = payload.removeBackgroundMethod or payload.method or 'color'
             composite = remove_background_from_image(
                 img_tmp.name,
                 bg_tmp.name,
                 output_path=None,
-                method=payload.method or 'color',
+                method=method,
                 tolerance=payload.tolerance if payload.tolerance is not None else 20
             )
         # Encode to base64
