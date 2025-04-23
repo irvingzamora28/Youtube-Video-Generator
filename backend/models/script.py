@@ -19,6 +19,8 @@ class Visual(BaseModel):
     position: Optional[Literal["left", "right", "center", "full"]] = Field(None, description="Position on screen")
     zoom_level: Optional[float] = Field(None, description="For zoom effects")
     transition: Optional[Literal["fade", "slide", "zoom", "none"]] = Field(None, description="Transition to next visual")
+    removeBackgroundMethod: Optional[Literal["color", "rembg"]] = Field('color', description='Background removal method: "color" or "rembg"')
+
 
 
 class ScriptSegment(BaseModel):

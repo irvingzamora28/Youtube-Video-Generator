@@ -149,6 +149,7 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
       position: 'center',
       transition: 'fade',
       removeBackground: false, // Ensure initialized
+      removeBackgroundMethod: 'color', // Default method
     };
 
     setVisuals([...visuals, newVisual]);
@@ -353,8 +354,9 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
       duration,
       visuals: visuals.map(v => ({
         ...v,
-        removeBackground: !!v.removeBackground // Always send boolean
-      })), // Ensure all visuals have removeBackground
+        removeBackground: !!v.removeBackground, // Always send boolean
+        removeBackgroundMethod: v.removeBackgroundMethod || 'color', // Always send method
+      })), // Ensure all visuals have removeBackground and method
       audioUrl: audioUrl ? audioUrl.replace('/static/', '') : undefined, // Pass updated audioUrl (remove /static/ prefix for saving)
       // audioAssetId might need to be updated here too if the API returns it and we store it
     };
@@ -848,6 +850,32 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
                       />
                       <label htmlFor="remove-background-toggle" className="text-sm text-foreground select-none cursor-pointer">
                         Remove background from this visual (use project background image)
+                      </label>
+                    </div>
+                    {/* Remove Background Method Radio Group */}
+                    <div className="mt-2 flex items-center space-x-4">
+                      <span className="text-sm text-foreground">Method:</span>
+                      <label className={`flex items-center space-x-1 text-sm ${!visuals[activeVisualIndex].removeBackground ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                        <input
+                          type="radio"
+                          name={`remove-bg-method-${activeVisualIndex}`}
+                          value="color"
+                          disabled={!visuals[activeVisualIndex].removeBackground}
+                          checked={(visuals[activeVisualIndex].removeBackgroundMethod || 'color') === 'color'}
+                          onChange={() => handleUpdateVisual(activeVisualIndex, 'removeBackgroundMethod', 'color')}
+                        />
+                        <span>Color</span>
+                      </label>
+                      <label className={`flex items-center space-x-1 text-sm ${!visuals[activeVisualIndex].removeBackground ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                        <input
+                          type="radio"
+                          name={`remove-bg-method-${activeVisualIndex}`}
+                          value="rembg"
+                          disabled={!visuals[activeVisualIndex].removeBackground}
+                          checked={visuals[activeVisualIndex].removeBackgroundMethod === 'rembg'}
+                          onChange={() => handleUpdateVisual(activeVisualIndex, 'removeBackgroundMethod', 'rembg')}
+                        />
+                        <span>Rembg</span>
                       </label>
                     </div>
                   </div>

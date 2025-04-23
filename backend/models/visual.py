@@ -14,10 +14,10 @@ class Visual:
                  timestamp: float = 0.0, duration: float = 0.0, image_path: Optional[str] = None,
                  alt_text: str = "", visual_type: str = "image", visual_style: str = "",
                  position: int = 0, zoom_level: float = 1.0, transition: str = "",
-                 created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None, remove_background: bool = False):
+                 created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None, remove_background: bool = False, remove_background_method: str = 'color'):
         """
         Initialize a Visual instance.
-        
+
         Args:
             id: Visual ID (None for new visuals)
             segment_id: ID of the parent segment
@@ -33,6 +33,8 @@ class Visual:
             transition: Transition effect
             created_at: Creation timestamp
             updated_at: Last update timestamp
+            remove_background: Whether to remove the background
+            remove_background_method: Method to use for removing the background
         """
         self.id = id
         self.segment_id = segment_id
@@ -48,6 +50,8 @@ class Visual:
         self.transition = transition
         self.created_at = created_at or datetime.now()
         self.updated_at = updated_at or datetime.now()
+        self.remove_background = remove_background
+        self.remove_background_method = remove_background_method
         
         # Temporary storage for base64 image data
         self._image_data = None
@@ -78,7 +82,8 @@ class Visual:
             transition=data.get('transition', ""),
             created_at=data.get('created_at'),
             updated_at=data.get('updated_at'),
-            remove_background=data.get('remove_background', False)
+            remove_background=data.get('remove_background', False),
+            remove_background_method=data.get('removeBackgroundMethod', data.get('remove_background_method', 'color'))
         )
     
     def to_dict(self, include_image_data: bool = False) -> Dict[str, Any]:
@@ -106,7 +111,8 @@ class Visual:
             'transition': self.transition,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
-            'remove_background': self.remove_background
+            'remove_background': self.remove_background,
+            'removeBackgroundMethod': self.remove_background_method
         }
         
         # Include base64 image data if requested
@@ -151,11 +157,11 @@ class Visual:
             # Insert new visual
             sql = """
                 INSERT INTO visuals (segment_id, description, timestamp, duration, image_path,
-                                    alt_text, visual_type, visual_style, position, zoom_level, transition)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                    alt_text, visual_type, visual_style, position, zoom_level, transition, remove_background, remove_background_method)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             params = (self.segment_id, self.description, self.timestamp, self.duration, self.image_path,
-                     self.alt_text, self.visual_type, self.visual_style, self.position, self.zoom_level, self.transition)
+                     self.alt_text, self.visual_type, self.visual_style, self.position, self.zoom_level, self.transition, self.remove_background, self.remove_background_method)
             self.id = execute(sql, params)
             
             # If we have a new ID and we saved a temporary image, rename it
@@ -175,12 +181,12 @@ class Visual:
                 UPDATE visuals
                 SET segment_id = ?, description = ?, timestamp = ?, duration = ?, image_path = ?,
                     alt_text = ?, visual_type = ?, visual_style = ?, position = ?, zoom_level = ?,
-                    transition = ?, updated_at = ?
+                    transition = ?, updated_at = ?, remove_background = ?, remove_background_method = ?
                 WHERE id = ?
             """
             params = (self.segment_id, self.description, self.timestamp, self.duration, self.image_path,
                      self.alt_text, self.visual_type, self.visual_style, self.position, self.zoom_level,
-                     self.transition, self.updated_at, self.id)
+                     self.transition, self.updated_at, self.remove_background, self.remove_background_method, self.id)
             return execute(sql, params) is not None
     
     @classmethod

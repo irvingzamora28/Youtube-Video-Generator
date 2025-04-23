@@ -198,6 +198,7 @@ export function transformScriptFromApi(apiScript: any): Script {
               zoomLevel: visual.zoomLevel || visual.zoom_level || 1,
               transition: visual.transition || '',
               removeBackground: typeof visual.removeBackground !== 'undefined' ? visual.removeBackground : (typeof visual.remove_background !== 'undefined' ? visual.remove_background : false),
+removeBackgroundMethod: visual.removeBackgroundMethod || visual.remove_background_method || 'color',
             }))
           };
         }),
@@ -292,6 +293,7 @@ export async function saveImageAsset({
     duration: duration,
     image_data: imageData, // Matches backend model field name
     description: description,
+    remove_background_method: (typeof arguments[0].removeBackgroundMethod !== 'undefined' ? arguments[0].removeBackgroundMethod : 'color'),
   };
 
   const response = await fetch(`${API_BASE_URL}/api/image/save`, {

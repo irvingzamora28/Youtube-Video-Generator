@@ -5,6 +5,10 @@ export type Visual = {
    * If true, remove the background from the image and use the project's background image during video generation.
    */
   removeBackground?: boolean;
+  /**
+   * Method to use for background removal. 'color' or 'rembg'. Defaults to 'color'.
+   */
+  removeBackgroundMethod?: 'color' | 'rembg';
   id: string;
   description: string; // Description for image generation
   timestamp: number; // Specific timestamp within the segment (in seconds)
