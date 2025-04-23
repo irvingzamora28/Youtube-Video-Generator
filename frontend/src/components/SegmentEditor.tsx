@@ -43,6 +43,7 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
       const base64 = await previewBackgroundRemoval({
         imageUrl: visual.imageUrl,
         removeBackgroundMethod: visual.removeBackgroundMethod || 'color',
+        projectId,
         // Optionally add backgroundUrl here if you want project background
       });
       setBgRemovalPreview(base64);

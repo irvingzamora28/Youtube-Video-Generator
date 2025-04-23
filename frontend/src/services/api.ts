@@ -12,14 +12,15 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
  * Returns a base64 PNG string.
  * Accepts an optional removeBackgroundMethod ('color' or 'rembg').
  */
-export async function previewBackgroundRemoval({ imageUrl, backgroundUrl, removeBackgroundMethod }: { imageUrl: string; backgroundUrl?: string; removeBackgroundMethod?: string }): Promise<string> {
+export async function previewBackgroundRemoval({ imageUrl, backgroundUrl, removeBackgroundMethod, projectId }: { imageUrl: string; backgroundUrl?: string; removeBackgroundMethod?: string; projectId?: number }): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/api/bg_removal/preview`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       image_url: imageUrl,
       background_url: backgroundUrl,
-      removeBackgroundMethod: removeBackgroundMethod
+      removeBackgroundMethod: removeBackgroundMethod,
+      project_id: projectId
     }),
   });
   if (!response.ok) {

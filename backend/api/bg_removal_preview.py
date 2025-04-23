@@ -17,6 +17,7 @@ router = APIRouter(prefix="/api/bg_removal", tags=["Background Removal"])
 class BgRemovalPreviewRequest(BaseModel):
     image_url: str
     background_url: Optional[str] = None
+    project_id: Optional[int] = None
     method: Optional[str] = 'color'  # 'color' or 'rembg'
     removeBackgroundMethod: Optional[str] = None  # camelCase for frontend compatibility
     tolerance: Optional[int] = None
@@ -47,10 +48,17 @@ def preview_bg_removal(payload: BgRemovalPreviewRequest):
                 raise ValueError(f"Invalid image_url: {image_url}")
 
         img = resolve_image(payload.image_url)
+        bg = None
         if payload.background_url:
             bg = resolve_image(payload.background_url)
             bg = bg.resize(img.size)
-        else:
+        elif payload.project_id is not None:
+            # Try to get project background image
+            from backend.models.project import Project
+            project = Project.get_by_id(payload.project_id)
+            if project and project.background_image and os.path.exists(project.background_image):
+                bg = Image.open(project.background_image).convert("RGBA").resize(img.size)
+        if bg is None:
             bg = Image.new("RGBA", img.size, (255,255,255,0))
         # Save img and bg to temp files because remove_background_from_image expects file paths
         with tempfile.NamedTemporaryFile(suffix='.png') as img_tmp, tempfile.NamedTemporaryFile(suffix='.png') as bg_tmp:
