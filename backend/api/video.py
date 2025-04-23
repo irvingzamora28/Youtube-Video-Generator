@@ -133,7 +133,9 @@ def _generate_video_task(project_id: int, task_id: str):
                         if remove_bg and is_image and project_bg and os.path.exists(project_bg):
                             # Compose over project background
                             composited_path = f"{base}_composited{ext}"
-                            remove_background_from_image(image_path, project_bg, composited_path, 'color')
+                            # Use method from visual, fallback to 'color'
+                            method = visual.get('removeBackgroundMethod') or visual.get('remove_background_method') or 'color'
+                            remove_background_from_image(image_path, project_bg, composited_path, method)
                             resize(composited_path, resized_img_path, 1920, 1080)
                         else:
                             resize(image_path, resized_img_path, 1920, 1080)
