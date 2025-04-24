@@ -220,8 +220,19 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
 
   // Save to backend
   const handleSave = async () => {
-    await updateProjectScript(projectId, editingScript);
-    if (onScriptUpdate) onScriptUpdate(editingScript);
+    // Sort visuals in each segment by timestamp before saving
+    const newScript = {
+      ...editingScript,
+      sections: editingScript.sections.map(section => ({
+        ...section,
+        segments: section.segments.map(segment => ({
+          ...segment,
+          visuals: [...segment.visuals].sort((a, b) => a.timestamp - b.timestamp)
+        }))
+      }))
+    };
+    await updateProjectScript(projectId, newScript);
+    if (onScriptUpdate) onScriptUpdate(newScript);
     alert('Timeline changes saved!');
   };
 
