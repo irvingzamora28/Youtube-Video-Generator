@@ -135,6 +135,8 @@ async def save_image_asset(payload: SaveImagePayload): # Accept payload model
                                     print(f"[save_image_asset] Visual before update: {match}")
                                     match['imageUrl'] = asset.path
                                     match['assetId'] = asset.id  # Ensure assetId is set to the asset's DB id
+                                    # Update the description too
+                                    match['description'] = payload.description
                                     print(f"[save_image_asset] Visual after update: {match}")
                                     updated = True
                                     break # Exit outer loop (segments) as we found and updated the target
