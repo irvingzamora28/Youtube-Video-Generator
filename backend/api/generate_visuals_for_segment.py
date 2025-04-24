@@ -25,6 +25,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
     - Returns updated visuals
     """
     # Load project by project_id
+    print(f"[generate_visuals_for_segment] Loading project {request.project_id} and segment {request.segment_id}")
     project = Project.get_by_id(request.project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -40,7 +41,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             break
     if not segment:
         raise HTTPException(status_code=404, detail="Segment not found")
-
+    print(f"[generate_visuals_for_segment] Found segment: {segment}")
     narration_text = request.narration_text
     llm_provider = create_llm_provider_from_env()
     image_provider = create_image_provider()
@@ -73,18 +74,24 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
     assets = []
     from backend.api.image import generate_image_description_text
 
-    existing_visuals = segment.visuals if hasattr(segment, 'visuals') and segment.visuals else []
+    existing_visuals = segment.get("visuals", [])
     num_existing = len(existing_visuals)
     num_parts = len(parts)
     visuals_to_keep = min(num_existing, num_parts)
+    script_text = project.get_full_script()
+    print(f"[generate_visuals_for_segment] Script text: {script_text}")
     print(f"[generate_visuals_for_segment] Visuals to keep: {visuals_to_keep}")
     print(f"[generate_visuals_for_segment] Existing visuals: {existing_visuals}")
     print(f"[generate_visuals_for_segment] Parts: {parts}")
+    print(f"[generate_visuals_for_segment] Segment ID: {segment['id']}")
 
     # Update visuals for as many as we can reuse
     for idx in range(visuals_to_keep):
         part = parts[idx]
-        script_text = getattr(project, 'content', '') if hasattr(project, 'content') else ''
+        prev_visual = existing_visuals[idx]
+        
+        prev_visual_id = prev_visual.get("id", str(uuid.uuid4()))
+        
         try:
             image_description = await generate_image_description_text(
                 script=script_text,
@@ -109,8 +116,8 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             from backend.api.image_save import SaveImagePayload, save_image_asset
             payload = SaveImagePayload(
                 project_id=project.id,
-                segment_id=segment.id,
-                visual_id=prev_visual.get("id", str(uuid.uuid4())),
+                segment_id=segment['id'],
+                visual_id=prev_visual_id,
                 timestamp=idx * 2.0,
                 duration=2.0,
                 image_data=image_data,
@@ -123,9 +130,8 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
                 image_url = f"/static/{asset['path']}"
                 assets.append(asset)
         # Update the existing visual, preserve its id
-        prev_visual = existing_visuals[idx]
         visual = {
-            "id": prev_visual.get("id", str(uuid.uuid4())),
+            "id": prev_visual_id,
             "description": image_description,
             "timestamp": idx * 2.0,
             "duration": 2.0,
@@ -145,23 +151,30 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
     # For extra parts, create new visuals
     for idx in range(visuals_to_keep, num_parts):
         part = parts[idx]
-        script_text = project.content
+        visual_id = f"visual-{str(uuid.uuid4())[:10]}"
+        print(f"[generate_visuals_for_segment] Generating image for part {idx}: {part}")
         try:
             image_description = await generate_image_description_text(
                 script=script_text,
                 narration=narration_text,
                 selected_text=part
             )
+            print(f"[generate_visuals_for_segment] Image description: {image_description}")
         except Exception as e:
+            print(f"[generate_visuals_for_segment] Failed to generate image description: {e}")
             image_description = part
         try:
-            prompt = f"Generate an image of: {image_description}. Style: {project.get('visual_style', 'educational')}."
+            prompt = f"Generate an image of: {image_description}. Style: {project.visual_style or 'educational'}."
+            print(f"[generate_visuals_for_segment] Image generation prompt: {prompt}")
             img_result = await image_provider.generate_image(prompt, None, "16:9")
+            print(f"[generate_visuals_for_segment] Image provider result: {img_result[:50]}")
             if not img_result.get('success', False):
+                print(f"[generate_visuals_for_segment] Image generation failed: {img_result.get('error', 'Unknown image generation error')}")
                 raise Exception(img_result.get('error', 'Unknown image generation error'))
             image_data = img_result['image_data']
             mime_type = img_result.get('mime_type', 'image/png')
         except Exception as e:
+            print(f"[generate_visuals_for_segment] Exception during image generation: {e}")
             image_data = None
             mime_type = None
         asset_id = None
@@ -170,21 +183,24 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             from backend.api.image_save import SaveImagePayload, save_image_asset
             payload = SaveImagePayload(
                 project_id=project.id,
-                segment_id=segment["id"],
-                visual_id=str(uuid.uuid4()),
+                segment_id=segment['id'],
+                visual_id=visual_id,
                 timestamp=idx * 2.0,
                 duration=2.0,
                 image_data=image_data,
                 description=image_description
             )
+            print(f"[generate_visuals_for_segment] Saving image asset with payload: {payload}")
             asset_result = await save_image_asset(payload)
-            if asset_result and asset_result.get("success"):
+            # print(f"[generate_visuals_for_segment] Asset save result: {asset_result}")
+            if asset_result.get("success"):
                 asset = asset_result["asset"]
                 asset_id = asset["id"]
                 image_url = f"/static/{asset['path']}"
                 assets.append(asset)
+                print(f"[generate_visuals_for_segment] Created asset: {asset}")
         visual = {
-            "id": str(uuid.uuid4()),
+            "id": visual_id,
             "description": image_description,
             "timestamp": idx * 2.0,
             "duration": 2.0,
@@ -199,6 +215,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             "removeBackgroundMethod": "color",
             "assetId": asset_id,
         }
+        print(f"[generate_visuals_for_segment] Visual created: {visual}")
         visuals.append(visual)
 
     # Delete extra visuals (and assets) if there are more visuals than parts

@@ -108,7 +108,7 @@ class Project:
             True if successful, False otherwise
         """
         print(f"Saving project {self.id}")
-        print(f"Content before JSON conversion: {self.content}")
+        # print(f"Content before JSON conversion: {self.content}")
 
         # Convert content to JSON string
         try:
@@ -202,3 +202,15 @@ class Project:
         result = self.save()
         print(f"Save result: {result}")
         return result
+    
+    def get_full_script(self) -> str:
+        """
+        Returns the concatenated narrationText from all segments in all sections.
+        """
+        script_text = ""
+        for section in self.content.get("sections", []):
+            for seg in section.get("segments", []):
+                narration = seg.get("narrationText", "")
+                if narration:
+                    script_text += narration + "\n"
+        return script_text
