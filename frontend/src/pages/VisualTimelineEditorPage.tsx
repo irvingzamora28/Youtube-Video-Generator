@@ -9,6 +9,8 @@ import VisualTimeline from '../components/VisualTimeline';
 import VisualTimelineEditor from '../components/VisualTimelineEditor';
 
 const VisualTimelineEditorPage: React.FC = () => {
+  // --- Enhancement for segment click-to-seek in editor ---
+  const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number | null>(null);
   const [videoTaskId, setVideoTaskId] = useState<string | null>(null);
   const [videoStatus, setVideoStatus] = useState<'idle'|'pending'|'processing'|'completed'|'error'>('idle');
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -192,8 +194,17 @@ const VisualTimelineEditorPage: React.FC = () => {
         )}
         </div>
 
-        <VisualTimeline ref={timelineRef} script={script} />
-        <VisualTimelineEditor script={script} onScriptUpdate={setScript} projectId={projectId ? parseInt(projectId) : 0} />
+        <VisualTimeline 
+          ref={timelineRef} 
+          script={script} 
+          onSegmentSelectForEditor={setSelectedSegmentIndex}
+        />
+        <VisualTimelineEditor 
+          script={script} 
+          onScriptUpdate={setScript} 
+          projectId={projectId ? parseInt(projectId) : 0} 
+          scrollToSegmentIndex={selectedSegmentIndex}
+        />
     </Layout>
   );
 }

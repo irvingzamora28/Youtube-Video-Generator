@@ -7,6 +7,8 @@ interface VisualTimelineEditorProps {
   script: Script;
   onScriptUpdate?: (script: Script) => void;
   projectId: number;
+  onSegmentSelectForEditor?: (segmentIndex: number) => void;
+  scrollToSegmentIndex?: number | null;
 }
 
 // Timeline constants
@@ -27,7 +29,7 @@ type DragState = {
   rightEdgePosition: number;
 };
 
-const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onScriptUpdate, projectId }) => {
+const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onScriptUpdate, projectId, scrollToSegmentIndex }) => {
   const [pixelsPerSecond, setPixelsPerSecond] = useState(PIXELS_PER_SECOND_INITIAL);
   const [editingScript, setEditingScript] = useState<Script>(JSON.parse(JSON.stringify(script)));
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -44,6 +46,30 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
     initialDuration: 0,
     rightEdgePosition: 0
   });
+
+  // Scroll to segment when scrollToSegmentIndex changes
+  useEffect(() => {
+    if (scrollToSegmentIndex == null) return;
+    const tryScroll = (attempt = 0) => {
+      const segmentLane = document.getElementById(`segment-lane-${scrollToSegmentIndex}`);
+      const container = timelineContainerRef.current;
+      console.log('[Scroll Effect] attempt', attempt, 'scrollToSegmentIndex:', scrollToSegmentIndex, 'segmentLane:', segmentLane, 'container:', container);
+      if (segmentLane && container) {
+        const laneRect = segmentLane.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        // Calculate offset relative to the scrollable container
+        const scrollLeft = segmentLane.offsetLeft + segmentLane.clientWidth / 2 - container.clientWidth / 2;
+        console.log('[Scroll Effect] Scrolling to', scrollLeft);
+        container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+      } else if (attempt < 5) {
+        // Try again in 50ms (up to 5 times)
+        setTimeout(() => tryScroll(attempt + 1), 50);
+      } else {
+        console.warn('[Scroll Effect] Failed to find segmentLane or container after retries');
+      }
+    };
+    tryScroll();
+  }, [scrollToSegmentIndex]);
 
   // Handle global mouse move and up events for drag operations
   useEffect(() => {
@@ -250,7 +276,7 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
       </div>
       <div 
         className="timeline-scroll-area overflow-x-auto overflow-y-hidden border border-border bg-background relative whitespace-nowrap w-full"
-        ref={timelineRef}
+        ref={timelineContainerRef}
         style={{
           height: (SEGMENT_LANE_HEIGHT + 46) * allSegments.length + 40,
         }}
@@ -271,7 +297,7 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
         </div>
         
         {/* Timeline content */}
-        <div ref={timelineContainerRef} className="timeline-container" style={{ position: 'relative' }}>
+        <div className="timeline-container" style={{ position: 'relative' }}>
           {allSegments.map((segment, segmentIdx) => {
             const RULER_HEIGHT = 24;
           // Calculate the global start time for snapping
@@ -287,18 +313,30 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
             maxStart = allSegments[segmentIdx + 1].startTime - segment.duration;
           }
             return (
-            <Rnd
+            <div
+              id={`segment-lane-${segmentIdx}`}
+              style={{
+                position: 'absolute',
+                left: segment.startTime * pixelsPerSecond,
+                top: RULER_HEIGHT + segmentIdx * (SEGMENT_LANE_HEIGHT + 46),
+                width: segment.duration * pixelsPerSecond,
+                height: SEGMENT_LANE_HEIGHT + 38,
+                zIndex: 10,
+              }}
+              key={segment.id}
+            >
+              <Rnd
                 key={segment.id}
-              size={{ width: segment.duration * pixelsPerSecond, height: SEGMENT_LANE_HEIGHT + 38 }}
-              position={{ x: segment.startTime * pixelsPerSecond, y: RULER_HEIGHT + segmentIdx * (SEGMENT_LANE_HEIGHT + 46) }}
-              bounds=".timeline-scroll-area"
-              minWidth={segment.duration * pixelsPerSecond}
-              maxWidth={segment.duration * pixelsPerSecond}
-              enableResizing={false}
-              dragAxis="x"
-              dragGrid={[pixelsPerSecond / 10, SEGMENT_LANE_HEIGHT + 46]}
-              cancel=".visual-draggable"
-              onDragStop={(_, d) => {
+                size={{ width: segment.duration * pixelsPerSecond, height: SEGMENT_LANE_HEIGHT + 38 }}
+                position={{ x: 0, y: 0 }}
+                bounds="parent"
+                minWidth={segment.duration * pixelsPerSecond}
+                maxWidth={segment.duration * pixelsPerSecond}
+                enableResizing={false}
+                dragAxis="x"
+                dragGrid={[pixelsPerSecond / 10, SEGMENT_LANE_HEIGHT + 46]}
+                cancel=".visual-draggable"
+                onDragStop={(_, d) => {
                 // Snap to previous/next segment end/start
                 let newStart = Math.max(minStart, Math.min(d.x / pixelsPerSecond, maxStart));
                 // Snap to grid (0.1s)
@@ -435,6 +473,7 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
                   ))}
                 </div>
             </Rnd>
+            </div>
             );
           })}
         </div>

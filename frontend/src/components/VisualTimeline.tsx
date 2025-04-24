@@ -9,10 +9,11 @@ import DetailedTimelineView from './DetailedTimelineView';
 
 type VisualTimelineProps = {
   script: Script;
+  onSegmentSelectForEditor?: (segmentIndex: number) => void;
 };
 
 const VisualTimeline = forwardRef(function VisualTimeline(
-  { script }: VisualTimelineProps,
+  { script, onSegmentSelectForEditor }: VisualTimelineProps,
   ref: React.Ref<{ playAllSegments: () => void }>
 ) {
   // --- Prepare Data ---
@@ -146,6 +147,9 @@ const VisualTimeline = forwardRef(function VisualTimeline(
 
   // Handler for selecting a segment directly
   const handleSegmentSelect = useCallback((selectedSegmentIndex: number) => {
+    if (typeof onSegmentSelectForEditor === 'function') {
+      onSegmentSelectForEditor(selectedSegmentIndex);
+    }
     console.log(`[VisualTimeline] handleSegmentSelect called. Selected Segment Index: ${selectedSegmentIndex}`);
     // Calculate the start time of the selected segment
     const startTime = allSegments.slice(0, selectedSegmentIndex).reduce((sum, s) => sum + (s.duration || 0), 0);
