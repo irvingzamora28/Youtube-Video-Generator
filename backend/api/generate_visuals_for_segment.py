@@ -59,8 +59,11 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             model=None, temperature=0.5, max_tokens=400
         )
         print(f"[generate_visuals_for_segment] Response: {response['content']}")
-        import json
-        parts = json.loads(response["content"] if isinstance(response, dict) else str(response))
+        import json, re
+        raw_content = response["content"] if isinstance(response, dict) else str(response)
+        # Remove Markdown code block if present
+        cleaned_content = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_content.strip(), flags=re.IGNORECASE)
+        parts = json.loads(cleaned_content)
         if not isinstance(parts, list):
             raise ValueError("LLM did not return a list")
     except Exception as e:
@@ -74,6 +77,9 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
     num_existing = len(existing_visuals)
     num_parts = len(parts)
     visuals_to_keep = min(num_existing, num_parts)
+    print(f"[generate_visuals_for_segment] Visuals to keep: {visuals_to_keep}")
+    print(f"[generate_visuals_for_segment] Existing visuals: {existing_visuals}")
+    print(f"[generate_visuals_for_segment] Parts: {parts}")
 
     # Update visuals for as many as we can reuse
     for idx in range(visuals_to_keep):
