@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ScriptSegment, Visual } from '../types/script';
 // Import new API functions
-import { generateImageForVisual, saveImageAsset, generateSegmentAudio, organizeSegmentVisuals, generateImageDescription, previewBackgroundRemoval } from '../services/api';
+import { generateImageForVisual, saveImageAsset, generateSegmentAudio, organizeSegmentVisuals, generateImageDescription, previewBackgroundRemoval, generateVisualsForSegment } from '../services/api';
 
 type SegmentEditorProps = {
   segment: ScriptSegment;
@@ -13,6 +13,10 @@ type SegmentEditorProps = {
 import { getProjectAssets } from '../services/projectApi';
 
 export default function SegmentEditor({ segment, projectId, onSave, onCancel }: SegmentEditorProps) {
+  // State for generating all visuals
+  const [isGeneratingAllVisuals, setIsGeneratingAllVisuals] = useState(false);
+  const [generateAllVisualsError, setGenerateAllVisualsError] = useState<string | null>(null);
+
   console.log('SegmentEditor received segment:', segment);
   console.log('Segment narration text:', segment.narrationText);
 
@@ -29,6 +33,33 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
       imageUrl: normalizeImageUrl(v.imageUrl),
     }))
   );
+
+  // Handler for "Generate All Visuals"
+  const handleGenerateAllVisuals = async () => {
+    setIsGeneratingAllVisuals(true);
+    setGenerateAllVisualsError(null);
+    try {
+      const result = await generateVisualsForSegment({
+        projectId: projectId,
+        segmentId: segment.id,
+        narrationText: narrationText,
+      });
+      if (result && Array.isArray(result.visuals)) {
+        setVisuals(result.visuals.map((v: any) => ({
+          ...v,
+          imageUrl: normalizeImageUrl(v.imageUrl),
+        })));
+      } else {
+        setGenerateAllVisualsError('Unexpected response from server.');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setGenerateAllVisualsError(errorMessage);
+    } finally {
+      setIsGeneratingAllVisuals(false);
+    }
+  };
+
 
   const [activeVisualIndex, setActiveVisualIndex] = useState<number | null>(null);
 
@@ -504,7 +535,20 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-md font-medium text-foreground">Visuals</h3>
                 <div className="flex flex-wrap gap-2 items-center">
-
+                  <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="px-2 py-1 bg-secondary text-secondary-foreground text-sm rounded-md hover:bg-secondary/90 disabled:opacity-50 flex items-center"
+                    onClick={handleGenerateAllVisuals}
+                    disabled={isGeneratingAllVisuals}
+                    title="Automatically generate visuals for this segment based on narration"
+                  >
+                    {isGeneratingAllVisuals ? 'Generating Visuals...' : 'Generate All Visuals'}
+                  </button>
+                  {generateAllVisualsError && (
+                    <span className="text-xs text-red-600 ml-2">{generateAllVisualsError}</span>
+                  )}  
+                  </div>
                 {/* Organize Visuals Button */}
                 <button
                         type="button"

@@ -4,6 +4,26 @@ import { Script, Visual, ScriptSegment } from '../types/script'; // Add ScriptSe
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /**
+ * Generate all visuals for a segment based on narration text using the backend endpoint.
+ */
+export async function generateVisualsForSegment({ projectId, segmentId, narrationText }: { projectId: number; segmentId: string; narrationText: string; }): Promise<{ visuals: any[]; assets: any[] }> {
+  const response = await fetch(`${API_BASE_URL}/api/image/generate_visuals_for_segment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ project_id: projectId, segment_id: segmentId, narration_text: narrationText }),
+  });
+  if (!response.ok) {
+    let errorDetail = 'Failed to generate visuals for segment';
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) {}
+    throw new Error(errorDetail);
+  }
+  return response.json();
+}
+
+/**
  * Preview background removal for an image and optional background.
  * Returns a base64 PNG string.
  */
