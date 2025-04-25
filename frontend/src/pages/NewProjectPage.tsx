@@ -9,9 +9,10 @@ const NewProjectPage: React.FC = () => {
   const [formData, setFormData] = useState<ProjectCreateParams>({
     title: '',
     description: '',
-    targetAudience: '',
+    targetAudience: 'general',
     visualStyle: '',
     style: 'educational',
+    inspiration: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -133,6 +134,20 @@ const NewProjectPage: React.FC = () => {
           />
         </div>
 
+        <div className="mb-6">
+          <label htmlFor="inspiration" className="block text-sm font-medium mb-1 text-foreground">
+            Inspiration (optional)
+          </label>
+          <textarea
+            id="inspiration"
+            name="inspiration"
+            rows={8}
+            value={formData.inspiration}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+            placeholder="Describe your inspiration or theme for the script"
+          />
+        </div>
         <div className="flex justify-end space-x-4">
           <button
             type="button"

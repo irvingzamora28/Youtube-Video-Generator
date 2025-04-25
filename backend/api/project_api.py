@@ -31,6 +31,7 @@ class ProjectCreate(BaseModel):
     target_audience: Optional[str] = ""
     style: Optional[str] = None
     visual_style: Optional[str] = None
+    inspiration: Optional[str] = None
 
 class ProjectUpdate(BaseModel):
     title: Optional[str] = None
@@ -40,6 +41,7 @@ class ProjectUpdate(BaseModel):
     status: Optional[str] = None
     style: Optional[str] = None
     visual_style: Optional[str] = None
+    inspiration: Optional[str] = None
 
 class ScriptUpdate(BaseModel):
     content: Dict[str, Any]
@@ -95,7 +97,8 @@ async def create_project(project_data: ProjectCreate):
         description=project_data.description,
         target_audience=project_data.target_audience,
         style=project_data.style,
-        visual_style=project_data.visual_style
+        visual_style=project_data.visual_style,
+        inspiration=project_data.inspiration
     )
 
     if project.save():
@@ -145,6 +148,8 @@ async def update_project(project_id: int, project_data: ProjectUpdate):
         project.style = project_data.style
     if project_data.visual_style is not None:
         project.visual_style = project_data.visual_style
+    if project_data.inspiration is not None:
+        project.inspiration = project_data.inspiration
 
     if project.save():
         return {"success": True, "project": project.to_dict()}

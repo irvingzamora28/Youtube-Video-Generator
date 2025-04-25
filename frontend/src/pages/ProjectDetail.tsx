@@ -17,6 +17,7 @@ const ProjectDetail: React.FC = () => {
     description: '',
     targetAudience: '',
     visualStyle: '',
+    inspiration: '',
   });
 
   useEffect(() => {
@@ -38,6 +39,7 @@ const ProjectDetail: React.FC = () => {
         description: data.description,
         targetAudience: data.targetAudience,
         visualStyle: data.visualStyle || '',
+        inspiration: data.inspiration || '',
       });
     } catch (err) {
       setError('Failed to load project. Please try again.');
@@ -233,6 +235,20 @@ const ProjectDetail: React.FC = () => {
               />
             </div>
 
+            <div className="mb-6">
+              <label htmlFor="inspiration" className="block text-sm font-medium mb-1">
+                Inspiration (optional)
+              </label>
+              <textarea
+                id="inspiration"
+                name="inspiration"
+                value={formData.inspiration}
+                onChange={handleChange}
+                rows={8}
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+                placeholder="Describe your inspiration or theme for the script"
+              />
+            </div>
             <div className="flex justify-end space-x-4">
               <button
                 type="button"

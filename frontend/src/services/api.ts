@@ -179,6 +179,7 @@ export function transformScriptFromApi(apiScript: any): Script {
       totalDuration: 0,
       status: 'draft',
       visualStyle: '',
+      inspiration: '',
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -199,6 +200,7 @@ export function transformScriptFromApi(apiScript: any): Script {
     description: apiScript.description || '',
     targetAudience: apiScript.target_audience || '',
     visualStyle: apiScript.visual_style || apiScript.content?.visual_style || '',
+    inspiration: apiScript.inspiration || apiScript.content?.inspiration || '',
     sections: (apiScript.sections || []).map((section: any) => {
       return {
         id: section.id || `section-${Math.random().toString(36).substring(2, 11)}`,

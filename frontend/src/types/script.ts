@@ -54,4 +54,5 @@ export type Script = {
   visualStyle?: string;
   style?: string;
   background_image?: string; // Optional background image path
+  inspiration?: string; // Optional inspiration text
 };

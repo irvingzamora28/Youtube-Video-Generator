@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS projects (
     total_duration REAL,
     status TEXT,
     background_image TEXT, -- Optional local path to background image
+    inspiration TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
