@@ -8,7 +8,7 @@ import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
 // Import the new API functions
 import { generateScript, generateAllProjectAudio, generateAllProjectImages, organizeAllProjectVisuals } from '../services/api'; // Add organizeAllProjectVisuals
-import { getProject, updateProjectScript } from '../services/projectApi';
+import { getProject, updateProjectScript, getProjectFullScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
   const { id: projectId } = useParams<{ id: string }>();
@@ -28,6 +28,10 @@ export default function ScriptGenerator() {
   const [showSegmentEditor, setShowSegmentEditor] = useState(false);
   const [showSectionRegenerator, setShowSectionRegenerator] = useState(false);
   const [showScriptVisualizer, setShowScriptVisualizer] = useState(false);
+  const [showScriptTextModal, setShowScriptTextModal] = useState(false);
+  const [scriptText, setScriptText] = useState<string | null>(null);
+  const [isScriptTextLoading, setIsScriptTextLoading] = useState(false);
+  const [scriptTextError, setScriptTextError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [bulkAudioStatus, setBulkAudioStatus] = useState<string | null>(null);
   const [bulkImageStatus, setBulkImageStatus] = useState<string | null>(null);
@@ -451,6 +455,27 @@ export default function ScriptGenerator() {
                   </div>
                   <div className="flex space-x-3">
                     <button
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50"
+                      onClick={async () => {
+                        if (!projectId) return;
+                        setShowScriptTextModal(true);
+                        setIsScriptTextLoading(true);
+                        setScriptTextError(null);
+                        try {
+                          const text = await getProjectFullScript(parseInt(projectId));
+                          setScriptText(text);
+                        } catch (err) {
+                          setScriptTextError(err instanceof Error ? err.message : 'Failed to load script text');
+                        } finally {
+                          setIsScriptTextLoading(false);
+                        }
+                      }}
+                      disabled={!projectId}
+                      title="Show only the script text"
+                    >
+                      View Script
+                    </button>
+                    <button
                       onClick={() => setShowScriptVisualizer(true)}
                       className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90"
                     >
@@ -621,7 +646,7 @@ export default function ScriptGenerator() {
                     Regenerate Script
                   </button>
 
-                  <div className="space-x-3">
+                  <div className="space-x-3 flex items-center">
                      {/* Button to generate all audios */}
                      {projectId && (
                        <button
@@ -698,6 +723,30 @@ export default function ScriptGenerator() {
           onClose={() => setShowScriptVisualizer(false)}
         />
       )}
+
+      {/* Script Text Modal */}
+      {showScriptTextModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 ">
+          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-lg"
+              onClick={() => setShowScriptTextModal(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <h2 className="text-lg font-semibold mb-4">Full Script Text</h2>
+            {isScriptTextLoading ? (
+              <div className="text-center py-6">Loading...</div>
+            ) : scriptTextError ? (
+              <div className="text-red-600">{scriptTextError}</div>
+            ) : (
+              <pre className="whitespace-pre-wrap break-words max-h-96 overflow-y-auto bg-gray-100 p-4 rounded text-sm">{scriptText}</pre>
+            )}
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
+

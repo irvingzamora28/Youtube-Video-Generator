@@ -179,6 +179,18 @@ async def get_project_script(project_id: int):
 
     return {"script": project.content}
 
+@router.get("/{project_id}/full_script")
+async def get_project_full_script(project_id: int):
+    """
+    Get the full script text for a project (concatenated narrationText from all segments).
+    """
+    project = Project.get_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    script_text = project.get_full_script()
+    return {"script": script_text}
+
+
 @router.put("/{project_id}/script")
 async def update_project_script(project_id: int, script_data: ScriptUpdate):
     """

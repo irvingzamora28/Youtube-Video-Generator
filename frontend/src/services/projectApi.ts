@@ -266,6 +266,19 @@ export async function updateProject(
 }
 
 /**
+ * Get only the full script text (plain text, not structured)
+ */
+export async function getProjectFullScript(projectId: number): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/api/project/${projectId}/full_script`);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to fetch full script');
+  }
+  const data = await response.json();
+  return data.script;
+}
+
+/**
  * Update a project's script content
  */
 export async function updateProjectScript(projectId: number, script: Script): Promise<Script> {
