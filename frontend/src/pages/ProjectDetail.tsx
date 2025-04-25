@@ -362,12 +362,7 @@ const ProjectDetail: React.FC = () => {
                 Edit Script
               </button>
             )}
-            <button
-              onClick={() => navigate(`/projects/${id}/generate-script`)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded"
-            >
-              {script.sections.length > 0 ? 'Regenerate Script' : 'Generate Script'}
-            </button>
+           
              {/* Add Link to Timeline Editor */}
              {script.sections.length > 0 && (
                <button

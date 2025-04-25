@@ -131,7 +131,8 @@ export async function generateScript(
   targetAudience: string,
   durationMinutes: number,
   visualStyle: string,
-  style: string
+  style: string,
+  inspiration: string
 ): Promise<Script> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/script/generate`, {
@@ -145,6 +146,7 @@ export async function generateScript(
         duration_minutes: durationMinutes,
         style: style,
         visual_style: visualStyle,
+        inspiration: inspiration,
       }),
     });
 
@@ -201,6 +203,7 @@ export function transformScriptFromApi(apiScript: any): Script {
     targetAudience: apiScript.target_audience || '',
     visualStyle: apiScript.visual_style || apiScript.content?.visual_style || '',
     inspiration: apiScript.inspiration || apiScript.content?.inspiration || '',
+    totalDuration: apiScript.total_duration || 0,
     sections: (apiScript.sections || []).map((section: any) => {
       return {
         id: section.id || `section-${Math.random().toString(36).substring(2, 11)}`,

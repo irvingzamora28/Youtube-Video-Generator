@@ -19,6 +19,7 @@ export default function ScriptGenerator() {
   const [duration, setDuration] = useState('5');
   const [style, setStyle] = useState('educational');
   const [visualStyle, setVisualStyle] = useState('stick-man');
+  const [inspiration, setInspiration] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,7 +66,9 @@ export default function ScriptGenerator() {
         setTopic(project.title || '');
         setStyle(project.style || 'educational');
         setAudience(project.targetAudience || 'general');
+        setDuration(project.totalDuration.toString() || '5');
         setVisualStyle(project.visualStyle || 'stick-man');
+        setInspiration(project.inspiration || '');
       }
     } catch (err) {
       console.error('Error loading project:', err);
@@ -83,7 +86,7 @@ export default function ScriptGenerator() {
     try {
       // Call the API to generate the script
       const durationMinutes = parseFloat(duration);
-      const script = await generateScript(topic, audience, durationMinutes, visualStyle, style);
+      const script = await generateScript(topic, audience, durationMinutes, visualStyle, style, inspiration);
       setGeneratedScript(script);
 
       // If we're editing a project, save the script to the project

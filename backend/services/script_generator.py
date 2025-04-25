@@ -48,6 +48,7 @@ class ScriptGeneratorService:
             description=script_data["description"],
             target_audience=request.target_audience,
             style=request.style,
+            inspiration=request.inspiration,
             visual_style=request.visual_style,
             sections=self._create_sections(script_data["sections"]),
             created_at=datetime.now(),
@@ -70,14 +71,16 @@ class ScriptGeneratorService:
         """
         print("Creating script generation prompt")
         print(request)
+        inspiration_text = f"\n\n**Inspiration:** {request.inspiration}\nUse this inspiration as the main creative or thematic driver for the script. Make sure the script reflects this inspiration throughout, in both content and tone.\n" if hasattr(request, 'inspiration') and getattr(request, 'inspiration', None) else ""
         return f"""
-        Create a detailed script for an educational video about "{request.topic}".
+        Create a detailed script for an educational video about \"{request.topic}\".
 
         Instead of addressing a general audience, write the script as if you are speaking directly to a single person, making it personal and conversational. Use 'you' and 'your' to address the viewer, and make the tone friendly and engaging.
         Target audience: {request.target_audience}
         Approximate duration: {request.duration_minutes} minutes
-        Style: {request.style}
-
+        Style: {request.style} and slightly humorous
+        {inspiration_text}
+        
         **Instructions:**
         1. Structure the script into logical sections (e.g., Introduction, Key Point 1, Key Point 2, Example, Conclusion).
         2. Divide each section into multiple short, focused segments. Each segment represents a few sentences of narration.
@@ -170,6 +173,7 @@ class ScriptGeneratorService:
                                 for visual in v:
                                     if isinstance(visual, dict):
                                         visual['visual_style'] = request.visual_style
+                                        visual['transition'] = 'fade'
                             else:
                                 set_visual_style(v)
                     elif isinstance(obj, list):
