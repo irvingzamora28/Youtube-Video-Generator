@@ -18,6 +18,9 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Projects done
+backend/static/projects/3
+
 # Database files
 *.db
 *.db-journal
