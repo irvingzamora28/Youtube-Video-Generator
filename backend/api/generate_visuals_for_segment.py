@@ -48,8 +48,10 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
 
     prompt = (
         "You are an expert at video narration analysis. Given the following narration, break it down into the minimal set of concise, descriptive parts, each representing a distinct visual or important moment that should be illustrated. "
-        "Each part should be a short, self-contained description or phrase suitable for image generation. "
-        "Return ONLY a JSON array of strings, no explanations.\n\n"
+        "For each part, return an object with two fields: "
+        "- 'referenceText': the exact substring from the narration text that this visual should be synced to (do NOT paraphrase, use the exact text). "
+        "- 'description': a concise, self-contained description or phrase suitable for image generation. "
+        "Return ONLY a JSON array of objects in this format, no explanations.\n\n"
         f"Narration:\n{narration_text}\n"
         "Parts:"
     )
@@ -66,6 +68,15 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
         parts = json.loads(cleaned_content)
         if not isinstance(parts, list):
             raise ValueError("LLM did not return a list")
+        # If the first part is a string, fallback to old format
+        if parts and isinstance(parts[0], str):
+            parts = [
+                {"referenceText": p, "description": p} for p in parts
+            ]
+        # Validate structure
+        for p in parts:
+            if not (isinstance(p, dict) and "referenceText" in p and "description" in p):
+                raise ValueError("Each part must be an object with 'referenceText' and 'description'")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to break narration into parts: {str(e)}")
 
@@ -90,15 +101,16 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
         prev_visual_id = prev_visual.get("id", str(uuid.uuid4()))
         
         try:
-            # For now use part as image description as it turned out to be better for generating images using Google Imagen 3
-            image_description = part
+            image_description = part['description']
+            reference_text = part['referenceText']
             # image_description = await generate_image_description_text(
             #     script=script_text,
             #     narration=narration_text,
-            #     selected_text=part
+            #     selected_text=reference_text
             # )
         except Exception as e:
-            image_description = part
+            image_description = part['description']
+            reference_text = part['referenceText']
         try:
             prompt = f"Generate an image of: {image_description}. Style: {getattr(project, 'visual_style', 'educational')}."
             img_result = await image_provider.generate_image(prompt, None, "16:9")
@@ -144,7 +156,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             "removeBackground": prev_visual.get("removeBackground", True),
             "removeBackgroundMethod": prev_visual.get("removeBackgroundMethod", "color"),
             "assetId": asset_id,
-            "referenceText": prev_visual.get("referenceText", ""),
+            "referenceText": reference_text,
         }
         visuals.append(visual)
 
@@ -154,17 +166,13 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
         visual_id = f"visual-{str(uuid.uuid4())[:10]}"
         print(f"[generate_visuals_for_segment] Generating image for part {idx}: {part}")
         try:
-            # For now use part as image description as it turned out to be better for generating images using Google Imagen 3
-            image_description = part
-            # image_description = await generate_image_description_text(
-            #     script=script_text,
-            #     narration=narration_text,
-            #     selected_text=part
-            # )
+            image_description = part['description']
+            reference_text = part['referenceText']
             print(f"[generate_visuals_for_segment] Image description: {image_description}")
         except Exception as e:
-            print(f"[generate_visuals_for_segment] Failed to generate image description: {e}")
-            image_description = part
+            print(f"[generate_visuals_for_segment] Failed to extract description/referenceText: {e}")
+            image_description = part if isinstance(part, str) else str(part)
+            reference_text = part if isinstance(part, str) else str(part)
         try:
             prompt = f"Generate an image of: {image_description}. Style: {project.visual_style or 'educational'}."
             print(f"[generate_visuals_for_segment] Image generation prompt: {prompt}")
@@ -215,7 +223,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             "removeBackground": True,
             "removeBackgroundMethod": "color",
             "assetId": asset_id,
-            "referenceText": part,
+            "referenceText": reference_text,
         }
         print(f"[generate_visuals_for_segment] Visual created: {visual}")
         visuals.append(visual)
