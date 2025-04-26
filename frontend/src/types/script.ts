@@ -21,6 +21,7 @@ export type Visual = {
   zoomLevel?: number; // For zoom effects
   transition?: 'fade' | 'slide' | 'zoom' | 'none'; // Transition to next visual
   assetId?: number; // Optional: ID linking to the Asset table record
+  referenceText?: string; // Optional: Text that references the narrationText
 };
 
 export type ScriptSegment = {

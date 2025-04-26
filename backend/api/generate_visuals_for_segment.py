@@ -144,6 +144,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             "removeBackground": prev_visual.get("removeBackground", True),
             "removeBackgroundMethod": prev_visual.get("removeBackgroundMethod", "color"),
             "assetId": asset_id,
+            "referenceText": prev_visual.get("referenceText", ""),
         }
         visuals.append(visual)
 
@@ -214,6 +215,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             "removeBackground": True,
             "removeBackgroundMethod": "color",
             "assetId": asset_id,
+            "referenceText": part,
         }
         print(f"[generate_visuals_for_segment] Visual created: {visual}")
         visuals.append(visual)

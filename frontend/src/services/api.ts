@@ -233,7 +233,8 @@ export function transformScriptFromApi(apiScript: any): Script {
               zoomLevel: visual.zoomLevel || visual.zoom_level || 1,
               transition: visual.transition || '',
               removeBackground: typeof visual.removeBackground !== 'undefined' ? visual.removeBackground : (typeof visual.remove_background !== 'undefined' ? visual.remove_background : false),
-removeBackgroundMethod: visual.removeBackgroundMethod || visual.remove_background_method || 'color',
+              removeBackgroundMethod: visual.removeBackgroundMethod || visual.remove_background_method || 'color',
+              referenceText: visual.referenceText || visual.reference_text || '',
             }))
           };
         }),
@@ -242,7 +243,6 @@ removeBackgroundMethod: visual.removeBackgroundMethod || visual.remove_backgroun
     }),
     createdAt: apiScript.created_at ? new Date(apiScript.created_at) : new Date(),
     updatedAt: apiScript.updated_at ? new Date(apiScript.updated_at) : new Date(),
-    totalDuration: apiScript.total_duration || 0,
     status: apiScript.status || 'draft',
   };
 }
