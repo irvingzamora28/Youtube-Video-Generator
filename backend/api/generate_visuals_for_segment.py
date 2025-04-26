@@ -83,6 +83,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
 
     # Update visuals for as many as we can reuse
     for idx in range(visuals_to_keep):
+        print(f"[generate_visuals_for_segment] Updating visual {idx}...")
         part = parts[idx]
         prev_visual = existing_visuals[idx]
         
@@ -167,7 +168,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             prompt = f"Generate an image of: {image_description}. Style: {project.visual_style or 'educational'}."
             print(f"[generate_visuals_for_segment] Image generation prompt: {prompt}")
             img_result = await image_provider.generate_image(prompt, None, "16:9")
-            print(f"[generate_visuals_for_segment] Image provider result: {img_result[:50]}")
+            print(f"[generate_visuals_for_segment] Image provider result: {str(img_result)[:50]}")
             if not img_result.get('success', False):
                 print(f"[generate_visuals_for_segment] Image generation failed: {img_result.get('error', 'Unknown image generation error')}")
                 raise Exception(img_result.get('error', 'Unknown image generation error'))
@@ -190,7 +191,6 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
                 image_data=image_data,
                 description=image_description
             )
-            print(f"[generate_visuals_for_segment] Saving image asset with payload: {payload}")
             asset_result = await save_image_asset(payload)
             # print(f"[generate_visuals_for_segment] Asset save result: {asset_result}")
             if asset_result.get("success"):

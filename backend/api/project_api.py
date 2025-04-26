@@ -209,8 +209,8 @@ async def update_project_script(project_id: int, script_data: ScriptUpdate):
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    print(f"Current project content: {project.content}")
-    print(f"New script content: {script_data.content}")
+    # print(f"Current project content: {project.content}")
+    # print(f"New script content: {script_data.content}")
 
     if project.update_content(script_data.content):
         print(f"Script updated successfully")

@@ -20,6 +20,7 @@ async def save_image_asset(payload: SaveImagePayload): # Accept payload model
     """
     Save a generated image as an asset and attach it to a segment with timestamp/duration metadata.
     """
+    updated_segment_data = None
     # Access data from the payload object
     print(f"[save_image_asset] Called with project_id={payload.project_id}, segment_id={payload.segment_id}, timestamp={payload.timestamp}, duration={payload.duration}, description={payload.description}")
     print(f"[save_image_asset] image_data length: {len(payload.image_data)}")
@@ -74,8 +75,11 @@ async def save_image_asset(payload: SaveImagePayload): # Accept payload model
         header, _, data = payload.image_data.partition(",")
         if data:
             image_bytes = base64.b64decode(data)
+            print(f"[save_image_asset] Decoded image from base64 with header")
         else:
             image_bytes = base64.b64decode(payload.image_data) # Use payload data
+            print(f"[save_image_asset] Decoded image from base64 without header")
+        
         # Save image file
         img_dir = os.path.join("static", "projects", str(payload.project_id), "segments", str(payload.segment_id)) # Use payload data
         os.makedirs(img_dir, exist_ok=True)
@@ -159,6 +163,8 @@ async def save_image_asset(payload: SaveImagePayload): # Accept payload model
                                         break
                                 if updated_segment_data:
                                     break
+                            if updated_segment_data is None:
+                                print(f"[save_image_asset] Warning: Could not find segment {payload.segment_id} in updated project content.")
                         else:
                              print(f"[save_image_asset] Project save failed, cannot return updated segment.")
 
