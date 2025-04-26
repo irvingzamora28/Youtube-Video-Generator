@@ -76,18 +76,14 @@ async def save_image_asset(payload: SaveImagePayload): # Accept payload model
             image_bytes = base64.b64decode(data)
         else:
             image_bytes = base64.b64decode(payload.image_data) # Use payload data
-        print(f"[save_image_asset] Decoded image bytes length: {len(image_bytes)}")
         # Save image file
         img_dir = os.path.join("static", "projects", str(payload.project_id), "segments", str(payload.segment_id)) # Use payload data
         os.makedirs(img_dir, exist_ok=True)
         filename = f"{uuid.uuid4().hex}.png"
         img_path = os.path.join(img_dir, filename)
-        print(f"[save_image_asset] Writing image to {img_path}")
         with open(img_path, "wb") as f:
             f.write(image_bytes)
-        print(f"[save_image_asset] Image written to disk successfully")
         rel_path = os.path.relpath(img_path, start="static")
-        print(f"[save_image_asset] Relative path for DB: {rel_path}")
         # Store asset in DB
         metadata = {
             "segment_id": payload.segment_id, # Use payload data
@@ -105,7 +101,7 @@ async def save_image_asset(payload: SaveImagePayload): # Accept payload model
         save_result = asset.save()
         print(f"[save_image_asset] Asset.save() result: {save_result}, asset.id: {asset.id}")
         if save_result:
-            print(f"[save_image_asset] Asset saved to DB: {asset.to_dict()}")
+            # print(f"[save_image_asset] Asset saved to DB: {asset.to_dict()}")
             # Try to attach image to the correct visual in the project structure
             try:
                 from backend.models.project import Project
@@ -121,33 +117,32 @@ async def save_image_asset(payload: SaveImagePayload): # Accept payload model
                         for segment in section.get('segments', []):
                             if str(segment.get('id')) == str(payload.segment_id): # Use payload data
                                 visuals = segment.get('visuals', [])
-                                print(f"[save_image_asset] Checking {len(visuals)} visuals in segment {segment.get('id')}...")
+                                # print(f"[save_image_asset] Checking {len(visuals)} visuals in segment {segment.get('id')}...")
                                 # Attach to the visual with the given visual_id
                                 match = None
                                 for idx, v in enumerate(visuals):
                                     current_visual_id = v.get('id')
-                                    print(f"[save_image_asset] Visual {idx}: ID={current_visual_id} (Type: {type(current_visual_id)}), Comparing with visual_id={payload.visual_id} (Type: {type(payload.visual_id)})") # Use payload data
+                                    # print(f"[save_image_asset] Visual {idx}: ID={current_visual_id} (Type: {type(current_visual_id)}), Comparing with visual_id={payload.visual_id} (Type: {type(payload.visual_id)})") # Use payload data
                                     if str(current_visual_id) == str(payload.visual_id): # Use payload data
-                                        print(f"[save_image_asset] Match found for visual_id {payload.visual_id} at index {idx}") # Use payload data
+                                        # print(f"[save_image_asset] Match found for visual_id {payload.visual_id} at index {idx}") # Use payload data
                                         match = v
                                         break # Exit inner loop once match is found
                                 if match:
-                                    print(f"[save_image_asset] Visual before update: {match}")
+                                    # print(f"[save_image_asset] Visual before update: {match}")
                                     match['imageUrl'] = asset.path
                                     match['assetId'] = asset.id  # Ensure assetId is set to the asset's DB id
                                     # Update the description too
                                     match['description'] = payload.description
-                                    print(f"[save_image_asset] Visual after update: {match}")
+                                    # print(f"[save_image_asset] Visual after update: {match}")
                                     updated = True
                                     break # Exit outer loop (segments) as we found and updated the target
                                 else:
                                     print(f"[save_image_asset] No visual with id {payload.visual_id} found in segment {segment.get('id')}") # Use payload data
-                            else:
-                                print(f"[save_image_asset] Segment ID mismatch: {segment.get('id')} != {payload.segment_id}") # Use payload data
+                            
                         if updated: # Check if updated within the inner loop to break outer loop
                             break
                     if updated:
-                        print(f"[save_image_asset] Saving updated project content with attached image. Content preview: {str(project.content)[:200]}...")
+                        # print(f"[save_image_asset] Saving updated project content with attached image. Content preview: {str(project.content)[:200]}...")
                         save_success = project.save()
                         print(f"[save_image_asset] Project.save() returned: {save_success}")
 
@@ -160,7 +155,7 @@ async def save_image_asset(payload: SaveImagePayload): # Accept payload model
                                 for segment_in_content in section.get('segments', []):
                                     if str(segment_in_content.get('id')) == str(payload.segment_id): # Use payload data
                                         updated_segment_data = segment_in_content
-                                        print(f"[save_image_asset] Found updated segment data to return: {updated_segment_data}")
+                                        # print(f"[save_image_asset] Found updated segment data to return: {updated_segment_data}")
                                         break
                                 if updated_segment_data:
                                     break

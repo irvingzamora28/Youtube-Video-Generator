@@ -200,11 +200,8 @@ class Project:
             True if successful, False otherwise
         """
         print(f"Updating content for project {self.id}")
-        print(f"Content type: {type(content)}")
-        print(f"Content: {content}")
         self.content = content
         result = self.save()
-        print(f"Save result: {result}")
         return result
     
     def get_full_script(self) -> str:

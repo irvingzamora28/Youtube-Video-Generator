@@ -41,7 +41,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             break
     if not segment:
         raise HTTPException(status_code=404, detail="Segment not found")
-    print(f"[generate_visuals_for_segment] Found segment: {segment}")
+    # print(f"[generate_visuals_for_segment] Found segment: {segment}")
     narration_text = request.narration_text
     llm_provider = create_llm_provider_from_env()
     image_provider = create_image_provider()
