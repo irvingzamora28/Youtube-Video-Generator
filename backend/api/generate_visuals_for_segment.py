@@ -59,7 +59,6 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
             messages=[{"role": "user", "content": prompt}],
             model=None, temperature=0.5, max_tokens=400
         )
-        print(f"[generate_visuals_for_segment] Response: {response['content']}")
         import json, re
         raw_content = response["content"] if isinstance(response, dict) else str(response)
         # Remove Markdown code block if present
@@ -79,9 +78,6 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
     num_parts = len(parts)
     visuals_to_keep = min(num_existing, num_parts)
     script_text = project.get_full_script()
-    print(f"[generate_visuals_for_segment] Script text: {script_text}")
-    print(f"[generate_visuals_for_segment] Visuals to keep: {visuals_to_keep}")
-    print(f"[generate_visuals_for_segment] Existing visuals: {existing_visuals}")
     print(f"[generate_visuals_for_segment] Parts: {parts}")
     print(f"[generate_visuals_for_segment] Segment ID: {segment['id']}")
 
@@ -93,11 +89,13 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
         prev_visual_id = prev_visual.get("id", str(uuid.uuid4()))
         
         try:
-            image_description = await generate_image_description_text(
-                script=script_text,
-                narration=narration_text,
-                selected_text=part
-            )
+            # For now use part as image description as it turned out to be better for generating images using Google Imagen 3
+            image_description = part
+            # image_description = await generate_image_description_text(
+            #     script=script_text,
+            #     narration=narration_text,
+            #     selected_text=part
+            # )
         except Exception as e:
             image_description = part
         try:
@@ -154,11 +152,13 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
         visual_id = f"visual-{str(uuid.uuid4())[:10]}"
         print(f"[generate_visuals_for_segment] Generating image for part {idx}: {part}")
         try:
-            image_description = await generate_image_description_text(
-                script=script_text,
-                narration=narration_text,
-                selected_text=part
-            )
+            # For now use part as image description as it turned out to be better for generating images using Google Imagen 3
+            image_description = part
+            # image_description = await generate_image_description_text(
+            #     script=script_text,
+            #     narration=narration_text,
+            #     selected_text=part
+            # )
             print(f"[generate_visuals_for_segment] Image description: {image_description}")
         except Exception as e:
             print(f"[generate_visuals_for_segment] Failed to generate image description: {e}")
