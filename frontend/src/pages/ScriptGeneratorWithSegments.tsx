@@ -704,7 +704,18 @@ export default function ScriptGenerator() {
       {showSegmentEditor && getActiveSegment() && (
         <SegmentEditor
           segment={getActiveSegment()!}
-          projectId={projectId ? parseInt(projectId) : 0}
+          projectId={projectId || ''}
+          sectionId={(() => {
+            // Find the section containing the active segment
+            const seg = getActiveSegment();
+            console.log('|||||||||||||||||||||||||||||| Active segment:', seg);
+            console.log('|||||||||||||||||||||||||||||| Generated script:', generatedScript);
+            
+            if (!seg || !generatedScript) return '';
+            const section = generatedScript.sections.find(sec => sec.segments.some(s => s.id === seg.id));
+            console.log('|||||||||||||||||||||||||||||| Section found:', section);
+            return section ? section.id : '';
+          })()}
           onSave={handleSaveSegment}
           onCancel={() => setShowSegmentEditor(false)}
         />

@@ -436,8 +436,9 @@ export async function organizeAllProjectVisuals(projectId: number): Promise<{ me
 /**
  * Organize visuals within a segment using the backend LLM
  */
-export async function organizeSegmentVisuals(segment: ScriptSegment): Promise<{ organized_segment: ScriptSegment }> {
-  const payload = { segment }; // Send the whole segment object
+// Accepts an object with segment, projectId, sectionId
+export async function organizeSegmentVisuals({ segment, projectId, sectionId }: { segment: ScriptSegment, projectId: string, sectionId: string }): Promise<{ organized_segment: ScriptSegment }> {
+  const payload = { segment, projectId, sectionId };
 
   const response = await fetch(`${API_BASE_URL}/api/script/organize_visuals`, {
     method: "POST",

@@ -1,3 +1,17 @@
+# =====================
+# IMPORTANT FOR USERS!
+# =====================
+# For forced alignment with WhisperX, you MUST use torch 1.x and pyannote.audio 0.x.
+# These are NOT compatible with Python 3.12+.
+# It is highly recommended to set up your environment using Python 3.10 or 3.9:
+#
+#   python3.10 -m venv venv
+#   source venv/bin/activate
+#   pip install --upgrade pip
+#   pip install -r requirements.txt
+#
+# =====================
+
 # FastAPI and dependencies
 fastapi>=0.110.0
 uvicorn>=0.27.0
@@ -8,6 +22,10 @@ pytest
 moviepy
 ffmpeg
 ffmpeg-python
+
+# Forced alignment dependencies
+torch
+whisperx
 onnxruntime
 rembg
 

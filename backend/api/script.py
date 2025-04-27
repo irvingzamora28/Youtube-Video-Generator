@@ -2,6 +2,7 @@
 Script generation API endpoints.
 """
 import json
+import os
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel # Import BaseModel
 from typing import Dict, Any, List # Import List
@@ -57,6 +58,8 @@ async def generate_script(
 
 class OrganizeVisualsRequest(BaseModel):
     segment: Dict[str, Any] # Pass the whole segment dictionary
+    projectId: str
+    sectionId: str
 
 class OrganizeVisualsResponse(BaseModel):
     organized_segment: Dict[str, Any] # Return the segment with updated visuals
@@ -112,97 +115,102 @@ def _create_visual_organization_prompt(segment_data: Dict[str, Any]) -> str:
     Ensure the output is ONLY the JSON array, with no introductory text or explanations.
     """
 
+
 @router.post("/organize_visuals", response_model=OrganizeVisualsResponse)
 async def organize_segment_visuals(
     request: OrganizeVisualsRequest,
-    llm_provider: LLMProvider = Depends(get_llm_provider) # Reuse LLM provider dependency
 ):
     """
-    Uses an LLM to reorganize the timestamps and durations of visuals within a segment
-    to better match the narration flow.
+    Reorganizes the timestamps and durations of visuals within a script segment to better match the narration flow.
+    - Uses forced alignment to align narration text to audio (if provided).
+    - Updates each visual's timestamp and duration as needed.
+    - Ensures all visuals' imageUrl fields are saved with the '/static/' prefix for consistency.
     """
     segment_data = request.segment
+    projectId = request.projectId
+    sectionId = request.sectionId
     print(f"[organize_visuals] Received request for segment ID: {segment_data.get('id')}")
 
     if not segment_data or not segment_data.get('visuals'):
         raise HTTPException(status_code=400, detail="Segment data with visuals is required.")
 
-    prompt = _create_visual_organization_prompt(segment_data)
-
-    try:
-        print("[organize_visuals] Sending request to LLM...")
-        response = await llm_provider.generate_completion(
-            messages=[
-                {"role": "system", "content": "You are an expert video editor specializing in timing visuals to narration."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.5 # Lower temperature for more deterministic timing
-        )
-        llm_output = response["content"]
-        print(f"[organize_visuals] Received LLM output: {llm_output[:200]}...") # Log preview
-
-        # Parse the LLM response (expecting just the JSON array)
+    # Use forced alignment for each visual
+    updated_segment = segment_data.copy()
+    audio_url = segment_data.get('audioUrl', '')
+    narration_text = segment_data.get('narrationText', '')
+    word_segments = []
+    if audio_url and narration_text:
         try:
-            # Attempt to find JSON array directly
-            json_start = llm_output.find('[')
-            json_end = llm_output.rfind(']') + 1
-            if json_start == -1 or json_end == 0:
-                 raise ValueError("No JSON array found in LLM response")
-            json_str = llm_output[json_start:json_end]
-            organized_visuals = json.loads(json_str)
+            # Only run forced alignment ONCE per segment
+            from backend.utils.forced_alignment import get_word_timestamps, get_reference_text_timing
+            # Resolve audio_path
+            if os.path.isabs(audio_url) and os.path.exists(audio_url):
+                audio_path = audio_url
+            else:
+                backend_dir = os.path.dirname(os.path.dirname(__file__))
+                # Always prepend 'static/' if not already present
+                rel_audio_url = audio_url if audio_url.startswith('static/') else f'static/{audio_url}'
+                audio_path = os.path.abspath(os.path.join(backend_dir, rel_audio_url))
+            if not os.path.exists(audio_path):
+                raise FileNotFoundError(f"Audio file not found: {audio_path}")
+            word_segments = get_word_timestamps(audio_path)
+        except Exception as e:
+            print(f"[forced_alignment] Error in word-level forced alignment: {e}")
+            word_segments = []
+    # --- Ensure all visuals have '/static/' prefix on imageUrl before saving ---
+    def ensure_static_prefix(image_url):
+        if image_url and not image_url.startswith('/static/'):
+            return '/static/' + image_url.lstrip('/')
+        return image_url
+    for visual in updated_segment['visuals']:
+        if 'imageUrl' in visual:
+            visual['imageUrl'] = ensure_static_prefix(visual.get('imageUrl', ''))
+        reference_text = visual.get('referenceText', '')
+        if not reference_text or not word_segments:
+            continue
+        try:
+            # Find timing for this visual's reference_text in the precomputed word_segments
+            from backend.utils.forced_alignment import get_reference_text_timing
+            alignment_result = get_reference_text_timing(reference_text, word_segments)
+            if alignment_result and alignment_result['found']:
+                visual['timestamp'] = float(alignment_result['start'])
+                visual['duration'] = float(alignment_result['end']) - float(alignment_result['start'])
+        except Exception as e:
+            print(f"[forced_alignment] Error aligning visual: {e}")
+            continue
 
-            if not isinstance(organized_visuals, list):
-                 raise ValueError("LLM response is not a valid JSON list.")
+    # --- Persist updated visuals in DB ---
+    # Assume segment_data contains projectId, sectionId, and segment id
+    project_id = projectId
+    section_id = sectionId
+    segment_id = segment_data.get('id')
+    print(f"[DEBUG] organize_visuals: project_id={project_id}, section_id={section_id}, segment_id={segment_data.get('id')}")
+    if project_id and section_id and segment_data.get('id'):
+        print(f"[DEBUG] organize_visuals: project_id={project_id}, section_id={section_id}, segment_id={segment_id}")
+        if project_id and section_id and segment_id:
+            from backend.models.project import Project
+            project = Project.get_by_id(project_id)
+            print(f"[DEBUG] organize_visuals: Loaded project: {project}")
+            print(f"[DEBUG] organize_visuals: project.content type: {type(project.content)}")
+            if project:
+                found_section = False
+                found_segment = False
+                for section in project.content.get('sections', []):
+                    if str(section.get('id')) == str(section_id):
+                        found_section = True
+                        for segment in section.get('segments', []):
+                            if str(segment.get('id')) == str(segment_id):
+                                found_segment = True
+                                segment['visuals'] = updated_segment['visuals']
+                                break
+                if not found_section:
+                    print(f"[DEBUG] organize_visuals: Section with id {section_id} not found in project.content['sections']")
+                if not found_segment:
+                    print(f"[DEBUG] organize_visuals: Segment with id {segment_id} not found in section['segments']")
+                save_result = project.save()
+                print(f"[DEBUG] organize_visuals: project.save() result: {save_result}")
 
-            # Basic validation (more could be added)
-            if len(organized_visuals) != len(segment_data.get('visuals', [])):
-                 print("[WARNING] LLM returned a different number of visuals than expected.")
-                 # Decide how to handle: error out, or try to use? For now, error out.
-                 raise ValueError("LLM returned incorrect number of visuals.")
-
-            # TODO: Add validation for total duration sum if needed
-
-            # --- Merge LLM timing with original visual data ---
-            original_visuals_map = {v.get('id'): v for v in segment_data.get('visuals', [])}
-            merged_visuals = []
-            for llm_visual in organized_visuals:
-                visual_id = llm_visual.get('id')
-                original_visual = original_visuals_map.get(visual_id)
-                if original_visual:
-                    # Keep original data, update only timestamp and duration from LLM
-                    merged_visual = original_visual.copy()
-                    merged_visual['timestamp'] = llm_visual.get('timestamp', original_visual.get('timestamp', 0))
-                    merged_visual['duration'] = llm_visual.get('duration', original_visual.get('duration', 5))
-                    merged_visuals.append(merged_visual)
-                else:
-                    print(f"[WARNING] LLM returned visual with ID {visual_id} not present in original segment.")
-                    # Optionally skip or add the LLM visual as-is (might lack fields)
-                    # merged_visuals.append(llm_visual) # Add if you want to keep potentially incomplete visuals
-
-            if len(merged_visuals) != len(segment_data.get('visuals', [])):
-                 print("[WARNING] Number of merged visuals differs from original after processing LLM response.")
-                 # Fallback or error? For now, let's use the merged list if it's not empty
-                 if not merged_visuals:
-                      raise ValueError("Failed to merge LLM visual timing results.")
-
-
-            # Update the segment data with the merged visuals list
-            updated_segment = segment_data.copy()
-            updated_segment['visuals'] = merged_visuals # Use the merged list
-            print(f"[organize_visuals] Successfully organized visuals for segment {segment_data.get('id')}")
-
-            return OrganizeVisualsResponse(organized_segment=updated_segment)
-
-        except (json.JSONDecodeError, ValueError) as e:
-            print(f"[ERROR] Failed to parse or validate LLM response for visual organization: {e}")
-            print(f"LLM Raw Output was: {llm_output}")
-            raise HTTPException(status_code=500, detail=f"Failed to process visual organization response from LLM: {e}")
-
-    except Exception as e:
-        import traceback
-        print(f"Error in /organize_visuals: {e}")
-        print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Error organizing visuals: {str(e)}")
+    return OrganizeVisualsResponse(organized_segment=updated_segment)
 
 
 # --- Bulk Visual Organization ---

@@ -5,19 +5,23 @@ import { generateImageForVisual, saveImageAsset, generateSegmentAudio, organizeS
 
 type SegmentEditorProps = {
   segment: ScriptSegment;
-  projectId: number; // <-- Add projectId as a required prop
+  projectId: string;
+  sectionId: string;
   onSave: (updatedSegment: ScriptSegment) => void;
   onCancel: () => void;
 };
 
 import { getProjectAssets } from '../services/projectApi';
 
-export default function SegmentEditor({ segment, projectId, onSave, onCancel }: SegmentEditorProps) {
+export default function SegmentEditor({ segment, projectId, sectionId, onSave, onCancel }: SegmentEditorProps) {
   // State for generating all visuals
   const [isGeneratingAllVisuals, setIsGeneratingAllVisuals] = useState(false);
   const [generateAllVisualsError, setGenerateAllVisualsError] = useState<string | null>(null);
 
   console.log('SegmentEditor received segment:', segment);
+  console.log('Project ID:', projectId);
+  console.log('Section ID:', sectionId);
+  
   console.log('Segment narration text:', segment.narrationText);
 
   const [narrationText, setNarrationText] = useState(segment.narrationText || '');
@@ -43,7 +47,7 @@ export default function SegmentEditor({ segment, projectId, onSave, onCancel }: 
         projectId: projectId,
         segmentId: segment.id,
         narrationText: narrationText,
-      });
+      }); // (no change, just context)
       if (result && Array.isArray(result.visuals)) {
         setVisuals(result.visuals.map((v: any) => ({
           ...v,
@@ -122,7 +126,7 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
 
   // Print all assets for this project on mount for debugging
   useEffect(() => {
-    getProjectAssets(projectId, 'image').then(assets => {
+    getProjectAssets(Number(projectId), 'image').then(assets => {
       console.log('All image assets for this project:', assets);
     }).catch(err => {
       console.error('Error fetching project assets:', err);
@@ -258,8 +262,14 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
         // Include audioAssetId if you track it in state
       };
       console.log("Sending segment data for visual organization:", currentSegmentState);
-
-      const result = await organizeSegmentVisuals(currentSegmentState);
+      console.log("Sending projectId and sectionId:", projectId, sectionId);
+      
+      // Pass projectId and sectionId explicitly to the API
+      const result = await organizeSegmentVisuals({
+        segment: currentSegmentState,
+        projectId,
+        sectionId,
+      });
 
       if (result.organized_segment && result.organized_segment.visuals) {
         console.log("Received organized visuals:", result.organized_segment.visuals);
