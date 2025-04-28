@@ -173,6 +173,22 @@ async def organize_segment_visuals(
         except Exception as e:
             print(f"[forced_alignment] Error aligning visual: {e}")
             continue
+    # --- Sort visuals in chronological order by timestamp ---
+    updated_segment['visuals'].sort(key=lambda v: v.get('timestamp', 0))
+
+    # --- Adjust visuals to close gaps ---
+    visuals = updated_segment['visuals']
+    segment_duration = round(float(updated_segment.get('duration', 0)), 2)
+    if visuals:
+        visuals[0]['timestamp'] = 0.0
+        for i in range(len(visuals)):
+            current = visuals[i]
+            if i < len(visuals) - 1:
+                next_timestamp = visuals[i+1].get('timestamp', 0)
+                current['duration'] = round(float(next_timestamp) - float(current['timestamp']), 2)
+            else:
+                # Last visual
+                current['duration'] = round(segment_duration - float(current['timestamp']), 2)
 
     # --- Persist updated visuals in DB ---
     # Assume segment_data contains projectId, sectionId, and segment id
