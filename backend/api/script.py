@@ -168,8 +168,8 @@ async def organize_segment_visuals(
             from backend.utils.forced_alignment import get_reference_text_timing
             alignment_result = get_reference_text_timing(reference_text, word_segments)
             if alignment_result and alignment_result['found']:
-                visual['timestamp'] = float(alignment_result['start'])
-                visual['duration'] = float(alignment_result['end']) - float(alignment_result['start'])
+                visual['timestamp'] = round(float(alignment_result['start']), 2)
+                visual['duration'] = round(float(alignment_result['end']) - float(alignment_result['start']), 2)
         except Exception as e:
             print(f"[forced_alignment] Error aligning visual: {e}")
             continue
