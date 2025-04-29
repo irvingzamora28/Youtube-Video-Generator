@@ -7,10 +7,75 @@ import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
 // Import the new API functions
-import { generateScript, generateAllProjectAudio, generateAllProjectImages, organizeAllProjectVisuals } from '../services/api'; // Add organizeAllProjectVisuals
+import { generateScript, generateAllProjectAudio, generateAllProjectImages, organizeAllProjectVisuals, generateImageForVisual, saveImageAsset } from '../services/api';
 import { getProject, updateProjectScript, getProjectFullScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
+  // ...existing hooks and state
+  const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
+  const [generatingSectionId, setGeneratingSectionId] = useState<string | null>(null);
+
+  // Handler for generating all visuals in a section
+const handleGenerateAllVisuals = async (sectionId: string) => {
+  if (!projectId || !generatedScript) return;
+  setIsGeneratingVisuals(true);
+  setGeneratingSectionId(sectionId);
+  setError(null);
+  let updatedScript = { ...generatedScript };
+  try {
+    // Find the section
+    const sectionIdx = updatedScript.sections.findIndex(sec => sec.id === sectionId);
+    if (sectionIdx === -1) throw new Error('Section not found');
+    const section = updatedScript.sections[sectionIdx];
+    // Iterate through each segment
+    for (let segIdx = 0; segIdx < section.segments.length; segIdx++) {
+      const segment = section.segments[segIdx];
+      // Iterate through each visual
+      for (let visIdx = 0; visIdx < segment.visuals.length; visIdx++) {
+        const visual = segment.visuals[visIdx];
+        if (!visual.description || !visual.description.trim()) continue; // skip blank
+        try {
+          // Generate image for the visual
+          const imageData = await generateImageForVisual(visual);
+          // Save image asset to backend
+          const saveResult = await saveImageAsset({
+            projectId: Number(projectId),
+            segmentId: segment.id,
+            visualId: visual.id,
+            timestamp: visual.timestamp,
+            duration: visual.duration,
+            imageData: imageData,
+            description: visual.description,
+          });
+          // Update the visual with new imageUrl and assetId if provided
+          segment.visuals[visIdx] = {
+            ...visual,
+            imageUrl: saveResult.asset?.path ? saveResult.asset.path : imageData,
+            assetId: saveResult.asset?.id || visual.assetId,
+          };
+
+        } catch (visualError) {
+          console.error(`Error generating/saving image for visual ${visual.id}:`, visualError);
+          // Optionally, set an error field on the visual or notify the user
+        }
+      }
+      // After all visuals in segment, update segment in section
+      section.segments[segIdx] = { ...segment };
+    }
+    // After all segments, update section in script
+    updatedScript.sections[sectionIdx] = { ...section };
+    setGeneratedScript(updatedScript);
+    setBulkImageStatus('All visuals generated and saved for this section.');
+  } catch (err) {
+    console.error('Error generating visuals for section:', err);
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    setError(`Failed to generate visuals for section: ${message}`);
+    setBulkImageStatus(null);
+  } finally {
+    setIsGeneratingVisuals(false);
+    setGeneratingSectionId(null);
+  }
+};
   const { id: projectId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -636,6 +701,16 @@ export default function ScriptGenerator() {
                                 className="px-3 py-1.5 bg-secondary text-secondary-foreground text-sm rounded-md hover:bg-secondary/90"
                               >
                                 Regenerate Section
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleGenerateAllVisuals(section.id);
+                                }}
+                                className="px-3 py-1.5 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90 disabled:opacity-50"
+                                disabled={isGeneratingVisuals && generatingSectionId === section.id}
+                              >
+                                Generate All Visuals
                               </button>
                             </div>
                           </div>
