@@ -126,7 +126,7 @@ class Project:
             # Insert new project
             sql = """
                 INSERT INTO projects (title, description, target_audience, content, style, visual_style, total_duration, status, background_image, inspiration, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             params = (self.title, self.description, self.target_audience, content_json,
                      self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, self.created_at, self.updated_at)
