@@ -20,6 +20,7 @@ htmlcov/
 
 # Projects done
 backend/static/projects/3
+backend/static/projects/4
 
 # Database files
 *.db
