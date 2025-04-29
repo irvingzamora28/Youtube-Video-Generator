@@ -398,6 +398,36 @@ async def create_visual(segment_id: int, visual_data: VisualCreate):
     else:
         raise HTTPException(status_code=500, detail="Failed to create visual")
 
+from fastapi import Request
+
+class RegenerateSectionRequest(BaseModel):
+    sectionId: str
+    sections: list
+    inspiration: str
+    prompt: str
+
+@router.post("/regenerate_section")
+async def regenerate_section(request: RegenerateSectionRequest):
+    """
+    Regenerate a script section using context from all sections and inspiration text.
+    """
+    # You would import and use your script generator service here
+    from backend.services.script_generator import ScriptGeneratorService
+    from backend.llm.base import get_llm_provider
+
+    llm_provider = get_llm_provider()
+    script_generator = ScriptGeneratorService(llm_provider)
+
+    # Implement your regeneration logic here. This is a placeholder.
+    # You might want to pass all the sections, the sectionId to regenerate, the inspiration, and the prompt.
+    regenerated_section = await script_generator.regenerate_section(
+        section_id=request.sectionId,
+        sections=request.sections,
+        inspiration=request.inspiration,
+    )
+    return {"regeneratedSection": regenerated_section}
+
+
 @router.get("/visuals/{visual_id}")
 async def get_visual(visual_id: int, include_image_data: bool = False):
     """

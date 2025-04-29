@@ -275,9 +275,13 @@ export default function ScriptGenerator() {
     setShowSectionRegenerator(true);
   };
 
-  const handleRegenerateSectionSubmit = (sectionId: string, prompt: string) => {
-    // This would call the API to regenerate the section
-    console.log(`Regenerating section ${sectionId} with prompt: ${prompt}`);
+  const handleRegenerateSectionSubmit = (sectionId: string, regeneratedSection: ScriptSection) => {
+    // Update the relevant section in generatedScript
+    if (!generatedScript) return;
+    const updatedSections = generatedScript.sections.map(section =>
+      section.id === sectionId ? regeneratedSection : section
+    );
+    setGeneratedScript({ ...generatedScript, sections: updatedSections });
     setShowSectionRegenerator(false);
   };
 
@@ -725,6 +729,8 @@ export default function ScriptGenerator() {
       {showSectionRegenerator && getActiveSection() && (
         <SectionRegenerator
           section={getActiveSection()!}
+          sections={generatedScript ? generatedScript.sections : []}
+          inspiration={inspiration}
           onRegenerate={handleRegenerateSectionSubmit}
           onCancel={() => setShowSectionRegenerator(false)}
         />

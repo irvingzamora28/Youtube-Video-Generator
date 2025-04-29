@@ -3,11 +3,13 @@ import { ScriptSection } from '../types/script';
 
 type SectionRegeneratorProps = {
   section: ScriptSection;
-  onRegenerate: (sectionId: string, prompt: string) => void;
+  sections: ScriptSection[];
+  inspiration: string;
+  onRegenerate: (sectionId: string, regeneratedSection: ScriptSection) => void;
   onCancel: () => void;
 };
 
-export default function SectionRegenerator({ section, onRegenerate, onCancel }: SectionRegeneratorProps) {
+export default function SectionRegenerator({ section, sections, inspiration, onRegenerate, onCancel }: SectionRegeneratorProps) {
   console.log('SectionRegenerator received section:', section);
   console.log('Section segments:', section.segments);
   if (section.segments && section.segments.length > 0) {
@@ -47,16 +49,38 @@ export default function SectionRegenerator({ section, onRegenerate, onCancel }: 
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      onRegenerate(section.id, prompt);
+    try {
+      // Make API call to regenerate the section
+      const response = await fetch('/api/regenerate_section', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sectionId: section.id,
+          sections: sections,
+          inspiration: inspiration,
+          prompt: prompt,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to regenerate section');
+      }
+      const data = await response.json();
+      // Assume backend returns the regenerated section as 'regeneratedSection'
+      onRegenerate(section.id, data.regeneratedSection);
+    } catch (error) {
+      alert('Error regenerating section: ' + (error as Error).message);
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
+
 
   // Handle clicks outside the modal
   const handleOutsideClick = (e: React.MouseEvent) => {
