@@ -7,75 +7,11 @@ import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
 // Import the new API functions
-import { generateScript, generateAllProjectAudio, generateAllProjectImages, organizeAllProjectVisuals, generateImageForVisual, saveImageAsset } from '../services/api';
+import { generateScript, generateAllProjectAudio, organizeSegmentVisuals, generateAllProjectImages, organizeAllProjectVisuals, generateImageForVisual, saveImageAsset } from '../services/api';
 import { getProject, updateProjectScript, getProjectFullScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
-  // ...existing hooks and state
-  const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
-  const [generatingSectionId, setGeneratingSectionId] = useState<string | null>(null);
 
-  // Handler for generating all visuals in a section
-const handleGenerateAllVisuals = async (sectionId: string) => {
-  if (!projectId || !generatedScript) return;
-  setIsGeneratingVisuals(true);
-  setGeneratingSectionId(sectionId);
-  setError(null);
-  let updatedScript = { ...generatedScript };
-  try {
-    // Find the section
-    const sectionIdx = updatedScript.sections.findIndex(sec => sec.id === sectionId);
-    if (sectionIdx === -1) throw new Error('Section not found');
-    const section = updatedScript.sections[sectionIdx];
-    // Iterate through each segment
-    for (let segIdx = 0; segIdx < section.segments.length; segIdx++) {
-      const segment = section.segments[segIdx];
-      // Iterate through each visual
-      for (let visIdx = 0; visIdx < segment.visuals.length; visIdx++) {
-        const visual = segment.visuals[visIdx];
-        if (!visual.description || !visual.description.trim()) continue; // skip blank
-        try {
-          // Generate image for the visual
-          const imageData = await generateImageForVisual(visual);
-          // Save image asset to backend
-          const saveResult = await saveImageAsset({
-            projectId: Number(projectId),
-            segmentId: segment.id,
-            visualId: visual.id,
-            timestamp: visual.timestamp,
-            duration: visual.duration,
-            imageData: imageData,
-            description: visual.description,
-          });
-          // Update the visual with new imageUrl and assetId if provided
-          segment.visuals[visIdx] = {
-            ...visual,
-            imageUrl: saveResult.asset?.path ? saveResult.asset.path : imageData,
-            assetId: saveResult.asset?.id || visual.assetId,
-          };
-
-        } catch (visualError) {
-          console.error(`Error generating/saving image for visual ${visual.id}:`, visualError);
-          // Optionally, set an error field on the visual or notify the user
-        }
-      }
-      // After all visuals in segment, update segment in section
-      section.segments[segIdx] = { ...segment };
-    }
-    // After all segments, update section in script
-    updatedScript.sections[sectionIdx] = { ...section };
-    setGeneratedScript(updatedScript);
-    setBulkImageStatus('All visuals generated and saved for this section.');
-  } catch (err) {
-    console.error('Error generating visuals for section:', err);
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    setError(`Failed to generate visuals for section: ${message}`);
-    setBulkImageStatus(null);
-  } finally {
-    setIsGeneratingVisuals(false);
-    setGeneratingSectionId(null);
-  }
-};
   const { id: projectId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -99,6 +35,8 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
   const [isScriptTextLoading, setIsScriptTextLoading] = useState(false);
   const [scriptTextError, setScriptTextError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
+  const [generatingSectionId, setGeneratingSectionId] = useState<string | null>(null);
   const [bulkAudioStatus, setBulkAudioStatus] = useState<string | null>(null);
   const [bulkImageStatus, setBulkImageStatus] = useState<string | null>(null);
   const [bulkOrganizeStatus, setBulkOrganizeStatus] = useState<string | null>(null); // For bulk organize status
@@ -165,6 +103,112 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
       setIsGenerating(false);
     }
   };
+
+    // Handler for organizing all visuals in a section (segment by segment)
+const handleOrganizeAllVisualsInSection = async (sectionId: string) => {
+  if (!projectId || !generatedScript) return;
+  setIsGeneratingVisuals(true);
+  setGeneratingSectionId(sectionId);
+  setError(null);
+  let updatedScript = { ...generatedScript };
+  try {
+    // Find the section
+    const sectionIdx = updatedScript.sections.findIndex(sec => sec.id === sectionId);
+    if (sectionIdx === -1) throw new Error('Section not found');
+    const section = updatedScript.sections[sectionIdx];
+    for (let segIdx = 0; segIdx < section.segments.length; segIdx++) {
+      const segment = section.segments[segIdx];
+      try {
+        // Organize visuals for this segment
+        const result = await organizeSegmentVisuals({
+          segment,
+          projectId,
+          sectionId,
+        });
+        if (result.organized_segment) {
+          section.segments[segIdx] = { ...result.organized_segment };
+        }
+      } catch (segmentError) {
+        console.error(`Error organizing visuals for segment ${segment.id}:`, segmentError);
+        // Optionally, set an error field on the segment or notify the user
+      }
+    }
+    // After all segments, update section in script
+    updatedScript.sections[sectionIdx] = { ...section };
+    setGeneratedScript(updatedScript);
+    setBulkOrganizeStatus('All visuals organized for this section.');
+  } catch (err) {
+    console.error('Error organizing visuals for section:', err);
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    setError(`Failed to organize visuals for section: ${message}`);
+    setBulkOrganizeStatus(null);
+  } finally {
+    setIsGeneratingVisuals(false);
+    setGeneratingSectionId(null);
+  }
+};
+
+// Handler for generating all visuals in a section
+const handleGenerateAllVisuals = async (sectionId: string) => {
+  if (!projectId || !generatedScript) return;
+  setIsGeneratingVisuals(true);
+  setGeneratingSectionId(sectionId);
+  setError(null);
+  let updatedScript = { ...generatedScript };
+  try {
+    // Find the section
+    const sectionIdx = updatedScript.sections.findIndex(sec => sec.id === sectionId);
+    if (sectionIdx === -1) throw new Error('Section not found');
+    const section = updatedScript.sections[sectionIdx];
+    // Iterate through each segment
+    for (let segIdx = 0; segIdx < section.segments.length; segIdx++) {
+      const segment = section.segments[segIdx];
+      // Iterate through each visual
+      for (let visIdx = 0; visIdx < segment.visuals.length; visIdx++) {
+        const visual = segment.visuals[visIdx];
+        if (!visual.description || !visual.description.trim()) continue; // skip blank
+        try {
+          // Generate image for the visual
+          const imageData = await generateImageForVisual(visual);
+          // Save image asset to backend
+          const saveResult = await saveImageAsset({
+            projectId: Number(projectId),
+            segmentId: segment.id,
+            visualId: visual.id,
+            timestamp: visual.timestamp,
+            duration: visual.duration,
+            imageData: imageData,
+            description: visual.description,
+          });
+          // Update the visual with new imageUrl and assetId if provided
+          segment.visuals[visIdx] = {
+            ...visual,
+            imageUrl: saveResult.asset?.path ? saveResult.asset.path : imageData,
+            assetId: saveResult.asset?.id || visual.assetId,
+          };
+
+        } catch (visualError) {
+          console.error(`Error generating/saving image for visual ${visual.id}:`, visualError);
+          // Optionally, set an error field on the visual or notify the user
+        }
+      }
+      // After all visuals in segment, update segment in section
+      section.segments[segIdx] = { ...segment };
+    }
+    // After all segments, update section in script
+    updatedScript.sections[sectionIdx] = { ...section };
+    setGeneratedScript(updatedScript);
+    setBulkImageStatus('All visuals generated and saved for this section.');
+  } catch (err) {
+    console.error('Error generating visuals for section:', err);
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    setError(`Failed to generate visuals for section: ${message}`);
+    setBulkImageStatus(null);
+  } finally {
+    setIsGeneratingVisuals(false);
+    setGeneratingSectionId(null);
+  }
+};
 
   const saveScriptToProject = async (script: Script) => {
     if (!projectId) return;
@@ -712,6 +756,17 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                               >
                                 Generate All Visuals
                               </button>
+                              {/* Button to organize all visuals in section (segment by segment) */}
+                              {activeSectionId && (
+                                <button
+                                  className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90 disabled:opacity-50"
+                                  onClick={() => handleOrganizeAllVisualsInSection(activeSectionId)}
+                                  disabled={isSaving || isGeneratingVisuals}
+                                  title="Organize visuals for all segments in this section"
+                                >
+                                  {isGeneratingVisuals && generatingSectionId === activeSectionId ? 'Organizing...' : 'Organize All Visuals'}
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -751,17 +806,7 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                         Generate All Images
                       </button>
                      )}
-                     {/* Button to organize all visuals */}
-                     {projectId && (
-                       <button
-                        className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90 disabled:opacity-50"
-                        onClick={handleOrganizeAllVisuals}
-                        disabled={isSaving || isGenerating} // Disable if other actions are running
-                        title="Organize timing for all visuals in all segments"
-                      >
-                        Organize All Visuals
-                      </button>
-                     )}
+                  
                     {projectId && (
                       <button
                         className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50"
