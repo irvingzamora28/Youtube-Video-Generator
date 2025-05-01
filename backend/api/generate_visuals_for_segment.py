@@ -48,6 +48,7 @@ async def generate_visuals_for_segment(request: GenerateVisualsForSegmentRequest
 
     prompt = (
         "You are an expert at video narration analysis. Given the following narration, break it down into the minimal set of concise, descriptive parts, each representing a distinct visual or important moment that should be illustrated. "
+        "VERY IMPORTANT: Generate at least 3 parts, even if the narration is short."
         "For each part, return an object with two fields: "
         "- 'referenceText': the exact substring from the narration text that this visual should be synced to (do NOT paraphrase, use the exact text). "
         "- 'description': a concise, self-contained description or phrase suitable for image generation. "
