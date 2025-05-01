@@ -281,19 +281,83 @@ const VisualTimelineEditor: React.FC<VisualTimelineEditorProps> = ({ script, onS
           height: (SEGMENT_LANE_HEIGHT + 46) * allSegments.length + 40,
         }}
       >
-        <div className="timeline-ruler" style={{ position: 'relative', height: 24, width: totalDuration * pixelsPerSecond }}>
-          {[...Array(Math.ceil(totalDuration * 10) + 1)].map((_, i) => {
-            const t = i / 10;
-            return (
-              <div
-                key={t}
-                className="timeline-tick"
-                style={{ position: 'absolute', left: t * pixelsPerSecond, height: t % 1 === 0 ? 24 : 12, borderLeft: '1px solid #555', color: '#aaa', fontSize: 10 }}
-              >
-                {t % 1 === 0 ? <span style={{ position: 'absolute', top: 0, left: 2 }}>{t}s</span> : null}
-              </div>
-            );
-          })}
+        {/* Adaptive Timeline Ruler */}
+        <div className="timeline-ruler" style={{ position: 'relative', height: 38, width: totalDuration * pixelsPerSecond, overflow: 'visible' }}>
+          {(() => {
+            // Calculate adaptive tick interval
+            // Target: major ticks ~80px apart, minor ticks ~16-24px apart
+            const minMajorPx = 70;
+            const minMinorPx = 16;
+            // Candidate intervals in seconds (descending for best fit)
+            const intervals = [60, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1];
+            let majorInterval = 1;
+            for (const int of intervals) {
+              if (int * pixelsPerSecond >= minMajorPx) {
+                majorInterval = int;
+                break;
+              }
+            }
+            // Minor interval: divide major by 5 or 2 (whichever gives > minMinorPx)
+            let minorInterval = majorInterval / 5;
+            if (minorInterval * pixelsPerSecond < minMinorPx) {
+              minorInterval = majorInterval / 2;
+            }
+            if (minorInterval < 0.1) minorInterval = 0; // Don't draw if too small
+
+            const ticks = [];
+            for (let t = 0; t <= totalDuration + 0.0001; t += minorInterval || majorInterval) {
+              // Improved isMajor logic: label all multiples of majorInterval (with tolerance)
+              const isMajor = minorInterval && Math.abs(Math.round(t / majorInterval) * majorInterval - t) < 1e-6;
+              ticks.push(
+                <div
+                  key={t.toFixed(2)}
+                  className={isMajor ? 'timeline-tick-major' : 'timeline-tick-minor'}
+                  style={{
+                    position: 'absolute',
+                    left: t * pixelsPerSecond,
+                    height: isMajor ? 28 : 13,
+                    borderLeft: isMajor ? '2px solid #666' : '1px solid #bbb',
+                    color: '#888',
+                    fontSize: 11,
+                    opacity: isMajor ? 1 : 0.5,
+                    zIndex: isMajor ? 2 : 1,
+                    background: 'none',
+                  }}
+                >
+                  <span style={{
+                    position: 'absolute',
+                    top: 30, // place label below the tick
+                    left: -8, // center label under tick
+                    minWidth: 24,
+                    textAlign: 'center',
+                    fontWeight: isMajor ? 500 : 400,
+                    color: isMajor ? '#222' : '#555',
+                    background: isMajor ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.6)',
+                    padding: '0 2px',
+                    borderRadius: 2,
+                    fontSize: 12,
+                    pointerEvents: 'none',
+                    zIndex: 10,
+                  }}>
+                    {(() => {
+                      if (t === 0) return '0:00';
+                      const mins = Math.floor(t / 60);
+                      const secs = t % 60;
+                      // Show sub-seconds if needed
+                      if (secs % 1 === 0) {
+                        // Integer seconds
+                        return `${mins}:${secs.toString().padStart(2, '0')}`;
+                      } else {
+                        // Sub-second
+                        return `${mins}:${secs.toFixed(1).padStart(4, '0')}`;
+                      }
+                    })()}
+                  </span>
+                </div>
+              );
+            }
+            return ticks;
+          })()}
         </div>
         
         {/* Timeline content */}
