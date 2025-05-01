@@ -44,7 +44,7 @@ export default function SegmentEditor({ segment, projectId, sectionId, onSave, o
     setGenerateAllVisualsError(null);
     try {
       const result = await generateVisualsForSegment({
-        projectId: projectId,
+        projectId: Number(projectId),
         segmentId: segment.id,
         narrationText: narrationText,
       }); // (no change, just context)

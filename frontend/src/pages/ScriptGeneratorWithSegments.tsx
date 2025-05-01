@@ -7,7 +7,7 @@ import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
 // Import the new API functions
-import { generateScript, generateAllProjectAudio, organizeSegmentVisuals, generateAllProjectImages, organizeAllProjectVisuals, generateImageForVisual, saveImageAsset } from '../services/api';
+import { generateScript, generateAllProjectAudio, organizeSegmentVisuals, generateAllProjectImages, organizeAllProjectVisuals, generateVisualsForSegment, saveImageAsset } from '../services/api';
 import { getProject, updateProjectScript, getProjectFullScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
@@ -163,34 +163,25 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
     // Iterate through each segment
     for (let segIdx = 0; segIdx < section.segments.length; segIdx++) {
       const segment = section.segments[segIdx];
-      // Iterate through each visual
-      for (let visIdx = 0; visIdx < segment.visuals.length; visIdx++) {
-        const visual = segment.visuals[visIdx];
-        if (!visual.description || !visual.description.trim()) continue; // skip blank
-        try {
-          // Generate image for the visual
-          const imageData = await generateImageForVisual(visual);
-          // Save image asset to backend
-          const saveResult = await saveImageAsset({
-            projectId: Number(projectId),
-            segmentId: segment.id,
-            visualId: visual.id,
-            timestamp: visual.timestamp,
-            duration: visual.duration,
-            imageData: imageData,
-            description: visual.description,
-          });
-          // Update the visual with new imageUrl and assetId if provided
-          segment.visuals[visIdx] = {
-            ...visual,
-            imageUrl: saveResult.asset?.path ? saveResult.asset.path : imageData,
-            assetId: saveResult.asset?.id || visual.assetId,
-          };
 
-        } catch (visualError) {
-          console.error(`Error generating/saving image for visual ${visual.id}:`, visualError);
-          // Optionally, set an error field on the visual or notify the user
+      try {
+        const result = await generateVisualsForSegment({
+          projectId: Number(projectId),
+          segmentId: segment.id,
+          narrationText: segment.narrationText,
+        }); // (no change, just context)
+        if (result && Array.isArray(result.visuals)) {
+          segment.visuals = result.visuals.map((v: any) => ({
+            ...v,
+            imageUrl: v.imageUrl,
+          }));
+        } else {
+          console.error(`Unexpected response from server for segment ${segment.id}, narration text: ${segment.narrationText}`);
+          console.log(result);
         }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`Error generating visuals for segment ${segment.id}, narration text: ${segment.narrationText}:`, errorMessage);
       }
       // After all visuals in segment, update segment in section
       section.segments[segIdx] = { ...segment };
