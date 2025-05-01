@@ -639,6 +639,21 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                       >
                         <div className="flex items-center">
                           <span className="font-medium text-foreground">{section.title}</span>
+                          {
+                            (() => {
+                              if (!section.segments.length) return null;
+                              const firstSegmentId = section.segments[0]?.id;
+                              const lastSegmentId = section.segments[section.segments.length - 1]?.id;
+                              const firstIndex = segmentGlobalIndexMap[firstSegmentId];
+                              const lastIndex = segmentGlobalIndexMap[lastSegmentId];
+                              if (firstIndex && lastIndex) {
+                                return (
+                                  <span className="ml-2 text-md text-muted-foreground">(segments {firstIndex}-{lastIndex})</span>
+                                );
+                              }
+                              return null;
+                            })()
+                          }
                           <span className="ml-2 text-sm text-muted-foreground">({formatTime(section.totalDuration)})</span>
                         </div>
                         <svg
