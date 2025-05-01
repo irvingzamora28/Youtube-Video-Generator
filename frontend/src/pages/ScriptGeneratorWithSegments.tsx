@@ -11,7 +11,6 @@ import { generateScript, generateAllProjectAudio, organizeSegmentVisuals, genera
 import { getProject, updateProjectScript, getProjectFullScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
-
   const { id: projectId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -40,6 +39,17 @@ export default function ScriptGenerator() {
   const [bulkAudioStatus, setBulkAudioStatus] = useState<string | null>(null);
   const [bulkImageStatus, setBulkImageStatus] = useState<string | null>(null);
   const [bulkOrganizeStatus, setBulkOrganizeStatus] = useState<string | null>(null); // For bulk organize status
+
+    // Build a map from segment id to global index (global segment number)
+    let segmentGlobalIndexMap: Record<string, number> = {};
+    if (generatedScript) {
+      let counter = 1;
+      generatedScript.sections.forEach(section => {
+        section.segments.forEach(segment => {
+          segmentGlobalIndexMap[segment.id] = counter++;
+        });
+      });
+    }  
 
   // Load project data if projectId is provided
   useEffect(() => {
@@ -661,7 +671,7 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                             {/* Segments */}
                             <h4 className="text-sm font-medium text-muted-foreground mt-4 mb-2">Segments</h4>
                             <div className="space-y-3">
-                              {section.segments.map((segment) => {
+                              {section.segments.map((segment, index) => {
                                 console.log('Rendering segment:', segment);
                                 console.log('Segment narration text:', segment.narrationText);
                                 return (
@@ -675,10 +685,16 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                                   <div className="flex justify-between items-start mb-2">
                                     <div className="flex items-center">
                                       <span className="text-sm font-medium text-foreground">
+                                        Segment # {segmentGlobalIndexMap[segment.id]}
+                                      </span>
+                                      <span className="ml-2 text-sm font-medium text-foreground">
                                         {formatTime(segment.startTime)} - {formatTime(segment.startTime + segment.duration)}
                                       </span>
                                       <span className="ml-2 text-xs text-muted-foreground">
                                         ({segment.duration}s)
+                                      </span>
+                                      <span className="ml-2 text-sm text-neutral-800">
+                                        Segment ID: {segment.id}
                                       </span>
                                     </div>
                                     <div className="text-xs text-muted-foreground">
