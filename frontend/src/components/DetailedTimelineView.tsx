@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ScriptSegment } from '../types/script';
-import { formatTime } from './TimelineControls'; // Import the helper
+import { formatTime } from './TimelineControls';
 
 interface DetailedTimelineViewProps {
   allSegments: ScriptSegment[];
   currentTime: number;
   currentSegmentIndex: number;
   totalDuration: number;
-  onSegmentSelect: (segmentIndex: number) => void; // Add prop for handling clicks
+  onSegmentSelect: (segmentIndex: number) => void;
 }
 
 const DetailedTimelineView: React.FC<DetailedTimelineViewProps> = ({
@@ -15,21 +15,70 @@ const DetailedTimelineView: React.FC<DetailedTimelineViewProps> = ({
   currentTime,
   currentSegmentIndex,
   totalDuration,
-  onSegmentSelect, // Destructure the new prop
+  onSegmentSelect,
 }) => {
+  // Keyboard navigation state
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const segmentRefs = useRef<Array<HTMLDivElement | null>>([]);
+
   // Helper to determine visual block color (can be customized)
   const getVisualColor = (visualType: string | undefined): string => {
     switch (visualType) {
       case 'image': return 'bg-blue-500/50';
       case 'animation': return 'bg-green-500/50';
       case 'diagram': return 'bg-purple-500/50';
-      case 'text': return 'bg-orange-500/50'; // Example for text
-      default: return 'bg-gray-500/50'; // Fallback
+      case 'text': return 'bg-orange-500/50';
+      default: return 'bg-gray-500/50';
     }
   };
 
+  // Focus timeline on segment click
+  const handleSegmentClick = (idx: number) => {
+    setSelectedIdx(idx);
+    onSegmentSelect(idx);
+    timelineRef.current?.focus();
+  };
+
+  // Keyboard navigation handler
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (selectedIdx === null) return;
+    if (e.key === 'ArrowLeft') {
+      if (selectedIdx > 0) {
+        setSelectedIdx(selectedIdx - 1);
+        onSegmentSelect(selectedIdx - 1);
+      }
+      e.preventDefault();
+    } else if (e.key === 'ArrowRight') {
+      if (selectedIdx < allSegments.length - 1) {
+        setSelectedIdx(selectedIdx + 1);
+        onSegmentSelect(selectedIdx + 1);
+      }
+      e.preventDefault();
+    }
+  };
+
+  // Scroll selected segment into view
+  useEffect(() => {
+    if (selectedIdx !== null && segmentRefs.current[selectedIdx]) {
+      segmentRefs.current[selectedIdx]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [selectedIdx]);
+
+  // If currentSegmentIndex changes from parent, update selectedIdx
+  useEffect(() => {
+    setSelectedIdx(currentSegmentIndex);
+  }, [currentSegmentIndex]);
+
   return (
-    <div className="relative h-24 bg-muted/20 rounded-md border border-border overflow-hidden">
+    <div
+      className="relative h-24 bg-muted/20 rounded-md border border-border overflow-hidden focus:outline-none"
+      ref={timelineRef}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      aria-label="Detailed Timeline View"
+      role="listbox"
+    >
       {allSegments.map((segment, segIdx) => {
         const segmentDuration = segment.duration || 0.1; // Use min duration to prevent division by zero
         const segmentWidthPercent = totalDuration > 0 ? (segmentDuration / totalDuration) * 100 : 0;
@@ -44,11 +93,14 @@ const DetailedTimelineView: React.FC<DetailedTimelineViewProps> = ({
 
         return (
           <div
-            key={segment.id || `segment-${segIdx}`} // Use segment.id if available, fallback to index
-            className={`absolute h-full border-r border-border/50 cursor-pointer hover:bg-primary/5 ${segIdx === currentSegmentIndex ? 'bg-primary/10 ring-1 ring-primary' : ''}`} // Add cursor, hover, and ring for selected
+            ref={el => { segmentRefs.current[segIdx] = el; }}
+            key={segment.id || `segment-${segIdx}`}
+            className={`absolute h-full border-r border-border/50 cursor-pointer hover:bg-primary/5 ${segIdx === selectedIdx ? 'bg-primary/20 ring-2 ring-primary ring-offset-2 z-20' : segIdx === currentSegmentIndex ? 'bg-primary/10 ring-1 ring-primary' : ''}`}
             style={{ left: `${segmentLeftPercent}%`, width: `${segmentWidthPercent}%` }}
             title={`Segment ${segIdx + 1}: ${segment.narrationText?.substring(0, 50) ?? ''}... (Click to select)`}
-            onClick={() => onSegmentSelect(segIdx)} // Add onClick handler
+            tabIndex={-1}
+            aria-selected={segIdx === selectedIdx}
+            onClick={() => handleSegmentClick(segIdx)}
           >
             {/* Render Visuals within the Segment */}
             {segment.visuals.map((visual, visIdx) => {
