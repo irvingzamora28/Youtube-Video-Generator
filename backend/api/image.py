@@ -294,7 +294,7 @@ async def generate_highlight_images_for_project(
             with open(output_path, "wb") as f:
                 f.write(image_bytes)
             rel_path = os.path.relpath(output_path, start=settings.static_dir).replace("\\", "/")
-            highlight["image_url"] = f"/static/{project_id}/highlights/{filename}"
+            highlight["image_url"] = f"/static/projects/{project_id}/highlights/{filename}"
         except Exception as e:
             print(f"[generate_highlight_images_for_project] Error for highlight {idx}: {e}")
             highlight["image_url"] = None
