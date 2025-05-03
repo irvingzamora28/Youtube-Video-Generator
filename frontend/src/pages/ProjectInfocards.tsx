@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getProjectFullScript } from "../services/projectApi";
-import { getInfocardHighlights, generateInfocardHighlights, generateHighlightImages } from "../services/infocardHighlightApi";
+import { getInfocardHighlights, generateInfocardHighlights, generateHighlightImages, addTextToHighlightImages } from "../services/infocardHighlightApi";
 import { keysToCamel } from "../utils/caseUtils";
 import { InfocardHighlight } from "../types/infocardHighlight";
 
@@ -24,6 +24,7 @@ const ProjectInfocards: React.FC = () => {
   const [loadingHighlights, setLoadingHighlights] = useState(false);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
   const [loadingGenerateImages, setLoadingGenerateImages] = useState(false);
+  const [loadingAddText, setLoadingAddText] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -66,6 +67,20 @@ const ProjectInfocards: React.FC = () => {
     }
   };
 
+  const handleAddTextToHighlightImages = async () => {
+    if (!id) return;
+    setLoadingAddText(true);
+    setError(null);
+    try {
+      const res = await addTextToHighlightImages(Number(id));
+      setHighlights(keysToCamel(res.highlights));
+    } catch (err: any) {
+      setError(err.message || 'Failed to add text to highlight images');
+    } finally {
+      setLoadingAddText(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="container mx-auto py-8">
@@ -95,11 +110,18 @@ const ProjectInfocards: React.FC = () => {
                   {loadingGenerate ? "Generating Highlights..." : "Generate Highlights"}
                 </button>
                 <button
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold py-2 px-4 rounded"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold py-2 px-4 rounded mr-2"
                   onClick={handleGenerateHighlightImages}
                   disabled={loadingGenerateImages || loadingGenerate}
                 >
                   {loadingGenerateImages ? "Generating Images..." : "Generate Highlight Images"}
+                </button>
+                <button
+                  className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold py-2 px-4 rounded"
+                  onClick={handleAddTextToHighlightImages}
+                  disabled={loadingAddText || loadingGenerateImages || loadingGenerate}
+                >
+                  {loadingAddText ? "Adding Text..." : "Add Text to Highlight Images"}
                 </button>
               </div>
               {highlights.length > 0 && (
@@ -111,16 +133,30 @@ const ProjectInfocards: React.FC = () => {
                         <div className="font-semibold">{hl.text}</div>
                         <div className="text-sm text-muted-foreground">Visual: {hl.visualDescription}</div>
                         {hl.storyContext && <div className="text-xs text-gray-500">Context: {hl.storyContext}</div>}
-                        {hl.imageUrl && (
-                          <div className="mt-2">
-                            <img
-                              src={normalizeUrl(hl.imageUrl)}
-                              alt={hl.visualDescription || hl.text}
-                              className="rounded border border-border max-w-xs max-h-48"
-                              loading="lazy"
-                            />
-                          </div>
-                        )}
+                        <div className="mt-2 flex flex-row gap-4">
+                          {hl.imageUrl && (
+                            <div className="flex flex-col items-center">
+                              <span className="text-xs text-muted-foreground mb-1">Original</span>
+                              <img
+                                src={normalizeUrl(hl.imageUrl)}
+                                alt={hl.visualDescription || hl.text}
+                                className="rounded border border-border max-w-xs max-h-48"
+                                loading="lazy"
+                              />
+                            </div>
+                          )}
+                          {hl.imageUrlWithText && (
+                            <div className="flex flex-col items-center">
+                              <span className="text-xs text-muted-foreground mb-1">With Text</span>
+                              <img
+                                src={normalizeUrl(hl.imageUrlWithText)}
+                                alt={hl.visualDescription || hl.text}
+                                className="rounded border border-border max-w-xs max-h-48"
+                                loading="lazy"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>

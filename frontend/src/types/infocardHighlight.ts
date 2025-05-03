@@ -6,6 +6,7 @@ export type InfocardHighlight = {
   visualDescription: string;
   storyContext?: string;
   imageUrl?: string; // URL for the generated highlight image
+  imageUrlWithText?: string; // URL for the generated highlight image with text overlay
 };
 
 export type InfocardHighlightResponse = {

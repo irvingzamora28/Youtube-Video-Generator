@@ -256,6 +256,106 @@ async def _generate_and_link_image_for_visual(
 
 # --- Bulk Generation Endpoint ---
 
+from PIL import Image, ImageDraw, ImageFont
+
+@router.post("/add_text_to_highlight_images/{project_id}")
+async def add_text_to_highlight_images_for_project(project_id: int):
+    """
+    For each infocard highlight with an image, overlay the highlight text onto the image using Pillow.
+    """
+    project = Project.get_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail=f"Project {project_id} not found.")
+    highlights = project.infocard_highlights or []
+    if not highlights:
+        raise HTTPException(status_code=400, detail="No infocard highlights found for this project.")
+
+    font_path = None  # Use default font, or set to a .ttf file path if you want custom
+    for idx, highlight in enumerate(highlights):
+        image_url = highlight.get("image_url")
+        text = highlight.get("text")
+        if not image_url or not text:
+            continue
+        # Remove leading slash if present for os.path.join
+        rel_path = image_url[1:] if image_url.startswith("/") else image_url
+        image_path = os.path.join(settings.static_dir, rel_path.replace("static/", ""))
+        if not os.path.isfile(image_path):
+            print(f"[add_text_to_highlight_images_for_project] Image not found: {image_path}")
+            continue
+        try:
+            image = Image.open(image_path).convert("RGBA")
+            draw = ImageDraw.Draw(image)
+            W, H = image.size
+            # Dynamically set font size based on text length and image width
+            max_font_size = int(H * 0.40)
+            min_font_size = 24
+            font_size = max_font_size
+            # Prefer user-downloaded fonts in backend/fonts/
+            custom_font_dir = os.path.join(os.path.dirname(__file__), "../fonts")
+            custom_font_dir = os.path.abspath(custom_font_dir)
+            preferred_fonts = [
+                "Roboto-Bold.ttf",
+                "Anton-Regular.ttf",
+                "BebasNeue-Regular.ttf",
+                "CalSans-Regular.ttf"
+            ]
+            font = None
+            font_path_used = None
+            for fname in preferred_fonts:
+                fpath = os.path.join(custom_font_dir, fname)
+                if os.path.isfile(fpath):
+                    font_path_used = fpath
+                    break
+            if font_path_used is None:
+                raise RuntimeError("No suitable font found in backend/fonts/. Please add a TTF font such as Roboto-Bold.ttf or Anton-Regular.ttf.")
+            # Find the largest font size that fits the text within 90% of image width
+            while font_size >= min_font_size:
+                font = ImageFont.truetype(font_path_used, font_size)
+                bbox = draw.textbbox((0, 0), text, font=font)
+                text_width = bbox[2] - bbox[0]
+                if text_width <= 0.9 * W:
+                    break
+                font_size -= 2
+            print(f"[add_text_to_highlight_images_for_project] Using font: {font_path_used} at size {font_size}")
+
+            # Sample the top-left 5x5 patch for background color
+            patch = image.crop((0, 0, 5, 5)).resize((1, 1), Image.LANCZOS)
+            bg_color = patch.getpixel((0, 0))[:3]  # Ignore alpha
+            # Compute luminance
+            luminance = 0.299 * bg_color[0] + 0.587 * bg_color[1] + 0.114 * bg_color[2]
+            # Choose text color for best contrast
+            if luminance > 160:
+                text_color = (10, 10, 10, 255)  # almost black
+            else:
+                text_color = (245, 245, 245, 255)  # almost white
+
+            # Calculate position (centered, near bottom) using Pillow 10+ compatible textbbox
+            bbox = draw.textbbox((0, 0), text, font=font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+            x = (W - text_width) // 2
+            y = H - text_height - 32
+
+            # Draw text (optionally with a thin outline for readability)
+            outline_color = (0, 0, 0, 255) if text_color[0] > 128 else (255, 255, 255, 255)
+            for dx, dy in [(-2,0),(2,0),(0,-2),(0,2)]:
+                draw.text((x+dx, y+dy), text, font=font, fill=outline_color)
+            draw.text((x, y), text, font=font, fill=text_color)
+
+            # Save as new image (do not overwrite original)
+            base, ext = os.path.splitext(image_path)
+            new_image_path = base + "_text" + ext
+            image.save(new_image_path)
+            # Set new URL
+            new_url = image_url.replace('.png', '_text.png').replace('.jpg', '_text.jpg').replace('.jpeg', '_text.jpeg')
+            highlight["image_url_with_text"] = new_url
+        except Exception as e:
+            print(f"[add_text_to_highlight_images_for_project] Error adding text to image {image_path}: {e}")
+            continue
+    # Save project (if needed)
+    project.save()
+    return {"highlights": highlights}
+
 @router.post("/generate_highlight_images/{project_id}")
 async def generate_highlight_images_for_project(
     project_id: int,
