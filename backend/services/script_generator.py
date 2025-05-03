@@ -51,2073 +51,2009 @@ class ScriptGeneratorService:
         whatnow = """
         ```json
         {
-            "title": "Why Your Best Ideas Hit You in the Shower",
-            "description": "A friendly chat explaining the science behind why you often get brilliant ideas while showering, focusing on relaxation and the brain's Default Mode Network.",
+            "title": "How YOU Can Start a Conversation (Without the Awkward!)",
+            "description": "Feeling stuck before you even say 'hi'? This video is for you! We'll walk through simple, practical steps to kickstart chats naturally and confidently, minus the cringe. Personal tips included!",
             "total_duration": 300,
             "sections": [
                 {
-                    "title": "Introduction: The Shower Epiphany",
-                    "content": "Hooking you with the common experience of shower thoughts and setting the stage for the explanation.",
+                    "title": "Introduction: The Awkward Silence Monster",
+                    "content": "Acknowledging the universal fear of starting conversations and setting a relatable, friendly tone. We'll define the 'Awkward Silence Monster' we're trying to defeat.",
                     "total_duration": 75,
                     "segments": [
                         {
-                            "narration_text": "Hey there! Ever notice how some of your best, most brilliant ideas pop into your head... in the shower?",
+                            "narration_text": "Hey there! So, you wanna chat with someone new, right?",
                             "start_time": 0,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Minimalist animation: A lightbulb icon appearing above a simple outline of a person's head inside a shower outline.",
-                                    "text_span": "...brilliant ideas pop into your head...",
-                                    "timestamp": 0.5,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Close-up, slightly steamy view of water droplets on shower tiles.",
-                                    "text_span": "...in the shower?",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
+                                    "description": "Friendly host (animated or real) waving directly at the camera.",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "image",
                                     "position": "full",
-                                    "transition": "fade"
+                                    "transition": "fade",
+                                    "text_span": "Hey there!"
                                 },
                                 {
-                                    "description": "Text Overlay: Question mark symbol (?) styled like dripping water.",
-                                    "text_span": "Ever notice how...",
-                                    "timestamp": 0.0,
-                                    "duration": 4.5,
-                                    "visual_type": "text",
-                                    "position": "top_right",
-                                    "transition": "fade"
+                                    "description": "Split screen: Left side shows a person looking thoughtful, Right side shows a speech bubble with '?' inside.",
+                                    "timestamp": 2,
+                                    "duration": 3,
+                                    "visual_type": "diagram",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "wanna chat with someone new, right?"
+                                },
+                                {
+                                    "description": "Subtle sparkle animation around the speech bubble.",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "right",
+                                    "transition": "none"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "You're just standing there, minding your own business, lathering up...",
+                            "narration_text": "But then... that awkward silence monster creeps in. You know the one.",
                             "start_time": 5,
-                            "duration": 4,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Simple line drawing animation: A figure nonchalantly standing under falling lines representing shower water.",
-                                    "text_span": "You're just standing there...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
+                                    "description": "A cute, slightly goofy 'monster' character representing awkward silence peeking from behind a corner.",
+                                    "timestamp": 0,
+                                    "duration": 2.5,
+                                    "visual_type": "animation",
+                                    "position": "right",
+                                    "transition": "slide",
+                                    "text_span": "awkward silence monster creeps in."
+                                },
+                                {
+                                    "description": "Close-up on the monster's slightly menacing (but still funny) eyes wiggling.",
+                                    "timestamp": 2.5,
+                                    "duration": 1.5,
                                     "visual_type": "animation",
                                     "position": "center",
-                                    "transition": "slide_in_left"
+                                    "transition": "zoom",
+                                    "text_span": "You know the one."
                                 },
                                 {
-                                    "description": "Image: Close-up shot of soap bubbles forming on skin.",
-                                    "text_span": "...lathering up...",
-                                    "timestamp": 2.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center",
-                                    "transition": "zoom_in"
-                                },
-                                {
-                                    "description": "Text Overlay: Simple text 'Minding my own business...' appearing briefly.",
-                                    "text_span": "...minding your own business...",
-                                    "timestamp": 1.0,
-                                    "duration": 2.5,
+                                    "description": "Text overlay: 'Uh oh...' in a shaky font.",
+                                    "timestamp": 3,
+                                    "duration": 2,
                                     "visual_type": "text",
-                                    "position": "bottom_center",
+                                    "position": "center",
                                     "transition": "fade"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "...and BAM! Suddenly, the solution to that tricky problem you were stuck on appears.",
-                            "start_time": 9,
+                            "narration_text": "Your palms get sweaty, your mind goes blank... total freeze mode.",
+                            "start_time": 10,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: A stylized 'BAM!' comic book graphic explodes on screen.",
-                                    "text_span": "...and BAM!",
-                                    "timestamp": 0.0,
+                                    "description": "Animation of cartoon hands with sweat drops flying off.",
+                                    "timestamp": 0,
                                     "duration": 1.5,
                                     "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "zoom_out"
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "palms get sweaty,"
                                 },
                                 {
-                                    "description": "Diagram: A tangled knot icon quickly unraveling into a straight line.",
-                                    "text_span": "...solution to that tricky problem...",
+                                    "description": "Simple line drawing of a head with tumbleweeds blowing through empty space inside.",
                                     "timestamp": 1.5,
-                                    "duration": 2.0,
-                                    "visual_type": "diagram",
-                                    "position": "center_right",
-                                    "transition": "fade"
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "mind goes blank..."
                                 },
                                 {
-                                    "description": "Image: A person's eyes widening slightly in surprise (viewed from side, minimalist).",
-                                    "text_span": "Suddenly... appears.",
+                                    "description": "Image of a person literally frozen in a block of ice (cartoon style).",
                                     "timestamp": 3.5,
                                     "duration": 1.5,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "right",
+                                    "transition": "fade",
+                                    "text_span": "total freeze mode."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Or maybe a completely new, creative idea just materializes out of the steam.",
-                            "start_time": 14,
+                            "narration_text": "Trust me, I've been there. Picture this: college party...",
+                            "start_time": 15,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: A thought bubble containing a sparkling star rising from stylized steam clouds.",
-                                    "text_span": "...new, creative idea just materializes...",
-                                    "timestamp": 0.5,
-                                    "duration": 2.5,
-                                    "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Abstract blurry image suggesting steam or mist.",
-                                    "text_span": "...out of the steam.",
-                                    "timestamp": 3.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "full",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Eureka!' styled like it's written on a steamy mirror.",
-                                    "text_span": "creative idea",
-                                    "timestamp": 1.0,
-                                    "duration": 3.0,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "It feels almost magical, right? Like the shower has some secret idea-generating power.",
-                            "start_time": 19,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Animation: Sparkles briefly appearing around a minimalist shower head icon.",
-                                    "text_span": "It feels almost magical...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: A person looking thoughtfully upwards, slight smile (minimalist style).",
-                                    "text_span": "...right?",
-                                    "timestamp": 2.0,
+                                    "description": "Host points to themself with a knowing, slightly embarrassed smile.",
+                                    "timestamp": 0,
                                     "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Secret Power?' with a water drop replacing the dot.",
-                                    "text_span": "...secret idea-generating power.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.5,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Well, you're not imagining it! There's actually some cool brain science behind this.",
-                            "start_time": 24,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Animation: A simple brain icon with gears turning slowly inside.",
-                                    "text_span": "...cool brain science...",
-                                    "timestamp": 1.0,
-                                    "duration": 2.5,
-                                    "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "zoom_in"
-                                },
-                                {
-                                    "description": "Text Overlay: 'It's SCIENCE!' appearing in a fun, bubbly font.",
-                                    "text_span": "Well, you're not imagining it!",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "top_left",
-                                    "transition": "slide_down"
-                                },
-                                {
-                                    "description": "Image: A finger pointing upwards as if making a point (simple illustration).",
-                                    "text_span": "behind this.",
-                                    "timestamp": 3.5,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "It's not the water itself, obviously, though the shower environment plays a huge role.",
-                            "start_time": 29,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Animation: Water droplet icon with a red 'X' crossed over it.",
-                                    "text_span": "It's not the water itself...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Silhouette of a person comfortably inside a shower cubicle outline.",
-                                    "text_span": "...shower environment plays a huge role.",
-                                    "timestamp": 2.0,
-                                    "duration": 3.0,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Environment is Key' appearing.",
-                                    "text_span": "environment plays a huge role.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Think about what happens when you step into that warm, private space.",
-                            "start_time": 34,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Animation: Steam/heat waves rising from a simple line.",
-                                    "text_span": "...warm...",
-                                    "timestamp": 0.5,
-                                    "duration": 1.5,
-                                    "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: A simple 'Do Not Disturb' sign icon.",
-                                    "text_span": "...private space.",
-                                    "timestamp": 2.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Your Zone' inside a bubble.",
-                                    "text_span": "private space.",
-                                    "timestamp": 2.0,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Firstly, you're usually alone. No emails pinging, no one asking you questions.",
-                            "start_time": 38,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Animation: A stylized email notification icon with a red slash through it.",
-                                    "text_span": "No emails pinging...",
-                                    "timestamp": 0.5,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Animation: A speech bubble icon with a question mark inside, also crossed out.",
-                                    "text_span": "...no one asking you questions.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: A simple icon of a person with headphones on, looking peaceful.",
-                                    "text_span": "Firstly, you're usually alone.",
-                                    "timestamp": 0.0,
-                                    "duration": 4.5,
-                                    "visual_type": "image",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "It's a rare moment of solitude in our busy lives, wouldn't you agree?",
-                            "start_time": 43,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Image: A minimalist clock icon with hands spinning rapidly.",
-                                    "text_span": "...busy lives...",
-                                    "timestamp": 1.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "zoom_in"
-                                },
-                                {
-                                    "description": "Animation: A simple 'pause' button icon appearing.",
-                                    "text_span": "rare moment of solitude...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Agree?' with a simple checkmark.",
-                                    "text_span": "...wouldn't you agree?",
-                                    "timestamp": 3.0,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_right",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "This lack of external distraction is crucial. It lets your mind off the leash.",
-                            "start_time": 48,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Animation: Icons representing distractions (phone, email, bell) fading away.",
-                                    "text_span": "lack of external distraction...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.5,
-                                    "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: A simple drawing of a dog happily running free from a leash.",
-                                    "text_span": "...lets your mind off the leash.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.5,
-                                    "visual_type": "image",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Mind Unleashed!' in a playful font.",
-                                    "text_span": "mind off the leash.",
-                                    "timestamp": 3.0,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "slide_down"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Secondly, the warm water and the white noise of the shower are incredibly relaxing.",
-                            "start_time": 53,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Animation: Gentle wavy lines representing warmth radiating.",
-                                    "text_span": "warm water...",
-                                    "timestamp": 0.5,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Animation: Sound wave icon representing 'white noise'.",
-                                    "text_span": "...white noise of the shower...",
-                                    "timestamp": 2.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: A simple icon of a person leaning back with eyes closed, relaxed.",
-                                    "text_span": "...incredibly relaxing.",
-                                    "timestamp": 3.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "This relaxation isn't just pleasant; it changes your brain activity.",
-                            "start_time": 58,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Image: A simple 'thumbs up' icon for 'pleasant'.",
-                                    "text_span": "...isn't just pleasant...",
-                                    "timestamp": 0.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Diagram: Simple brain outline with wave patterns inside changing.",
-                                    "text_span": "...changes your brain activity.",
-                                    "timestamp": 1.5,
-                                    "duration": 2.5,
-                                    "visual_type": "diagram",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Brain Shift' with an arrow.",
-                                    "text_span": "changes your brain activity.",
-                                    "timestamp": 2.0,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "So, you're alone, relaxed, and not actively trying to think.",
-                            "start_time": 62,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Image: Icon of a single person symbol.",
-                                    "text_span": "So, you're alone...",
-                                    "timestamp": 0.0,
-                                    "duration": 1.0,
                                     "visual_type": "image",
                                     "position": "left",
-                                    "transition": "fade"
+                                    "transition": "none",
+                                    "text_span": "Trust me,"
                                 },
                                 {
-                                    "description": "Image: A simple 'zen' or meditating icon.",
-                                    "text_span": "...relaxed...",
-                                    "timestamp": 1.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
+                                    "description": "Thought bubble appearing above the host's head.",
+                                    "timestamp": 1.5,
+                                    "duration": 1,
+                                    "visual_type": "animation",
                                     "position": "center",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Animation: A brain icon with a 'no entry' sign over the 'thinking hard' area.",
-                                    "text_span": "...not actively trying to think.",
+                                    "description": "Inside the thought bubble: a stylized image of a crowded, noisy college party scene.",
                                     "timestamp": 2.5,
+                                    "duration": 2.5,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "zoom",
+                                    "text_span": "Picture this: college party..."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "...wanted to talk to this cool person, opened my mouth...",
+                            "start_time": 20,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Inside thought bubble: A stick figure (representing 'me') looking towards another 'cool' stick figure wearing sunglasses.",
+                                    "timestamp": 0,
+                                    "duration": 2.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "none",
+                                    "text_span": "wanted to talk to this cool person,"
+                                },
+                                {
+                                    "description": "Close up on the 'me' stick figure's mouth opening slightly.",
+                                    "timestamp": 2.5,
+                                    "duration": 1,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "zoom",
+                                    "text_span": "opened my mouth..."
+                                },
+                                {
+                                    "description": "Question marks appearing around the 'me' stick figure's head.",
+                                    "timestamp": 3.5,
                                     "duration": 1.5,
                                     "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "fade"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "...and literally just squeaked. Like a mouse. Awkward!",
+                            "start_time": 25,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Inside thought bubble: A tiny speech bubble with 'Squeak!' comes out of the 'me' figure's mouth.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "literally just squeaked."
+                                },
+                                {
+                                    "description": "Image of a small, startled mouse next to the stick figure.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "slide",
+                                    "text_span": "Like a mouse."
+                                },
+                                {
+                                    "description": "Big, bold text: 'AWKWARD!' flashing on screen.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "full",
+                                    "transition": "fade"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Sound familiar? Yeah, it happens to the best of us.",
+                            "start_time": 30,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Host back on screen, shrugging with a 'what can you do?' expression.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "full",
+                                    "transition": "fade",
+                                    "text_span": "Sound familiar?"
+                                },
+                                {
+                                    "description": "Animation of multiple diverse cartoon faces nodding in agreement.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Text overlay: 'It's Okay!' with a thumbs-up icon.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "happens to the best of us."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "But the good news? It doesn't have to be this way.",
+                            "start_time": 35,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Host leaning in slightly, smiling conspiratorially.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "full",
+                                    "transition": "none",
+                                    "text_span": "But the good news?"
+                                },
+                                {
+                                    "description": "Animation of a dark cloud being blown away to reveal a shining sun.",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "fade"
+                                },
+                                {
+                                    "description": "Text: 'You Got This!' appearing brightly.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "center",
+                                    "transition": "zoom",
+                                    "text_span": "doesn't have to be this way."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "You CAN learn to kickstart conversations smoothly.",
+                            "start_time": 40,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Stylized icon of a lightbulb turning on above a person's head.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "You CAN learn"
+                                },
+                                {
+                                    "description": "Animation of gears turning smoothly together.",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "right",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Text: 'Smooth Start' with an arrow pointing forward.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "kickstart conversations smoothly."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Think of it like a skill, like learning to ride a bike.",
+                            "start_time": 45,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Icon representing a 'skill' - perhaps a toolbox or a brain with weights.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "Think of it like a skill,"
+                                },
+                                {
+                                    "description": "Simple animation of a person wobbling on a bike, then riding smoothly.",
+                                    "timestamp": 2,
+                                    "duration": 3,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "learning to ride a bike."
+                                },
+                                {
+                                    "description": "Text: 'Practice Makes Progress'.",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Maybe wobbly at first, but you'll get the hang of it!",
+                            "start_time": 50,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Close-up on the wobbling bike animation.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "zoom",
+                                    "text_span": "wobbly at first,"
+                                },
+                                {
+                                    "description": "Animation transitions to the person riding confidently, smiling.",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "fade"
+                                },
+                                {
+                                    "description": "A 'thumbs up' icon pops up.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "pop",
+                                    "text_span": "get the hang of it!"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "So, grab a metaphorical helmet, okay?",
+                            "start_time": 55,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Host pantomimes putting on a helmet.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "full",
+                                    "transition": "none",
+                                    "text_span": "grab a metaphorical helmet,"
+                                },
+                                {
+                                    "description": "Animation of a brightly colored, slightly silly helmet appearing.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "pop"
+                                },
+                                {
+                                    "description": "Text: 'Safety First (from awkwardness!)'.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "okay?"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "We're gonna tackle this together.",
+                            "start_time": 60,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Image of two hands clasping in a friendly 'teamwork' gesture.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "tackle this together."
+                                },
+                                {
+                                    "description": "Host gives a determined but friendly nod.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Text: 'Let's Go!' with an arrow pointing right.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
                                     "position": "right",
                                     "transition": "fade"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "That's the perfect recipe! Let's dive into exactly what happens in your brain next.",
-                            "start_time": 66,
+                            "narration_text": "First step: learning how to spot your opening.",
+                            "start_time": 65,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: A simple icon of a recipe card with a checkmark.",
-                                    "text_span": "That's the perfect recipe!",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "description": "Text: 'Step 1' appearing prominently.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "center",
+                                    "transition": "zoom"
                                 },
                                 {
-                                    "description": "Animation: An arrow pointing downwards, indicating 'diving in'.",
-                                    "text_span": "Let's dive into...",
-                                    "timestamp": 2.0,
-                                    "duration": 1.0,
+                                    "description": "Animation of an eye with lines radiating out, scanning.",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
                                     "visual_type": "animation",
                                     "position": "center",
-                                    "transition": "bounce"
+                                    "transition": "fade",
+                                    "text_span": "spot your opening."
                                 },
                                 {
-                                    "description": "Diagram: A magnifying glass hovering over a simple brain icon.",
-                                    "text_span": "...exactly what happens in your brain next.",
-                                    "timestamp": 3.0,
-                                    "duration": 2.0,
-                                    "visual_type": "diagram",
-                                    "position": "center_right",
-                                    "transition": "fade"
+                                    "description": "Stylized icon of an open door.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "slide"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "It's all about observation... let's dive in!",
+                            "start_time": 70,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Icon of a magnifying glass examining something.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "It's all about observation..."
+                                },
+                                {
+                                    "description": "Animation of someone diving into water (stylized).",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Text: 'Observation Power!'",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "let's dive in!"
                                 }
                             ]
                         }
                     ]
                 },
                 {
-                    "title": "Key Point 1: The Power of Relaxation & Alpha Waves",
-                    "content": "Explaining how the relaxed shower state shifts brain activity, allowing for less constrained thinking.",
+                    "title": "Key Point 1: Finding Your 'In' - Observation Power!",
+                    "content": "This section focuses on practical ways to initiate a conversation by observing the shared environment, situation, or something about the other person.",
                     "total_duration": 75,
                     "segments": [
                         {
-                            "narration_text": "Okay, so first ingredient: relaxation. That warm water isn't just cozy, it's a signal to your body.",
+                            "narration_text": "Okay, so you're near someone you want to chat with.",
                             "start_time": 75,
-                            "duration": 6,
-                            "visuals": [
-                                {
-                                    "description": "Image: A simple icon of a steaming mug or bath.",
-                                    "text_span": "That warm water isn't just cozy...",
-                                    "timestamp": 1.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Animation: A simple 'signal' icon (like radio waves) emitting from the water icon towards a body outline.",
-                                    "text_span": "...it's a signal to your body.",
-                                    "timestamp": 3.0,
-                                    "duration": 2.5,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Ingredient #1: Relax!'",
-                                    "text_span": "first ingredient: relaxation.",
-                                    "timestamp": 0.0,
-                                    "duration": 3.0,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "slide_down"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "It tells your nervous system, 'Hey, you can chill out now. No tigers chasing you.'",
-                            "start_time": 81,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Diagram: Simple icon showing a switch flipping from 'Stress' (red) to 'Relax' (green).",
-                                    "text_span": "It tells your nervous system...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.5,
+                                    "description": "Simple diagram: Your character icon on one side, another person icon on the other, space between.",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "diagram",
                                     "position": "center",
-                                    "transition": "fade"
+                                    "transition": "fade",
+                                    "text_span": "you're near someone"
                                 },
                                 {
-                                    "description": "Animation: A cartoonish sabre-tooth tiger icon with a red 'X' over it.",
-                                    "text_span": "No tigers chasing you.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
+                                    "description": "A thought bubble appears above your character icon with '...' inside.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
                                     "visual_type": "animation",
-                                    "position": "center_right",
+                                    "position": "left",
                                     "transition": "pop"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Chill Mode: ON'",
-                                    "text_span": "'Hey, you can chill out now.",
-                                    "timestamp": 1.0,
-                                    "duration": 2.5,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "This reduces your stress levels, lowering cortisol, the stress hormone.",
-                            "start_time": 86,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Animation: A bar graph labeled 'Stress Level' quickly decreasing.",
-                                    "text_span": "reduces your stress levels...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "slide_down"
-                                },
-                                {
-                                    "description": "Text Overlay: Chemical symbol for Cortisol (stylized) with a downward arrow.",
-                                    "text_span": "...lowering cortisol...",
-                                    "timestamp": 1.5,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: A simple 'down arrow' icon.",
-                                    "text_span": "lowering",
-                                    "timestamp": 1.5,
+                                    "description": "Zoom in slightly on the other person's icon.",
+                                    "timestamp": 3.5,
                                     "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center",
-                                    "transition": "fade"
+                                    "visual_type": "diagram",
+                                    "position": "right",
+                                    "transition": "zoom",
+                                    "text_span": "want to chat with."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "When you're less stressed and more relaxed, your brain shifts gears.",
-                            "start_time": 90,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Image: A simple icon of a person sighing contentedly.",
-                                    "text_span": "less stressed and more relaxed...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Animation: Simple gear icons meshing and then shifting position.",
-                                    "text_span": "...your brain shifts gears.",
-                                    "timestamp": 2.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Brain Shift 2.0'",
-                                    "text_span": "brain shifts gears.",
-                                    "timestamp": 2.0,
-                                    "duration": 1.5,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "It moves away from sharp, focused attention – what scientists call 'beta waves'.",
-                            "start_time": 94,
+                            "narration_text": "Instead of panicking, activate your observation powers!",
+                            "start_time": 80,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Diagram: Icon of a brain with jagged, fast 'Beta Wave' patterns highlighted.",
-                                    "text_span": "...'beta waves'.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
-                                    "visual_type": "diagram",
-                                    "position": "center_right",
-                                    "transition": "fade"
+                                    "description": "Red 'X' over a panicked face icon.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "Instead of panicking,"
                                 },
                                 {
-                                    "description": "Animation: A spotlight icon narrowing its beam, then fading out.",
-                                    "text_span": "sharp, focused attention...",
-                                    "timestamp": 0.5,
-                                    "duration": 2.0,
+                                    "description": "Animation of superhero-style eye mask appearing on your character icon.",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
                                     "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "center",
+                                    "transition": "pop"
                                 },
                                 {
-                                    "description": "Text Overlay: Greek letter Beta (β) displayed.",
-                                    "text_span": "'beta waves'",
-                                    "timestamp": 3.0,
+                                    "description": "Text: 'Observation Mode: ON'.",
+                                    "timestamp": 3.5,
                                     "duration": 1.5,
                                     "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "activate your observation powers!"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Beta waves are great when you need to concentrate hard on a task, like solving a math problem.",
-                            "start_time": 99,
-                            "duration": 6,
+                            "narration_text": "Look around. What's happening? Shared environment is key.",
+                            "start_time": 85,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Icon of a person intensely focused on a laptop screen.",
-                                    "text_span": "concentrate hard on a task...",
-                                    "timestamp": 1.0,
-                                    "duration": 2.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "description": "Animation: Character icon's eyes scanning left and right.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "none",
+                                    "text_span": "Look around."
                                 },
                                 {
-                                    "description": "Image: A simple illustration of a math equation (e.g., x + y = z).",
-                                    "text_span": "...solving a math problem.",
+                                    "description": "Icons representing common environments: coffee shop, park, conference room.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "A key icon unlocking a door icon labeled 'Conversation'.",
                                     "timestamp": 3.5,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Focus Mode' with a target icon.",
-                                    "text_span": "Beta waves are great",
-                                    "timestamp": 0.0,
-                                    "duration": 3.0,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
+                                    "duration": 1.5,
+                                    "visual_type": "diagram",
+                                    "position": "right",
+                                    "transition": "fade",
+                                    "text_span": "Shared environment is key."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "But in the shower, your brain often shifts into a state dominated by 'alpha waves'.",
+                            "narration_text": "At a coffee shop? Comment on the long line.",
+                            "start_time": 90,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Icon of a coffee cup.",
+                                    "timestamp": 0,
+                                    "duration": 1,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "fade"
+                                },
+                                {
+                                    "description": "Animation of a long, winding queue of stick figures.",
+                                    "timestamp": 1,
+                                    "duration": 2.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "Comment on the long line."
+                                },
+                                {
+                                    "description": "Speech bubble: 'Wow, popular place today!'",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "right",
+                                    "transition": "pop"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Or maybe the cool latte art the barista just made.",
+                            "start_time": 95,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Image of intricate latte art (a heart or swan).",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "cool latte art"
+                                },
+                                {
+                                    "description": "Smiling barista icon giving a thumbs up.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Speech bubble: 'Did you see that amazing foam swan?'",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "text",
+                                    "position": "left",
+                                    "transition": "pop"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "At an event? Mention the speaker, the food, the music.",
+                            "start_time": 100,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Icon of a person speaking at a podium.",
+                                    "timestamp": 0,
+                                    "duration": 1,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "the speaker,"
+                                },
+                                {
+                                    "description": "Icon of a plate with food.",
+                                    "timestamp": 1,
+                                    "duration": 1,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "the food,"
+                                },
+                                {
+                                    "description": "Icon of musical notes.",
+                                    "timestamp": 2,
+                                    "duration": 1,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "fade",
+                                    "text_span": "the music."
+                                },
+                                {
+                                    "description": "Speech bubble: 'What did you think of that last talk?'",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "pop"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Example: I once started a chat over weird conference carpet.",
                             "start_time": 105,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: Brain icon transitioning from jagged 'Beta' waves to slower, rounded 'Alpha' waves.",
-                                    "text_span": "...shifts into a state dominated by 'alpha waves'.",
-                                    "timestamp": 1.5,
-                                    "duration": 3.0,
-                                    "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Simple shower head icon.",
-                                    "text_span": "But in the shower...",
-                                    "timestamp": 0.0,
+                                    "description": "Host leans in again, sharing a mini-story.",
+                                    "timestamp": 0,
                                     "duration": 1.5,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "full",
+                                    "transition": "none",
+                                    "text_span": "Example: I once..."
                                 },
                                 {
-                                    "description": "Text Overlay: Greek letter Alpha (α) displayed.",
-                                    "text_span": "'alpha waves'",
-                                    "timestamp": 3.0,
-                                    "duration": 1.5,
+                                    "description": "Image of a particularly loud, patterned, maybe ugly carpet design.",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "weird conference carpet."
+                                },
+                                {
+                                    "description": "Speech bubble: 'This carpet pattern is... something, huh?'",
+                                    "timestamp": 3,
+                                    "duration": 2,
                                     "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
+                                    "position": "lower_third",
+                                    "transition": "pop"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Alpha waves are associated with being awake but relaxed, calm, and reflective.",
+                            "narration_text": "Sounds silly, but it worked! We both laughed.",
                             "start_time": 110,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Icon of an open eye, but looking calm.",
-                                    "text_span": "awake but relaxed...",
-                                    "timestamp": 0.5,
+                                    "description": "Icon of a lightbulb with 'Silly Idea!' text.",
+                                    "timestamp": 0,
                                     "duration": 1.5,
                                     "visual_type": "image",
                                     "position": "left",
-                                    "transition": "fade"
+                                    "transition": "fade",
+                                    "text_span": "Sounds silly,"
                                 },
                                 {
-                                    "description": "Image: A simple icon representing calmness, like still water.",
-                                    "text_span": "...calm...",
-                                    "timestamp": 2.0,
-                                    "duration": 1.0,
+                                    "description": "Green checkmark icon.",
+                                    "timestamp": 1.5,
+                                    "duration": 1,
                                     "visual_type": "image",
                                     "position": "center",
-                                    "transition": "fade"
+                                    "transition": "pop",
+                                    "text_span": "but it worked!"
                                 },
                                 {
-                                    "description": "Image: A thought bubble icon, suggesting reflection.",
-                                    "text_span": "...and reflective.",
-                                    "timestamp": 3.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
+                                    "description": "Animation of two stick figures laughing together.",
+                                    "timestamp": 2.5,
+                                    "duration": 2.5,
+                                    "visual_type": "animation",
                                     "position": "right",
-                                    "transition": "fade"
+                                    "transition": "slide",
+                                    "text_span": "We both laughed."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Think of it like daydreaming, or that pleasant state just before you fall asleep.",
+                            "narration_text": "It's about finding common ground, however small.",
                             "start_time": 115,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: Simple cloud shapes drifting lazily across the screen.",
-                                    "text_span": "Think of it like daydreaming...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.5,
-                                    "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "slide_right"
-                                },
-                                {
-                                    "description": "Image: Minimalist icon of a person in bed, eyes half-closed.",
-                                    "text_span": "...state just before you fall asleep.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Floaty Brain State'",
-                                    "text_span": "pleasant state",
-                                    "timestamp": 1.0,
-                                    "duration": 3.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_left",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "This alpha state is highly conducive to creativity and insight.",
-                            "start_time": 120,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Diagram: Alpha wave symbol pointing towards a lightbulb icon (insight) and a painter's palette icon (creativity).",
-                                    "text_span": "alpha state is highly conducive to creativity and insight.",
-                                    "timestamp": 0.5,
-                                    "duration": 3.0,
+                                    "description": "Diagram: Two separate circles slightly overlapping.",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "diagram",
                                     "position": "center",
-                                    "transition": "fade"
+                                    "transition": "fade",
+                                    "text_span": "finding common ground,"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Alpha = Aha!'",
-                                    "text_span": "Alpha state... insight.",
-                                    "timestamp": 1.5,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: A simple '+' sign icon.",
-                                    "text_span": "conducive",
-                                    "timestamp": 1.0,
+                                    "description": "Magnifying glass zooming into the small overlapping area.",
+                                    "timestamp": 2,
                                     "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "zoom"
+                                },
+                                {
+                                    "description": "Text: 'Shared Experience'.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "however small."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Your mind isn't laser-focused, so it's free to wander and make unexpected connections.",
-                            "start_time": 124,
-                            "duration": 6,
+                            "narration_text": "You can also observe something about the person.",
+                            "start_time": 120,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: A laser beam icon turning off or diffusing.",
-                                    "text_span": "Your mind isn't laser-focused...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
+                                    "description": "Arrow pointing from 'Your Icon' towards 'Other Person Icon'.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "diagram",
+                                    "position": "center",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Magnifying glass icon hovering over the 'Other Person Icon'.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
                                     "visual_type": "animation",
-                                    "position": "center_left",
+                                    "position": "right",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Animation: Dotted lines meandering and connecting between different simple icons (e.g., apple, chair, star).",
-                                    "text_span": "...free to wander and make unexpected connections.",
-                                    "timestamp": 2.0,
-                                    "duration": 3.5,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
+                                    "description": "Text: 'Notice Details'.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "observe something about the person."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Like a cool band t-shirt they're wearing.",
+                            "start_time": 125,
+                            "duration": 5,
+                            "visuals": [
                                 {
-                                    "description": "Text Overlay: 'Wander & Wonder'",
-                                    "text_span": "free to wander",
-                                    "timestamp": 2.5,
+                                    "description": "Image of a stylish t-shirt with a fictional band logo.",
+                                    "timestamp": 0,
                                     "duration": 2.5,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "It's like loosening the reins on your thoughts, letting them roam.",
-                            "start_time": 130,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Image: Simple illustration of hands loosening reins.",
-                                    "text_span": "loosening the reins...",
-                                    "timestamp": 0.5,
-                                    "duration": 1.5,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "cool band t-shirt"
                                 },
                                 {
-                                    "description": "Animation: Thought bubbles floating freely upwards and outwards.",
-                                    "text_span": "...letting them roam.",
-                                    "timestamp": 2.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Free Range Thoughts'",
-                                    "text_span": "letting them roam.",
-                                    "timestamp": 2.0,
-                                    "duration": 1.5,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "So, the relaxation helps switch off that intense focus...",
-                            "start_time": 134,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Animation: A switch icon flipping to the 'OFF' position.",
-                                    "text_span": "...switch off...",
-                                    "timestamp": 1.0,
-                                    "duration": 1.5,
+                                    "description": "Music note icons floating around the t-shirt.",
+                                    "timestamp": 2,
+                                    "duration": 2,
                                     "visual_type": "animation",
                                     "position": "center",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Image: Icon representing intense focus (like a target) fading out.",
-                                    "text_span": "...that intense focus...",
-                                    "timestamp": 2.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Simple 'Spa / Relax' icon (e.g., cucumber slices).",
-                                    "text_span": "So, the relaxation helps...",
-                                    "timestamp": 0.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "...which allows your brain to enter the creative alpha wave state.",
-                            "start_time": 138,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Animation: An arrow pointing towards the Alpha wave symbol (α).",
-                                    "text_span": "...enter the creative alpha wave state.",
-                                    "timestamp": 1.0,
-                                    "duration": 2.5,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: A simple brain icon.",
-                                    "text_span": "your brain",
-                                    "timestamp": 0.5,
-                                    "duration": 1.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "none"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Creative Zone'",
-                                    "text_span": "creative alpha wave state.",
-                                    "timestamp": 1.5,
-                                    "duration": 2.0,
+                                    "description": "Speech bubble: 'Hey, awesome shirt! I love that band.'",
+                                    "timestamp": 3,
+                                    "duration": 2,
                                     "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
+                                    "position": "lower_third",
+                                    "transition": "pop"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "But that's only part of the story! There's another key player...",
-                            "start_time": 142,
-                            "duration": 4,
+                            "narration_text": "Or a book they're reading - 'Oh, how is that one?'",
+                            "start_time": 130,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: A puzzle piece icon, labeled 'Part 1'.",
-                                    "text_span": "only part of the story!",
-                                    "timestamp": 0.5,
-                                    "duration": 1.5,
+                                    "description": "Image of a person reading a book with a generic cover.",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "a book they're reading"
                                 },
                                 {
-                                    "description": "Animation: A question mark appearing, hinting at the next part.",
-                                    "text_span": "There's another key player...",
-                                    "timestamp": 2.0,
-                                    "duration": 1.5,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
+                                    "description": "Question mark icon appearing next to the book.",
+                                    "timestamp": 2,
+                                    "duration": 1,
+                                    "visual_type": "image",
+                                    "position": "right",
                                     "transition": "pop"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Wait, there's more!'",
-                                    "text_span": "But that's only part...",
-                                    "timestamp": 0.0,
-                                    "duration": 3.0,
+                                    "description": "Speech bubble: 'Oh, how is that one? I've heard about it.'",
+                                    "timestamp": 3,
+                                    "duration": 2,
                                     "visual_type": "text",
-                                    "position": "top_center",
+                                    "position": "lower_third",
                                     "transition": "fade"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Keep it light, casual, and *not* overly personal yet.",
+                            "start_time": 135,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Icon of a feather floating down gently.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "Keep it light, casual,"
+                                },
+                                {
+                                    "description": "A 'Stop' sign icon with 'Too Personal!' text.",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Text: 'Easy Does It'.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "not overly personal yet."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "The goal is just to open the door for a chat.",
+                            "start_time": 140,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Animation of a door creaking open slightly.",
+                                    "timestamp": 0,
+                                    "duration": 2.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "open the door for a chat."
+                                },
+                                {
+                                    "description": "A friendly handshake icon.",
+                                    "timestamp": 2.5,
+                                    "duration": 1,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "pop"
+                                },
+                                {
+                                    "description": "Text: 'Just Begin'.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Next up: How to keep it going beyond 'hello'.",
+                            "start_time": 145,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Text: 'Step 2' appearing.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "left",
+                                    "transition": "fade"
+                                },
+                                {
+                                    "description": "Animation of a conversation bubble expanding.",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "zoom",
+                                    "text_span": "keep it going"
+                                },
+                                {
+                                    "description": "Arrow pointing forward labeled 'Flow'.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "diagram",
+                                    "position": "right",
+                                    "transition": "slide",
+                                    "text_span": "beyond 'hello'."
                                 }
                             ]
                         }
                     ]
                 },
                 {
-                    "title": "Key Point 2: The Default Mode Network & Dopamine",
-                    "content": "Introducing the Default Mode Network (DMN) and its role in mind-wandering and connecting ideas, plus the dopamine boost.",
+                    "title": "Key Point 2: The Art of the Open-Ended Question",
+                    "content": "Explaining the difference between closed and open-ended questions and why the latter are crucial for keeping conversations alive and engaging.",
                     "total_duration": 75,
                     "segments": [
                         {
-                            "narration_text": "Okay, let's talk about your brain's 'Default Mode Network', or DMN.",
+                            "narration_text": "Alright, you've said hi! Observation successful.",
                             "start_time": 150,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Diagram: Simple brain outline with specific regions highlighted, labeled 'DMN'.",
-                                    "text_span": "...'Default Mode Network', or DMN.",
-                                    "timestamp": 1.5,
-                                    "duration": 3.0,
+                                    "description": "Checkmark next to the 'Observation Power' icon.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "Observation successful."
+                                },
+                                {
+                                "description": "Two stick figures now have a small speech bubble connection.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
                                     "visual_type": "diagram",
                                     "position": "center",
-                                    "transition": "zoom_in"
+                                    "transition": "slide"
                                 },
                                 {
-                                    "description": "Text Overlay: 'DMN: Your Brain's Background App'",
-                                    "text_span": "Default Mode Network",
-                                    "timestamp": 1.0,
-                                    "duration": 3.0,
+                                    "description": "Text: 'Level Unlocked!'",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
                                     "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: A simple toggle switch labeled 'Default'.",
-                                    "text_span": "Default Mode",
-                                    "timestamp": 2.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "bottom_left",
-                                    "transition": "fade"
+                                    "position": "right",
+                                    "transition": "pop"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Think of it as what your brain does when you're not focused on the outside world.",
+                            "narration_text": "Now, how do you avoid the dreaded one-word answer?",
                             "start_time": 155,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: Icons representing external tasks (computer, phone) fading out, leaving a brain icon active.",
-                                    "text_span": "...*not* focused on the outside world.",
-                                    "timestamp": 1.0,
-                                    "duration": 3.0,
+                                    "description": "Animation of a speech bubble appearing with just 'Yes.' or 'No.' inside, then deflating sadly.",
+                                    "timestamp": 0,
+                                    "duration": 2.5,
                                     "visual_type": "animation",
                                     "position": "center",
-                                    "transition": "fade"
+                                    "transition": "fade",
+                                    "text_span": "dreaded one-word answer?"
                                 },
                                 {
-                                    "description": "Image: A person gazing out a window thoughtfully (minimalist).",
-                                    "text_span": "Think of it as...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "description": "Image of a tumbleweed rolling across the screen.",
+                                    "timestamp": 2.5,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "full",
+                                    "transition": "slide"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Idle Mode = Active Inside'",
-                                    "text_span": "what your brain does when you're not focused",
-                                    "timestamp": 1.5,
-                                    "duration": 3.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
+                                    "description": "Awkward silence monster peeking again.",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "right",
+                                    "transition": "pop"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "It's active during daydreaming, mind-wandering... and yes, showering!",
+                            "narration_text": "Meet your secret weapon: the open-ended question!",
                             "start_time": 160,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Cloud icon for 'daydreaming'.",
-                                    "text_span": "daydreaming...",
-                                    "timestamp": 0.5,
-                                    "duration": 1.0,
+                                    "description": "A stylized 'secret weapon' icon - maybe a sparkling key or a magic wand.",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "image",
-                                    "position": "left",
-                                    "transition": "fade"
+                                    "position": "center",
+                                    "transition": "pop",
+                                    "text_span": "your secret weapon:"
                                 },
                                 {
-                                    "description": "Animation: Wavy line icon for 'mind-wandering'.",
-                                    "text_span": "mind-wandering...",
-                                    "timestamp": 1.5,
+                                    "description": "Text appearing: 'Open-Ended Questions'.",
+                                    "timestamp": 2,
                                     "duration": 1.5,
-                                    "visual_type": "animation",
+                                    "visual_type": "text",
                                     "position": "center",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Image: Shower icon.",
-                                    "text_span": "...and yes, showering!",
-                                    "timestamp": 3.0,
+                                    "description": "Animation of a question mark expanding outwards.",
+                                    "timestamp": 3.5,
                                     "duration": 1.5,
-                                    "visual_type": "image",
+                                    "visual_type": "animation",
+                                    "position": "right",
+                                    "transition": "zoom"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Closed questions get 'yes' or 'no'. Like 'Did you like the talk?'",
+                            "start_time": 165,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Diagram: Question Mark -> Arrow -> 'Yes/No'.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "diagram",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "Closed questions get 'yes' or 'no'."
+                                },
+                                {
+                                    "description": "Speech bubble: 'Did you like the talk?'",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "left",
+                                    "transition": "pop"
+                                },
+                                {
+                                    "description": "Response bubble: 'Yes.'",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
                                     "position": "right",
                                     "transition": "pop"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "While you're relaxed and distracted, your DMN gets busy.",
-                            "start_time": 165,
-                            "duration": 4,
+                            "narration_text": "Conversation... dead end. Womp womp.",
+                            "start_time": 170,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Person icon relaxing.",
-                                    "text_span": "While you're relaxed...",
-                                    "timestamp": 0.0,
+                                    "description": "Animation of the speech bubble connection breaking.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "Conversation... dead end."
+                                },
+                                {
+                                    "description": "Image of a road sign showing a dead end.",
+                                    "timestamp": 2,
                                     "duration": 1.5,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "center",
+                                    "transition": "slide"
                                 },
                                 {
-                                    "description": "Animation: Brain icon with DMN areas lighting up and becoming active.",
-                                    "text_span": "...your DMN gets busy.",
-                                    "timestamp": 1.5,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'DMN at Work'",
-                                    "text_span": "DMN gets busy.",
-                                    "timestamp": 2.0,
+                                    "description": "Sad trombone sound effect icon (optional). Text: 'Womp womp'.",
+                                    "timestamp": 3.5,
                                     "duration": 1.5,
                                     "visual_type": "text",
-                                    "position": "top_center",
+                                    "position": "right",
                                     "transition": "fade"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "It starts connecting different parts of your brain, accessing memories and knowledge.",
-                            "start_time": 169,
-                            "duration": 6,
-                            "visuals": [
-                                {
-                                    "description": "Diagram: Simple brain map showing lines connecting disparate highlighted areas.",
-                                    "text_span": "connecting different parts of your brain...",
-                                    "timestamp": 0.5,
-                                    "duration": 2.5,
-                                    "visual_type": "diagram",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Icon of a filing cabinet or folder (representing memories).",
-                                    "text_span": "...accessing memories...",
-                                    "timestamp": 3.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Icon of a book or lightbulb (representing knowledge).",
-                                    "text_span": "...and knowledge.",
-                                    "timestamp": 4.5,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Crucially, it connects things that your focused brain might not link together.",
+                            "narration_text": "Open questions invite *more* detail. They start with 'What', 'How', 'Why'.",
                             "start_time": 175,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: Two unrelated icons (e.g., a key and a cloud) suddenly being linked by a dotted line.",
-                                    "text_span": "...connects things that... might not link together.",
-                                    "timestamp": 1.0,
-                                    "duration": 3.0,
-                                    "visual_type": "animation",
+                                    "description": "Diagram: Question Mark -> Arrow -> Long, winding line (representing detail).",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "diagram",
                                     "position": "center",
-                                    "transition": "fade"
+                                    "transition": "fade",
+                                    "text_span": "invite *more* detail."
                                 },
                                 {
-                                    "description": "Image: Brain icon with 'Focused' label and blinders on.",
-                                    "text_span": "your focused brain",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Unexpected Links!'",
-                                    "text_span": "might not link together.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
+                                    "description": "Text: 'What?'",
+                                    "timestamp": 2,
+                                    "duration": 1,
                                     "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
+                                    "position": "left",
+                                    "transition": "pop"
+                                },
+                                {
+                                    "description": "Text: 'How?'",
+                                    "timestamp": 3,
+                                    "duration": 1,
+                                    "visual_type": "text",
+                                    "position": "center",
+                                    "transition": "pop"
+                                },
+                                {
+                                    "description": "Text: 'Why?'",
+                                    "timestamp": 4,
+                                    "duration": 1,
+                                    "visual_type": "text",
+                                    "position": "right",
+                                    "transition": "pop"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Think of your focused mind like using a search engine – you type in specific keywords.",
+                            "narration_text": "Instead: 'What did you find most interesting about the talk?'",
                             "start_time": 180,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: A simple search bar UI with text being typed.",
-                                    "text_span": "using a search engine...",
-                                    "timestamp": 1.0,
-                                    "duration": 2.5,
-                                    "visual_type": "animation",
+                                    "description": "Speech bubble: 'What did you find most interesting about the talk?'",
+                                    "timestamp": 0,
+                                    "duration": 3,
+                                    "visual_type": "text",
                                     "position": "center",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Image: Magnifying glass icon.",
-                                    "text_span": "focused mind",
-                                    "timestamp": 0.0,
-                                    "duration": 1.5,
+                                    "description": "An 'Aha!' or lightbulb icon next to the bubble.",
+                                    "timestamp": 3,
+                                    "duration": 1,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: Specific keywords like 'problem solution formula'.",
-                                    "text_span": "type in specific keywords.",
-                                    "timestamp": 3.0,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Your DMN is more like browsing randomly, stumbling upon surprising connections.",
-                            "start_time": 185,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Animation: Icons popping up randomly on screen, connected by meandering lines.",
-                                    "text_span": "browsing randomly, stumbling upon surprising connections.",
-                                    "timestamp": 1.0,
-                                    "duration": 3.5,
-                                    "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Icon of footprints wandering.",
-                                    "text_span": "Your DMN is more like...",
-                                    "timestamp": 0.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Serendipity Engine'",
-                                    "text_span": "surprising connections.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_right",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "This is where insight often comes from – linking seemingly unrelated ideas.",
-                            "start_time": 190,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Animation: Two puzzle pieces that don't look like they fit suddenly click together.",
-                                    "text_span": "linking seemingly unrelated ideas.",
-                                    "timestamp": 1.5,
-                                    "duration": 3.0,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Lightbulb icon turning on.",
-                                    "text_span": "insight often comes from",
-                                    "timestamp": 0.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
+                                    "position": "right",
                                     "transition": "pop"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Aha!' inside a DMN brain diagram.",
-                                    "text_span": "insight",
-                                    "timestamp": 1.0,
-                                    "duration": 2.5,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "And there's one more little boost: Dopamine!",
-                            "start_time": 195,
-                            "duration": 3,
-                            "visuals": [
-                                {
-                                    "description": "Text Overlay: 'Dopamine!' in a bright, cheerful font with sparkles.",
-                                    "text_span": "Dopamine!",
-                                    "timestamp": 1.0,
-                                    "duration": 1.5,
-                                    "visual_type": "text",
-                                    "position": "center",
-                                    "transition": "zoom_in"
-                                },
-                                {
-                                    "description": "Image: A simple '+' sign with an up arrow.",
-                                    "text_span": "one more little boost:",
-                                    "timestamp": 0.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Animation: Small dots representing dopamine flowing in a brain icon.",
-                                    "text_span": "Dopamine!",
-                                    "timestamp": 1.0,
-                                    "duration": 2.0,
+                                    "description": "Response bubble starts forming, much larger than before.",
+                                    "timestamp": 4,
+                                    "duration": 1,
                                     "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Showering, especially with warm water, can trigger a small release of this feel-good chemical.",
-                            "start_time": 198,
-                            "duration": 6,
-                            "visuals": [
-                                {
-                                    "description": "Animation: Water drops turning into small smiley face icons as they fall.",
-                                    "text_span": "Showering, especially with warm water...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.5,
-                                    "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Diagram: Dopamine chemical structure symbol with a small upward arrow.",
-                                    "text_span": "...trigger a small release of this feel-good chemical.",
-                                    "timestamp": 2.5,
-                                    "duration": 3.0,
-                                    "visual_type": "diagram",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Feel Good Boost'",
-                                    "text_span": "feel-good chemical.",
-                                    "timestamp": 3.5,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Dopamine not only improves mood but can also enhance creativity.",
-                            "start_time": 204,
-                            "duration": 4,
-                            "visuals": [
-                                {
-                                    "description": "Image: Simple smiley face icon.",
-                                    "text_span": "improves mood...",
-                                    "timestamp": 0.5,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Icon representing creativity (palette, lightbulb, pen).",
-                                    "text_span": "...enhance creativity.",
-                                    "timestamp": 2.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Dopamine = Mood + Creativity'",
-                                    "text_span": "Dopamine... enhances creativity.",
-                                    "timestamp": 1.0,
-                                    "duration": 2.5,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "So you have relaxation (alpha waves), a wandering mind (DMN), and a touch of dopamine.",
-                            "start_time": 208,
-                            "duration": 6,
-                            "visuals": [
-                                {
-                                    "description": "Image: Alpha wave symbol.",
-                                    "text_span": "relaxation (alpha waves)",
-                                    "timestamp": 0.5,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: DMN brain icon.",
-                                    "text_span": "wandering mind (DMN)",
-                                    "timestamp": 2.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Dopamine symbol or smiley face.",
-                                    "text_span": "touch of dopamine.",
-                                    "timestamp": 3.5,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
                                     "position": "right",
                                     "transition": "fade"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "It's the perfect storm for those 'Aha!' moments!",
-                            "start_time": 214,
-                            "duration": 3,
+                            "narration_text": "See? That requires more than just 'yes'.",
+                            "start_time": 185,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: A lightning bolt striking a brain icon, resulting in a lightbulb.",
-                                    "text_span": "perfect storm for those 'Aha!' moments!",
-                                    "timestamp": 0.5,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center",
-                                    "transition": "zoom_in"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Aha!'",
-                                    "text_span": "'Aha!' moments!",
-                                    "timestamp": 1.0,
-                                    "duration": 1.5,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "pop"
-                                },
-                                {
-                                    "description": "Image: A checkmark icon over the combined symbols from previous segment.",
-                                    "text_span": "It's the perfect storm",
-                                    "timestamp": 0.0,
+                                    "description": "Host points knowingly at the screen.",
+                                    "timestamp": 0,
                                     "duration": 1.5,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "left",
+                                    "transition": "none",
+                                    "text_span": "See?"
+                                },
+                                {
+                                    "description": "Visual comparison: Small 'Yes' bubble vs. Large bubble with '...' indicating more text.",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
+                                    "visual_type": "diagram",
+                                    "position": "center",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Text: 'Invites Detail!'",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "requires more than just 'yes'."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Pretty cool how your brain uses that downtime, right?",
-                            "start_time": 217,
-                            "duration": 4,
+                            "narration_text": "Or, 'How did you get into [their hobby/interest you observed]?'",
+                            "start_time": 190,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Brain icon giving a thumbs-up.",
-                                    "text_span": "Pretty cool how your brain...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
+                                    "description": "Speech bubble: 'How did you get into...?'",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "text",
+                                    "position": "left",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Image: A simple 'pause' or 'sleep mode' icon.",
-                                    "text_span": "...uses that downtime...",
-                                    "timestamp": 2.0,
+                                    "description": "Icons representing hobbies: camera, guitar, book.",
+                                    "timestamp": 2,
                                     "duration": 1.5,
                                     "visual_type": "image",
-                                    "position": "center_right",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "[their hobby/interest you observed]?"
+                                },
+                                {
+                                    "description": "A curious face emoji.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "pop"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "It shows you're genuinely interested, not just making noise.",
+                            "start_time": 195,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Icon of an ear leaning in to listen.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "genuinely interested,"
+                                },
+                                {
+                                    "description": "Crossed out icon of random 'blah blah blah' speech.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "not just making noise."
+                                },
+                                {
+                                    "description": "A heart icon inside a speech bubble.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "pop"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "I used to ask boring stuff like 'Where are you from?'",
+                            "start_time": 200,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Host makes a slightly pained/embarrassed face.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "full",
+                                    "transition": "none",
+                                    "text_span": "I used to ask boring stuff"
+                                },
+                                {
+                                    "description": "Speech bubble: 'Where are you from?'",
+                                    "timestamp": 1.5,
+                                    "duration": 2,
+                                    "visual_type": "text",
+                                    "position": "center",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Smart Downtime!'",
-                                    "text_span": "uses that downtime, right?",
+                                    "description": "A yawn emoji icon.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "pop"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Got the answer, then... crickets. Back to square one.",
+                            "start_time": 205,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "A simple map icon with a pin dropping.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "Got the answer,"
+                                },
+                                {
+                                    "description": "Animation of cricket icons chirping.",
                                     "timestamp": 1.5,
-                                    "duration": 2.0,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "then... crickets."
+                                },
+                                {
+                                    "description": "Icon of a board game piece moving back to the start square.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "fade",
+                                    "text_span": "Back to square one."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Now I try: 'What's your favorite thing about living there?'",
+                            "start_time": 210,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Host smiling, looking smarter.",
+                                    "timestamp": 0,
+                                    "duration": 1,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "none",
+                                    "text_span": "Now I try:"
+                                },
+                                {
+                                    "description": "Speech bubble: 'What's your favorite thing about living there?'",
+                                    "timestamp": 1,
+                                    "duration": 2.5,
                                     "visual_type": "text",
-                                    "position": "bottom_center",
+                                    "position": "center",
                                     "transition": "fade"
+                                },
+                                {
+                                    "description": "Sparkle animation around the speech bubble.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "right",
+                                    "transition": "pop"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Much better! Opens up stories, not just facts.",
+                            "start_time": 215,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Thumbs up icon changing to a 'Much Better!' text.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "animation",
+                                    "position": "left",
+                                    "transition": "fade"
+                                },
+                                {
+                                    "description": "Icon of an open book with pages turning.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "Opens up stories,"
+                                },
+                                {
+                                    "description": "Crossed out icon of a dry list or spreadsheet.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "fade",
+                                    "text_span": "not just facts."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "So remember: Observe, then ask open-ended questions.",
+                            "start_time": 220,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Recap icons: Magnifying glass + Open Question Mark.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "Observe, then ask open-ended questions."
+                                },
+                                {
+                                    "description": "A 'Formula for Success' text graphic.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Brain icon with gears turning smoothly.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "right",
+                                    "transition": "pop"
                                 }
                             ]
                         }
                     ]
                 },
                 {
-                    "title": "Conclusion: Embrace the Wander",
-                    "content": "Summarizing the key factors and encouraging you to find similar moments for creativity.",
+                    "title": "Putting it Together & Conclusion: Your Turn!",
+                    "content": "Quick recap of the steps, encouragement for the viewer to practice, and a call to action.",
                     "total_duration": 75,
                     "segments": [
                         {
-                            "narration_text": "So, there you have it! The mystery of the shower epiphany isn't so mysterious after all.",
+                            "narration_text": "Okay, deep breath! You've got the tools now.",
                             "start_time": 225,
-                            "duration": 6,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: A question mark turning into an exclamation point.",
-                                    "text_span": "...mystery... isn't so mysterious",
-                                    "timestamp": 1.0,
-                                    "duration": 2.5,
+                                    "description": "Animation of lungs inflating and deflating gently.",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "animation",
                                     "position": "center",
-                                    "transition": "fade"
+                                    "transition": "fade",
+                                    "text_span": "Okay, deep breath!"
                                 },
                                 {
-                                    "description": "Image: Shower icon with a checkmark next to it.",
-                                    "text_span": "shower epiphany",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Mystery Solved!'",
-                                    "text_span": "isn't so mysterious after all.",
-                                    "timestamp": 3.5,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "It's a combination of being relaxed, letting your mind wander freely...",
-                            "start_time": 231,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Image: Relaxed person icon.",
-                                    "text_span": "being relaxed...",
-                                    "timestamp": 0.5,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Wandering footprints icon.",
-                                    "text_span": "...letting your mind wander freely...",
-                                    "timestamp": 2.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Relax + Wander'",
-                                    "text_span": "combination of being relaxed, letting your mind wander",
-                                    "timestamp": 1.0,
-                                    "duration": 3.0,
-                                    "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "...thanks to those alpha waves and your amazing Default Mode Network.",
-                            "start_time": 236,
-                            "duration": 5,
-                            "visuals": [
-                                {
-                                    "description": "Image: Alpha wave symbol.",
-                                    "text_span": "...alpha waves...",
-                                    "timestamp": 1.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: DMN brain icon.",
-                                    "text_span": "...Default Mode Network.",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Your Brain's Secret Weapon'",
-                                    "text_span": "amazing Default Mode Network.",
-                                    "timestamp": 2.0,
-                                    "duration": 2.5,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Plus that little dopamine kick doesn't hurt either!",
-                            "start_time": 241,
-                            "duration": 3,
-                            "visuals": [
-                                {
-                                    "description": "Image: Dopamine symbol with a small sparkle.",
-                                    "text_span": "dopamine kick...",
-                                    "timestamp": 0.5,
+                                "description": "Icon of a toolbox filled with conversation starter tools (magnifying glass, open question mark).",
+                                    "timestamp": 2,
                                     "duration": 1.5,
                                     "visual_type": "image",
                                     "position": "center",
-                                    "transition": "pop"
+                                    "transition": "slide"
                                 },
                                 {
-                                    "description": "Image: Thumbs up icon.",
-                                    "text_span": "...doesn't hurt either!",
-                                    "timestamp": 1.5,
-                                    "duration": 1.0,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: '+Dopamine!'",
-                                    "text_span": "dopamine kick",
-                                    "timestamp": 0.5,
-                                    "duration": 2.0,
+                                    "description": "Text: 'You're Ready!'",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
                                     "visual_type": "text",
-                                    "position": "top_left",
-                                    "transition": "fade"
+                                    "position": "lower_third",
+                                    "transition": "pop",
+                                    "text_span": "You've got the tools now."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "The key ingredients are solitude, relaxation, and a lack of focused task.",
-                            "start_time": 244,
-                            "duration": 6,
+                            "narration_text": "Let's recap super quick: Step 1 - Observe.",
+                            "start_time": 230,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Icon for solitude (single person).",
-                                    "text_span": "solitude,",
-                                    "timestamp": 1.0,
-                                    "duration": 1.5,
+                                    "description": "Text: 'Recap!' flashing briefly.",
+                                    "timestamp": 0,
+                                    "duration": 1,
+                                    "visual_type": "text",
+                                    "position": "center",
+                                    "transition": "fade"
+                                },
+                                {
+                                "description": "Icon for Step 1: Magnifying glass.",
+                                    "timestamp": 1,
+                                    "duration": 2,
                                     "visual_type": "image",
                                     "position": "left",
-                                    "transition": "fade"
+                                    "transition": "slide",
+                                    "text_span": "Step 1 - Observe."
                                 },
                                 {
-                                    "description": "Image: Icon for relaxation (zen symbol).",
-                                    "text_span": "relaxation,",
-                                    "timestamp": 2.5,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Icon for 'no task' (crossed-out checklist).",
-                                    "text_span": "lack of focused task.",
-                                    "timestamp": 4.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "right",
+                                    "description": "Short text below icon: 'Find your IN'.",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "text",
+                                    "position": "left",
                                     "transition": "fade"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Think about it – you probably get good ideas in other similar situations too.",
+                            "narration_text": "Use the shared situation, the environment, or something about them.",
+                            "start_time": 235,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Mini-icons cycling: Coffee cup, park bench, t-shirt, book.",
+                                    "timestamp": 0,
+                                    "duration": 3,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "shared situation, the environment, or something about them."
+                                },
+                                {
+                                "description": "Arrow pointing towards these icons labeled 'Conversation Starters'.",
+                                    "timestamp": 3,
+                                    "duration": 1,
+                                    "visual_type": "diagram",
+                                    "position": "center",
+                                    "transition": "none"
+                                },
+                                {
+                                    "description": "Focus shifts back to the Magnifying Glass icon briefly.",
+                                    "timestamp": 4,
+                                    "duration": 1,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "zoom"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Step 2 - Ask Open-Ended Questions.",
+                            "start_time": 240,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Icon for Step 2: Open Question Mark ('?').",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "slide",
+                                    "text_span": "Step 2 - Ask Open-Ended Questions."
+                                },
+                                {
+                                "description": "Short text below icon: 'Keep it FLOWING'.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "right",
+                                    "transition": "fade"
+                                },
+                                {
+                                    "description": "Keywords 'What, How, Why' flashing near the icon.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "right",
+                                    "transition": "pop"
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Invite detail, show interest, avoid the 'yes/no' trap.",
+                            "start_time": 245,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Animation: Speech bubble growing larger.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
+                                    "position": "center",
+                                    "transition": "zoom",
+                                    "text_span": "Invite detail,"
+                                },
+                                {
+                                "description": "Heart icon + Ear icon.",
+                                    "timestamp": 1.5,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "show interest,"
+                                },
+                                {
+                                    "description": "Red 'X' over a 'Yes/No' sign.",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "avoid the 'yes/no' trap."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "Remember my squeaky mouse moment? We learn!",
                             "start_time": 250,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: A thought bubble appearing above a simple head icon.",
-                                    "text_span": "Think about it...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "description": "Quick flashback image: Cartoon mouse squeaking.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "fade",
+                                    "text_span": "my squeaky mouse moment?"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Where Else?' followed by a question mark.",
-                                    "text_span": "other similar situations too.",
-                                    "timestamp": 2.0,
-                                    "duration": 2.5,
-                                    "visual_type": "text",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Lightbulb icon appearing multiple times.",
-                                    "text_span": "good ideas",
+                                "description": "Host laughing good-naturedly.",
                                     "timestamp": 1.5,
-                                    "duration": 2.0,
+                                    "duration": 1.5,
                                     "visual_type": "image",
                                     "position": "center",
-                                    "transition": "pop"
+                                    "transition": "slide"
+                                },
+                                {
+                                    "description": "Text: 'Progress, Not Perfection!'",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "text",
+                                    "position": "right",
+                                    "transition": "fade",
+                                    "text_span": "We learn!"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Like when you're going for a walk, especially in nature?",
+                            "narration_text": "It's okay if it feels a bit clunky at first.",
                             "start_time": 255,
-                            "duration": 4,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Minimalist icon of footprints on a path.",
-                                    "text_span": "going for a walk...",
-                                    "timestamp": 0.5,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "slide_right"
-                                },
-                                {
-                                    "description": "Image: Simple tree or leaf icon.",
-                                    "text_span": "...especially in nature?",
-                                    "timestamp": 2.0,
-                                    "duration": 1.5,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Walking Thoughts'",
-                                    "text_span": "going for a walk",
-                                    "timestamp": 1.0,
-                                    "duration": 2.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
-                                }
-                            ]
-                        },
-                        {
-                            "narration_text": "Or maybe while doing repetitive chores like washing dishes or folding laundry?",
-                            "start_time": 259,
-                            "duration": 6,
-                            "visuals": [
-                                {
-                                    "description": "Image: Icon of hands washing a plate.",
-                                    "text_span": "washing dishes...",
-                                    "timestamp": 1.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Image: Icon of neatly folded shirts.",
-                                    "text_span": "...or folding laundry?",
-                                    "timestamp": 3.0,
-                                    "duration": 2.0,
-                                    "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Animation: A circular arrow indicating repetition.",
-                                    "text_span": "repetitive chores",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
+                                    "description": "Animation of slightly mismatched gears trying to mesh.",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "animation",
-                                    "position": "top_center",
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "feels a bit clunky at first."
+                                },
+                                {
+                                "description": "A comforting 'It's OK' hand gesture icon.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "pop"
+                                },
+                                {
+                                    "description": "Text: 'Keep Practicing'.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
                                     "transition": "fade"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Even just before drifting off to sleep sometimes, right?",
-                            "start_time": 265,
-                            "duration": 4,
+                            "narration_text": "Every single conversation is practice for the next one.",
+                            "start_time": 260,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Icon of a person in bed, eyes closing.",
-                                    "text_span": "drifting off to sleep...",
-                                    "timestamp": 0.5,
-                                    "duration": 2.0,
+                                    "description": "Diagram: Small conversation bubble -> Arrow -> Slightly larger bubble -> Arrow -> Even larger bubble.",
+                                    "timestamp": 0,
+                                    "duration": 3,
+                                    "visual_type": "diagram",
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "Every single conversation is practice"
+                                },
+                                {
+                                "description": "Icon of a person leveling up (like in a game).",
+                                    "timestamp": 3,
+                                    "duration": 1,
                                     "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "pop"
+                                },
+                                {
+                                    "description": "Text: 'Growth Mindset'.",
+                                    "timestamp": 4,
+                                    "duration": 1,
+                                    "visual_type": "text",
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "for the next one."
+                                }
+                            ]
+                        },
+                        {
+                            "narration_text": "So, your mission, should you choose to accept it...",
+                            "start_time": 265,
+                            "duration": 5,
+                            "visuals": [
+                                {
+                                    "description": "Host leans in with a playful 'secret mission' expression.",
+                                    "timestamp": 0,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "full",
+                                    "transition": "none",
+                                    "text_span": "your mission,"
+                                },
+                                {
+                                "description": "Animated graphic resembling a 'Top Secret' file opening.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
+                                    "visual_type": "animation",
                                     "position": "center",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Animation: Zzz symbols floating upwards.",
-                                    "text_span": "drifting off to sleep",
-                                    "timestamp": 1.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "top_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Text Overlay: 'Bedtime Brainwaves'",
-                                    "text_span": "drifting off to sleep",
-                                    "timestamp": 1.5,
-                                    "duration": 2.0,
+                                    "description": "Text: 'Your Challenge!'",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
                                     "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
+                                    "position": "lower_third",
+                                    "transition": "pop",
+                                    "text_span": "should you choose to accept it..."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "These are all moments when your brain gets a chance to switch off the focus and turn on the DMN.",
-                            "start_time": 269,
-                            "duration": 6,
+                            "narration_text": "...is to try starting *one* conversation this week using these tips.",
+                            "start_time": 270,
+                            "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Animation: Focus icon (spotlight) switching off.",
-                                    "text_span": "switch off the focus...",
-                                    "timestamp": 1.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "description": "Large number '1' prominently displayed.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
+                                    "visual_type": "text",
+                                    "position": "center",
+                                    "transition": "zoom",
+                                    "text_span": "*one* conversation"
                                 },
                                 {
-                                    "description": "Animation: DMN brain icon lighting up.",
-                                    "text_span": "...turn on the DMN.",
-                                    "timestamp": 3.0,
-                                    "duration": 2.0,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
-                                },
-                                {
-                                    "description": "Diagram: Simple flow chart: Relax -> Focus OFF -> DMN ON.",
-                                    "text_span": "switch off the focus and turn on the DMN.",
+                                "description": "Calendar icon with one day highlighted.",
                                     "timestamp": 1.5,
-                                    "duration": 3.0,
-                                    "visual_type": "diagram",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "left",
+                                    "transition": "slide",
+                                    "text_span": "this week"
+                                },
+                                {
+                                    "description": "Checklist icon with 'Observe' and 'Ask Open Qs' ticked off.",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "fade",
+                                    "text_span": "using these tips."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "So, the takeaway? Don't underestimate the power of letting your mind wander.",
+                            "narration_text": "Just one! At the store, waiting in line, anywhere.",
                             "start_time": 275,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Text Overlay: 'Takeaway:' in bold.",
-                                    "text_span": "So, the takeaway?",
-                                    "timestamp": 0.0,
+                                    "description": "Text 강조: 'Just ONE!'",
+                                    "timestamp": 0,
                                     "duration": 1.5,
                                     "visual_type": "text",
-                                    "position": "top_left",
-                                    "transition": "slide_right"
-                                },
-                                {
-                                    "description": "Image: A brain icon with little wandering paths coming out of it.",
-                                    "text_span": "letting your mind wander.",
-                                    "timestamp": 2.0,
-                                    "duration": 2.5,
-                                    "visual_type": "image",
                                     "position": "center",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Animation: A 'power' symbol (like on electronics) pulsing gently.",
-                                    "text_span": "power of letting your mind wander.",
+                                "description": "Icons cycling: Shopping cart, queue of people, park bench.",
                                     "timestamp": 1.5,
-                                    "duration": 3.0,
+                                    "duration": 2,
                                     "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
+                                    "position": "center",
+                                    "transition": "slide",
+                                    "text_span": "At the store, waiting in line, anywhere."
+                                },
+                                {
+                                    "description": "A small 'target' icon.",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
+                                    "visual_type": "image",
+                                    "position": "right",
+                                    "transition": "pop"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Embrace those moments of quiet solitude, whether it's in the shower or elsewhere.",
+                            "narration_text": "You might surprise yourself with how easy it can feel.",
                             "start_time": 280,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Hands gently cupped, as if holding something precious.",
-                                    "text_span": "Embrace those moments...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
+                                    "description": "Image of a person looking pleasantly surprised.",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "center",
+                                    "transition": "fade",
+                                    "text_span": "You might surprise yourself"
                                 },
                                 {
-                                    "description": "Image: Icons representing shower, walking, relaxing.",
-                                    "text_span": "...shower or elsewhere.",
-                                    "timestamp": 2.0,
-                                    "duration": 2.5,
+                                "description": "A 'feather' icon representing ease.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
                                     "visual_type": "image",
-                                    "position": "center_right",
-                                    "transition": "fade"
+                                    "position": "right",
+                                    "transition": "slide"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Value Your Downtime'",
-                                    "text_span": "moments of quiet solitude",
-                                    "timestamp": 1.0,
-                                    "duration": 3.0,
+                                    "description": "Text: 'Easier Than You Think!'",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
                                     "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "how easy it can feel."
                                 }
                             ]
                         },
                         {
-                            "narration_text": "You're not just relaxing; you might be paving the way for your next great idea.",
+                            "narration_text": "Let me know how it goes in the comments below!",
                             "start_time": 285,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Simple 'zen' icon.",
-                                    "text_span": "You're not just relaxing...",
-                                    "timestamp": 0.0,
-                                    "duration": 1.5,
+                                    "description": "Host gestures downwards towards the comment section.",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "full",
+                                    "transition": "none",
+                                    "text_span": "Let me know how it goes"
                                 },
                                 {
-                                    "description": "Animation: A simple path being drawn towards a bright lightbulb icon.",
-                                    "text_span": "...paving the way for your next great idea.",
-                                    "timestamp": 1.5,
-                                    "duration": 3.0,
+                                "description": "Animation of comment icons scrolling.",
+                                    "timestamp": 2,
+                                    "duration": 1.5,
                                     "visual_type": "animation",
-                                    "position": "center_right",
-                                    "transition": "fade"
+                                    "position": "center",
+                                    "transition": "slide"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Relax = Idea Prep'",
-                                    "text_span": "paving the way",
-                                    "timestamp": 2.0,
-                                    "duration": 2.5,
+                                    "description": "Text: 'Share Your Experience!'",
+                                    "timestamp": 3.5,
+                                    "duration": 1.5,
                                     "visual_type": "text",
-                                    "position": "top_center",
-                                    "transition": "fade"
+                                    "position": "lower_third",
+                                    "transition": "fade",
+                                    "text_span": "in the comments below!"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "So next time you're showering, enjoy the peace... and keep a mental notepad ready!",
+                            "narration_text": "You've totally got this. Go on, give it a try!",
                             "start_time": 290,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Image: Shower head with gentle water flow.",
-                                    "text_span": "next time you're showering...",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
+                                    "description": "Host gives two enthusiastic thumbs up.",
+                                    "timestamp": 0,
+                                    "duration": 1.5,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "full",
+                                    "transition": "fade",
+                                    "text_span": "You've totally got this."
                                 },
                                 {
-                                    "description": "Animation: A simple notepad icon appearing next to a brain icon.",
-                                    "text_span": "...keep a mental notepad ready!",
-                                    "timestamp": 2.5,
-                                    "duration": 2.0,
+                                "description": "Animated 'Go!' sign flashing.",
+                                    "timestamp": 1.5,
+                                    "duration": 1.5,
                                     "visual_type": "animation",
-                                    "position": "center_right",
+                                    "position": "center",
                                     "transition": "pop"
                                 },
                                 {
-                                    "description": "Text Overlay: 'Happy Shower Thinking!'",
-                                    "text_span": "enjoy the peace...",
-                                    "timestamp": 1.5,
-                                    "duration": 3.0,
-                                    "visual_type": "text",
-                                    "position": "bottom_center",
-                                    "transition": "fade"
+                                    "description": "A final encouraging smile from the host.",
+                                    "timestamp": 3,
+                                    "duration": 2,
+                                    "visual_type": "image",
+                                    "position": "full",
+                                    "transition": "fade",
+                                    "text_span": "Go on, give it a try!"
                                 }
                             ]
                         },
                         {
-                            "narration_text": "Thanks for watching! Hope you found that interesting. See you next time!",
+                            "narration_text": "Thanks for watching! See ya next time.",
                             "start_time": 295,
                             "duration": 5,
                             "visuals": [
                                 {
-                                    "description": "Text Overlay: 'Thanks for watching!' with a simple smiley face.",
-                                    "text_span": "Thanks for watching!",
-                                    "timestamp": 0.0,
-                                    "duration": 2.0,
+                                    "description": "Text overlay: 'Thanks for watching!'",
+                                    "timestamp": 0,
+                                    "duration": 2,
                                     "visual_type": "text",
                                     "position": "center",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Animation: A simple waving hand icon.",
-                                    "text_span": "See you next time!",
-                                    "timestamp": 3.0,
-                                    "duration": 1.5,
-                                    "visual_type": "animation",
-                                    "position": "center_right",
+                                "description": "End screen graphics: Subscribe button, links to other videos, social media handles.",
+                                    "timestamp": 2,
+                                    "duration": 3,
+                                    "visual_type": "image",
+                                    "position": "full",
                                     "transition": "fade"
                                 },
                                 {
-                                    "description": "Image: A lightbulb icon that winks.",
-                                    "text_span": "Hope you found that interesting.",
-                                    "timestamp": 1.5,
-                                    "duration": 2.0,
+                                    "description": "Host waving goodbye.",
+                                    "timestamp": 2.5,
+                                    "duration": 2.5,
                                     "visual_type": "image",
-                                    "position": "center_left",
-                                    "transition": "fade"
+                                    "position": "bottom_right",
+                                    "transition": "fade",
+                                    "text_span": "See ya next time."
                                 }
                             ]
                         }
