@@ -77,6 +77,7 @@ YT-Vidgen is a full-stack application for generating educational videos with AI.
 - Node.js 16+ and npm/bun
 - Python 3.9+
 - OpenAI API key or Gemini API key
+- Google Cloud account for Text-to-Speech audio generation
 
 ### Installation
 
@@ -107,6 +108,46 @@ YT-Vidgen is a full-stack application for generating educational videos with AI.
    # or
    GEMINI_API_KEY=your_gemini_api_key
    ```
+
+---
+
+## Google Cloud Text-to-Speech Setup
+
+If you want to use Google Cloud Text-to-Speech for audio generation, follow these steps:
+
+1. **Authenticate with your Google Cloud account:**
+   ```bash
+   gcloud auth login
+   ```
+
+2. **Set your active project:**
+   ```bash
+   gcloud config set project YOUR_PROJECT_ID
+   ```
+   Replace `YOUR_PROJECT_ID` with your desired Google Cloud project.
+
+3. **Set the quota project for Application Default Credentials (to avoid quota issues):**
+   ```bash
+   gcloud auth application-default set-quota-project YOUR_PROJECT_ID
+   ```
+
+4. **Enable the Cloud Text-to-Speech API:**
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/apis/library/texttospeech.googleapis.com) and enable the "Cloud Text-to-Speech API" for your project.
+
+5. **(If running on a server or using service accounts) Set up service account credentials:**
+   - Create a service account in the Google Cloud Console and download the JSON key file.
+   - Set the environment variable so your backend can find the key:
+     ```bash
+     export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-key.json"
+     ```
+
+6. **Test your setup:**
+   - Run your backend and try generating audio, or test with:
+     ```bash
+     gcloud text-to-speech synthesize-speech --help
+     ```
+
+---
 
 ### Running the Application
 
