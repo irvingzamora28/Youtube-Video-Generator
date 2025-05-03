@@ -250,7 +250,7 @@ export function transformScriptFromApi(apiScript: any): Script {
 /**
  * Generate an image based on a description
  */
-export async function generateImage(description: string, model?: string): Promise<string> {
+export async function generateImage(description: string, model?: string, aspectRatio: string = '16:9'): Promise<string> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/image/generate`, {
       method: 'POST',
@@ -260,7 +260,7 @@ export async function generateImage(description: string, model?: string): Promis
       body: JSON.stringify({
         prompt: description,
         model,
-        aspect_ratio: '16:9'
+        aspect_ratio: aspectRatio
       }),
     });
 
