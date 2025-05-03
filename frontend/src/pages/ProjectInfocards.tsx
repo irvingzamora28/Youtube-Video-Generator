@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getProjectFullScript } from "../services/projectApi";
 import { getInfocardHighlights, generateInfocardHighlights, generateHighlightImages } from "../services/infocardHighlightApi";
+import { keysToCamel } from "../utils/caseUtils";
 import { InfocardHighlight } from "../types/infocardHighlight";
 
 const normalizeUrl = (path?: string) => {
@@ -33,7 +34,7 @@ const ProjectInfocards: React.FC = () => {
       .finally(() => setLoadingScript(false));
     // Fetch existing highlights
     getInfocardHighlights(Number(id))
-      .then((res) => setHighlights(res.highlights))
+      .then((res) => setHighlights(keysToCamel(res.highlights)))
       .catch(() => setHighlights([]));
   }, [id]);
 
@@ -43,7 +44,7 @@ const ProjectInfocards: React.FC = () => {
     setError(null);
     try {
       const res = await generateInfocardHighlights(Number(id));
-      setHighlights(res.highlights);
+      setHighlights(keysToCamel(res.highlights));
     } catch (err: any) {
       setError(err.message || 'Failed to generate highlights');
     } finally {
@@ -57,7 +58,7 @@ const ProjectInfocards: React.FC = () => {
     setError(null);
     try {
       const res = await generateHighlightImages(Number(id));
-      setHighlights(res.highlights);
+      setHighlights(keysToCamel(res.highlights));
     } catch (err: any) {
       setError(err.message || 'Failed to generate highlight images');
     } finally {
@@ -110,10 +111,10 @@ const ProjectInfocards: React.FC = () => {
                         <div className="font-semibold">{hl.text}</div>
                         <div className="text-sm text-muted-foreground">Visual: {hl.visualDescription}</div>
                         {hl.storyContext && <div className="text-xs text-gray-500">Context: {hl.storyContext}</div>}
-                        {hl.image_url && (
+                        {hl.imageUrl && (
                           <div className="mt-2">
                             <img
-                              src={normalizeUrl(hl.image_url)}
+                              src={normalizeUrl(hl.imageUrl)}
                               alt={hl.visualDescription || hl.text}
                               className="rounded border border-border max-w-xs max-h-48"
                               loading="lazy"
