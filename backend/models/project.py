@@ -17,6 +17,7 @@ class Project:
                  visual_style: Optional[str] = None,
                  background_image: Optional[str] = None,
                  inspiration: Optional[str] = None,
+                 infocard_highlights: Optional[list] = None,
                  created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None):
         """
         Initialize a Project instance.
@@ -45,6 +46,7 @@ class Project:
         self.updated_at = updated_at or datetime.now()
         self.background_image = background_image
         self.inspiration = inspiration
+        self.infocard_highlights = infocard_highlights or []
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Project':
@@ -65,6 +67,14 @@ class Project:
             except json.JSONDecodeError:
                 content = {}
 
+        # Parse infocard_highlights JSON if it's a string
+        highlights = data.get('infocard_highlights')
+        if isinstance(highlights, str):
+            try:
+                highlights = json.loads(highlights)
+            except json.JSONDecodeError:
+                highlights = []
+
         return cls(
             id=data.get('id'),
             title=data.get('title', ""),
@@ -77,6 +87,7 @@ class Project:
             visual_style=data.get('visual_style'),
             background_image=data.get('background_image'),
             inspiration=data.get('inspiration'),
+            infocard_highlights=highlights,
             created_at=data.get('created_at'),
             updated_at=data.get('updated_at')
         )
@@ -100,6 +111,7 @@ class Project:
             'visual_style': self.visual_style,
             'background_image': self.background_image,
             'inspiration': self.inspiration,
+            'infocard_highlights': self.infocard_highlights,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -114,22 +126,28 @@ class Project:
         print(f"Saving project {self.id}")
         # print(f"Content before JSON conversion: {self.content}")
 
-        # Convert content to JSON string
+        # Convert content and infocard_highlights to JSON string
         try:
             content_json = json.dumps(self.content)
             print(f"Content JSON: {content_json[:100]}..." if len(content_json) > 100 else content_json)
         except Exception as e:
             print(f"Error converting content to JSON: {str(e)}")
             return False
+        try:
+            highlights_json = json.dumps(self.infocard_highlights)
+            print(f"Highlights JSON: {highlights_json[:100]}..." if len(highlights_json) > 100 else highlights_json)
+        except Exception as e:
+            print(f"Error converting highlights to JSON: {str(e)}")
+            return False
 
         if self.id is None:
             # Insert new project
             sql = """
-                INSERT INTO projects (title, description, target_audience, content, style, visual_style, total_duration, status, background_image, inspiration, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO projects (title, description, target_audience, content, style, visual_style, total_duration, status, background_image, inspiration, infocard_highlights, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             params = (self.title, self.description, self.target_audience, content_json,
-                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, self.created_at, self.updated_at)
+                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, highlights_json, self.created_at, self.updated_at)
             self.id = execute(sql, params)
             return self.id is not None
         else:
@@ -138,11 +156,11 @@ class Project:
             sql = """
                 UPDATE projects
                 SET title = ?, description = ?, target_audience = ?, content = ?,
-                    style = ?, visual_style = ?, total_duration = ?, status = ?, background_image = ?, inspiration = ?, updated_at = ?
+                    style = ?, visual_style = ?, total_duration = ?, status = ?, background_image = ?, inspiration = ?, infocard_highlights = ?, updated_at = ?
                 WHERE id = ?
             """
             params = (self.title, self.description, self.target_audience, content_json,
-                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, self.updated_at, self.id)
+                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, highlights_json, self.updated_at, self.id)
             return execute(sql, params) is not None
 
     @classmethod

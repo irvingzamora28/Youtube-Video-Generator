@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS projects (
     status TEXT,
     background_image TEXT, -- Optional local path to background image
     inspiration TEXT,
+    infocard_highlights JSON, -- Stores infocard highlight objects
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

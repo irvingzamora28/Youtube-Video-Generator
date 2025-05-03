@@ -7,7 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 # Import API routers
-from backend.api import llm, script, image, project_api, audio, video # Add audio router import
+from backend.api import llm, script, image, project_api, audio, video
+from backend.api.infocard_highlights_api import router as infocard_highlights_router
 from backend.api.image_save import router as image_save_router
 from backend.api.bg_removal_preview import router as bg_removal_preview_router
 from backend.api.generate_visuals_for_segment import router as generate_visuals_for_segment_router
@@ -33,6 +34,7 @@ app.include_router(llm.router)
 app.include_router(script.router)
 app.include_router(image.router)
 app.include_router(project_api.router)
+app.include_router(infocard_highlights_router)
 app.include_router(image_save_router)
 app.include_router(generate_visuals_for_segment_router)
 app.include_router(audio.router) # Include the audio router

@@ -5,6 +5,7 @@ import ProjectsPage from './pages/ProjectsPage';
 import NewProjectPage from './pages/NewProjectPage';
 import ProjectDetail from './pages/ProjectDetail';
 import VisualTimelineEditorPage from './pages/VisualTimelineEditorPage'; // Import the new page
+import ProjectInfocards from './pages/ProjectInfocards';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/projects/:id/edit-script" element={<ScriptGeneratorWithSegments />} />
         <Route path="/projects/:id/generate-script" element={<ScriptGeneratorWithSegments />} />
         <Route path="/projects/:id/timeline" element={<VisualTimelineEditorPage />} /> {/* Add route for timeline editor */}
+        <Route path="/projects/:id/infocards" element={<ProjectInfocards />} />
       </Routes>
     </Router>
   );
