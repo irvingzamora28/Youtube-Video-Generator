@@ -10,7 +10,7 @@ class InfocardHighlightGeneratorService:
             You are an expert at summarizing stories and creating story-driven infographics for social media. Given the following script, extract a sequence of {max_highlights} key highlights or moments that together tell the story. For each highlight, provide:
             - index (number, order in the story)
             - text (the main message for the infocard, concise and impactful)
-            - visual_description (a prompt for an image generation model describing the visual/infographic for this highlight)
+            - visual_description (a short, simple prompt for an image generation model describing a single, iconic, minimalist visual or symbol for this highlight; avoid complex scenes, backgrounds, or multiple actions; use flat design or icon style. Examples: 'A simple icon of an eye', 'A flat design speech bubble', 'A minimalist question mark', 'A person giving a thumbs up'.)
             - story_context (e.g., introduction, problem, solution, conclusion, etc.)
 
             Output as a JSON list of objects.
