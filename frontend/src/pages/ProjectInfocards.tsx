@@ -2,8 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getProjectFullScript } from "../services/projectApi";
-import { getInfocardHighlights, generateInfocardHighlights } from "../services/infocardHighlightApi";
+import { getInfocardHighlights, generateInfocardHighlights, generateHighlightImages } from "../services/infocardHighlightApi";
 import { InfocardHighlight } from "../types/infocardHighlight";
+
+const normalizeUrl = (path?: string) => {
+  if (!path) return undefined;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  // Default API URL for static files
+  const base = import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:8000';
+  return `${base}${path}`;
+};
 
 const ProjectInfocards: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +22,7 @@ const ProjectInfocards: React.FC = () => {
   const [highlights, setHighlights] = useState<InfocardHighlight[]>([]);
   const [loadingHighlights, setLoadingHighlights] = useState(false);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
+  const [loadingGenerateImages, setLoadingGenerateImages] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -42,6 +51,20 @@ const ProjectInfocards: React.FC = () => {
     }
   };
 
+  const handleGenerateHighlightImages = async () => {
+    if (!id) return;
+    setLoadingGenerateImages(true);
+    setError(null);
+    try {
+      const res = await generateHighlightImages(Number(id));
+      setHighlights(res.highlights);
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate highlight images');
+    } finally {
+      setLoadingGenerateImages(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="container mx-auto py-8">
@@ -64,11 +87,18 @@ const ProjectInfocards: React.FC = () => {
             <>
               <div className="mb-4">
                 <button
-                  className="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded"
+                  className="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded mr-2"
                   onClick={handleGenerateHighlights}
                   disabled={loadingGenerate}
                 >
                   {loadingGenerate ? "Generating Highlights..." : "Generate Highlights"}
+                </button>
+                <button
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold py-2 px-4 rounded"
+                  onClick={handleGenerateHighlightImages}
+                  disabled={loadingGenerateImages || loadingGenerate}
+                >
+                  {loadingGenerateImages ? "Generating Images..." : "Generate Highlight Images"}
                 </button>
               </div>
               {highlights.length > 0 && (
@@ -76,10 +106,20 @@ const ProjectInfocards: React.FC = () => {
                   <h3 className="text-lg font-semibold mb-2">Extracted Highlights</h3>
                   <ul className="list-disc pl-6">
                     {highlights.map((hl, idx) => (
-                      <li key={idx} className="mb-2">
+                      <li key={idx} className="mb-4">
                         <div className="font-semibold">{hl.text}</div>
                         <div className="text-sm text-muted-foreground">Visual: {hl.visualDescription}</div>
                         {hl.storyContext && <div className="text-xs text-gray-500">Context: {hl.storyContext}</div>}
+                        {hl.image_url && (
+                          <div className="mt-2">
+                            <img
+                              src={normalizeUrl(hl.image_url)}
+                              alt={hl.visualDescription || hl.text}
+                              className="rounded border border-border max-w-xs max-h-48"
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>

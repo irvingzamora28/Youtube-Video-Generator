@@ -256,6 +256,53 @@ async def _generate_and_link_image_for_visual(
 
 # --- Bulk Generation Endpoint ---
 
+@router.post("/generate_highlight_images/{project_id}")
+async def generate_highlight_images_for_project(
+    project_id: int,
+    aspect_ratio: str = "16:9",
+    image_provider: ImageGenerationProvider = Depends(get_image_provider)
+):
+    """
+    Generate images for all infocard highlights of a project, store them, and update highlights with image URLs.
+    """
+    project = Project.get_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail=f"Project {project_id} not found.")
+    highlights = project.infocard_highlights or []
+    if not highlights:
+        raise HTTPException(status_code=400, detail="No infocard highlights found for this project.")
+
+    static_dir = os.path.join(settings.static_dir, str(project_id), "highlights")
+    os.makedirs(static_dir, exist_ok=True)
+    updated_highlights = []
+    for idx, highlight in enumerate(highlights):
+        prompt = highlight.get("visual_description") or highlight.get("text")
+        if not prompt:
+            updated_highlights.append(highlight)
+            continue
+        try:
+            result = await image_provider.generate_image(prompt=prompt, aspect_ratio=aspect_ratio)
+            if not result.get("success") or not result.get("image_data"):
+                highlight["image_url"] = None
+                updated_highlights.append(highlight)
+                continue
+            image_data_b64 = result["image_data"]
+            header, _, data = image_data_b64.partition(",")
+            image_bytes = base64.b64decode(data if data else image_data_b64)
+            filename = f"highlight_{idx+1}.png"
+            output_path = os.path.join(static_dir, filename)
+            with open(output_path, "wb") as f:
+                f.write(image_bytes)
+            rel_path = os.path.relpath(output_path, start=settings.static_dir).replace("\\", "/")
+            highlight["image_url"] = f"/static/{project_id}/highlights/{filename}"
+        except Exception as e:
+            print(f"[generate_highlight_images_for_project] Error for highlight {idx}: {e}")
+            highlight["image_url"] = None
+        updated_highlights.append(highlight)
+    project.infocard_highlights = updated_highlights
+    project.save()
+    return {"success": True, "highlights": updated_highlights}
+
 async def _bulk_generate_images_task(project_id: int, image_provider: ImageGenerationProvider):
     """Background task to generate images for all visuals in a project."""
     print(f"[_bulk_generate_images_task] Starting bulk image generation for project {project_id}")

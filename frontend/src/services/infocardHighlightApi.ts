@@ -15,6 +15,20 @@ export async function getInfocardHighlights(projectId: number): Promise<Infocard
 }
 
 /**
+ * Generate images for all infocard highlights of a project
+ */
+export async function generateHighlightImages(projectId: number, aspectRatio: string = '16:9'): Promise<InfocardHighlightResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/image/generate_highlight_images/${projectId}?aspect_ratio=${encodeURIComponent(aspectRatio)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to generate highlight images');
+  }
+  return response.json();
+}
+/**
  * Generate infocard highlights for a project (triggers LLM)
  */
 export async function generateInfocardHighlights(projectId: number): Promise<InfocardHighlightResponse> {
