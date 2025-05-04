@@ -81,7 +81,7 @@ class ScriptGeneratorService:
 
         Instead of addressing a general audience, write the script as if you are speaking directly to a single person, making it personal and conversational. Use 'you' and 'your' to address the viewer, and make the tone friendly and engaging.
         Target audience: {request.target_audience}
-        Approximate duration: 10 minutes (Meaning each section should contain about 2 minutes of content or 15 segments)
+        Approximate duration: {request.duration_minutes} minutes (Meaning each section should contain about 2 minutes of content or 15 segments)
         Style: {request.style} and slightly humorous
         {inspiration_text}
         
