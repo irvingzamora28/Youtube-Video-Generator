@@ -164,6 +164,46 @@ export async function generateScript(
 }
 
 /**
+ * Generate a short script (59s) for a project using the backend API
+ */
+export async function generateShortScript(
+  projectId: number,
+  topic: string,
+  targetAudience: string,
+  style: string,
+  visualStyle: string,
+  inspiration: string
+): Promise<Script> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/script/generate_short`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        project_id: projectId,
+        topic,
+        target_audience: targetAudience,
+        style,
+        visual_style: visualStyle,
+        inspiration,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to generate short script');
+    }
+
+    const data = await response.json();
+    return transformScriptFromApi(data.script);
+  } catch (error) {
+    console.error('Error generating short script:', error);
+    throw error;
+  }
+}
+
+/**
  * Transform the script from the API format to the frontend format
  */
 export function transformScriptFromApi(apiScript: any): Script {

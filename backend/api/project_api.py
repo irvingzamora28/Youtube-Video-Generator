@@ -209,10 +209,27 @@ async def update_project_script(project_id: int, script_data: ScriptUpdate):
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # print(f"Current project content: {project.content}")
-    # print(f"New script content: {script_data.content}")
-
     if project.update_content(script_data.content):
+        print(f"Script updated successfully")
+        return {"success": True, "script": project.content}
+    else:
+        print(f"Failed to update script")
+        raise HTTPException(status_code=500, detail="Failed to update script")
+    
+@router.put("/{project_id}/short_script")
+async def update_project_short_script(project_id: int, script_data: ScriptUpdate):
+    """
+    Update the short script for a project.
+    """
+    print(f"Updating short script for project {project_id}")
+    print(f"Script data: {script_data}")
+
+    project = Project.get_by_id(project_id)
+
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if project.update_short_content(script_data.content):
         print(f"Script updated successfully")
         return {"success": True, "script": project.content}
     else:

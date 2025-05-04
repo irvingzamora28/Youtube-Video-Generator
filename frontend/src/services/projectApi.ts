@@ -324,6 +324,47 @@ export async function updateProjectScript(projectId: number, script: Script): Pr
 }
 
 /**
+ * Update a project's script content
+ */
+export async function updateProjectShortScript(projectId: number, script: Script): Promise<Script> {
+  try {
+    // Transform the script to API format
+    // The backend expects the entire script object to be in the content field
+    const apiScript = {
+      content: script
+    };
+
+    console.log('Saving script to project:', projectId);
+    console.log('Script data:', JSON.stringify(apiScript, null, 2));
+
+    const response = await fetch(`${API_BASE_URL}/api/project/${projectId}/short_script`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(apiScript),
+    });
+
+    console.log('Script update response status:', response.status);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error updating script:', errorData);
+      throw new Error(errorData.detail || 'Failed to update project script');
+    }
+
+    const responseData = await response.json();
+    console.log('Script update response:', responseData);
+
+    // Return the updated script
+    return script;
+  } catch (error) {
+    console.error(`Error updating script for project ${projectId}:`, error);
+    throw error;
+  }
+}
+
+/**
  * Delete a project
  */
 export async function deleteProject(projectId: number): Promise<boolean> {

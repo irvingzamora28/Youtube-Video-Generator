@@ -12,6 +12,7 @@ class Project:
 
     def __init__(self, id: Optional[int] = None, title: str = "", description: str = "",
                  target_audience: str = "", content: Dict[str, Any] = None,
+                 short_content: Dict[str, Any] = None,
                  total_duration: float = 0.0, status: str = "draft",
                  style: Optional[str] = None,
                  visual_style: Optional[str] = None,
@@ -39,6 +40,7 @@ class Project:
         self.description = description
         self.target_audience = target_audience
         self.content = content or {}
+        self.short_content = short_content or {}
         self.total_duration = total_duration
         self.status = status
         self.style = style
@@ -68,6 +70,13 @@ class Project:
                 content = json.loads(content)
             except json.JSONDecodeError:
                 content = {}
+        # Parse short_content JSON if it's a string
+        short_content = data.get('short_content')
+        if isinstance(short_content, str):
+            try:
+                short_content = json.loads(short_content)
+            except json.JSONDecodeError:
+                short_content = {}
 
         # Parse infocard_highlights JSON if it's a string
         highlights = data.get('infocard_highlights')
@@ -91,6 +100,7 @@ class Project:
             description=data.get('description', ""),
             target_audience=data.get('target_audience', ""),
             content=content,
+            short_content=short_content,
             total_duration=data.get('total_duration', 0.0),
             status=data.get('status', "draft"),
             style=data.get('style'),
@@ -116,6 +126,7 @@ class Project:
             'description': self.description,
             'target_audience': self.target_audience,
             'content': self.content,
+            'short_content': self.short_content,
             'total_duration': self.total_duration,
             'status': self.status,
             'style': self.style,
@@ -138,12 +149,18 @@ class Project:
         print(f"Saving project {self.id}")
         # print(f"Content before JSON conversion: {self.content}")
 
-        # Convert content and infocard_highlights to JSON string
+        # Convert content, short_content, and infocard_highlights to JSON string
         try:
             content_json = json.dumps(self.content)
             print(f"Content JSON: {content_json[:100]}..." if len(content_json) > 100 else content_json)
         except Exception as e:
             print(f"Error converting content to JSON: {str(e)}")
+            return False
+        try:
+            short_content_json = json.dumps(self.short_content)
+            print(f"Short Content JSON: {short_content_json[:100]}..." if len(short_content_json) > 100 else short_content_json)
+        except Exception as e:
+            print(f"Error converting short_content to JSON: {str(e)}")
             return False
         try:
             highlights_json = json.dumps(self.infocard_highlights)
@@ -161,10 +178,10 @@ class Project:
         if self.id is None:
             # Insert new project
             sql = """
-                INSERT INTO projects (title, description, target_audience, content, style, visual_style, total_duration, status, background_image, inspiration, infocard_highlights, social_posts, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO projects (title, description, target_audience, content, short_content, style, visual_style, total_duration, status, background_image, inspiration, infocard_highlights, social_posts, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
-            params = (self.title, self.description, self.target_audience, content_json,
+            params = (self.title, self.description, self.target_audience, content_json, short_content_json,
                      self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, highlights_json, social_posts_json, self.created_at, self.updated_at)
             self.id = execute(sql, params)
             return self.id is not None
@@ -173,11 +190,11 @@ class Project:
             self.updated_at = datetime.now()
             sql = """
                 UPDATE projects
-                SET title = ?, description = ?, target_audience = ?, content = ?,
+                SET title = ?, description = ?, target_audience = ?, content = ?, short_content = ?,
                     style = ?, visual_style = ?, total_duration = ?, status = ?, background_image = ?, inspiration = ?, infocard_highlights = ?, social_posts = ?, updated_at = ?
                 WHERE id = ?
             """
-            params = (self.title, self.description, self.target_audience, content_json,
+            params = (self.title, self.description, self.target_audience, content_json, short_content_json,
                      self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, highlights_json, social_posts_json, self.updated_at, self.id)
             return execute(sql, params) is not None
 
@@ -237,6 +254,21 @@ class Project:
         """
         print(f"Updating content for project {self.id}")
         self.content = content
+        result = self.save()
+        return result
+
+    def update_short_content(self, short_content: Dict[str, Any]) -> bool:
+        """
+        Update the project short_content.
+
+        Args:
+            short_content: New short_content dictionary
+
+        Returns:
+            True if successful, False otherwise
+        """
+        print(f"Updating short_content for project {self.id}")
+        self.short_content = short_content
         result = self.save()
         return result
     

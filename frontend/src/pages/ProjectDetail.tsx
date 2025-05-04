@@ -379,6 +379,13 @@ const ProjectDetail: React.FC = () => {
                  >
                    Infocard Generator
                  </button>
+                 <button
+                   onClick={() => navigate(`/projects/${id}/short`)}
+                   className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded"
+                   style={{ marginLeft: '0.5rem' }}
+                 >
+                   Generate Short
+                 </button>
                </>
              )}
           </div>

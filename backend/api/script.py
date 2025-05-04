@@ -49,6 +49,54 @@ async def generate_script(
         raise HTTPException(status_code=500, detail=str(e)) # Correct indentation
 
 
+class GenerateShortScriptRequest(BaseModel):
+    project_id: int
+    topic: str = None
+    target_audience: str = None
+    style: str = None
+    visual_style: str = None
+    inspiration: str = None
+
+@router.post("/generate_short")
+async def generate_short_script(
+    request: GenerateShortScriptRequest,
+    script_generator: ScriptGeneratorService = Depends(get_script_generator)
+):
+    """
+    Generate a short (59s) script for a project (does NOT save to DB).
+    """
+    # Optionally, fetch project for defaults if needed
+    project = None
+    try:
+        from backend.models.project import Project
+        project = Project.get_by_id(request.project_id)
+    except Exception:
+        pass
+    topic = request.topic or (project.title if project else None)
+    target_audience = request.target_audience or (project.target_audience if project else None)
+    style = request.style or (project.style if project else "educational")
+    visual_style = request.visual_style or (project.visual_style if project else "modern")
+    inspiration = request.inspiration or (project.inspiration if project else "")
+    if not topic or not target_audience:
+        raise HTTPException(status_code=400, detail="Missing topic or target_audience (provide in request or project)")
+    script_req = ScriptRequest(
+        topic=topic,
+        target_audience=target_audience,
+        duration_minutes=1,
+        style=style,
+        visual_style=visual_style,
+        inspiration=inspiration
+    )
+    try:
+        script = await script_generator.generate_script(script_req)
+        return ScriptResponse(script=script)
+    except Exception as e:
+        import traceback
+        print(f"Error in /generate_short: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # --- Visual Organization Endpoint ---
 
 class OrganizeVisualsRequest(BaseModel):

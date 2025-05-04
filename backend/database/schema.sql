@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS projects (
     description TEXT,
     target_audience TEXT,
     content JSON,  -- Stores the entire script structure (sections, segments, etc.)
+    short_content JSONB,  -- New field to store short content
     style TEXT,
     visual_style TEXT,
     total_duration REAL,
