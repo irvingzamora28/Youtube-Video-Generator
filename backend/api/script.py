@@ -300,3 +300,37 @@ async def organize_all_project_visuals(
             segments_organized += 1
     project.save()
     return {"message": f"Visual organization complete for project {project_id}.", "segments_organized": segments_organized, "total_segments": total_segments}
+
+
+@router.post("/organize_all_short_visuals/{project_id}")
+async def organize_all_short_visuals(
+    project_id: int,
+):
+    """
+    Organizes visuals for all segments in the short script (short_content) by calling organize_segment_visuals for each segment.
+    """
+    from backend.models.project import Project
+    project = Project.get_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail=f"Project {project_id} not found.")
+
+    segments_organized = 0
+    total_segments = 0
+    short_content = getattr(project, 'short_content', None)
+    if not short_content or not isinstance(short_content, dict):
+        raise HTTPException(status_code=400, detail="Project has no valid 'short_content' field.")
+    for section in short_content.get('sections', []):
+        section_id = section.get('id')
+        for segment in section.get('segments', []):
+            total_segments += 1
+            visuals = segment.get('visuals', [])
+            if not visuals or len(visuals) < 2:
+                continue
+            from .script import organize_segment_visuals, OrganizeVisualsRequest
+            req = OrganizeVisualsRequest(segment=segment, projectId=str(project_id), sectionId=str(section_id))
+            await organize_segment_visuals(req)
+            segments_organized += 1
+    # Save the updated short_content
+    setattr(project, 'short_content', short_content)
+    project.save()
+    return {"message": f"Visual organization complete for short script of project {project_id}.", "segments_organized": segments_organized, "total_segments": total_segments}

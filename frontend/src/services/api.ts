@@ -522,6 +522,29 @@ export async function organizeAllProjectVisuals(projectId: number): Promise<{ me
 }
 
 /**
+ * Trigger background visual timing organization for all segments in the short script (short_content)
+ */
+export async function organizeAllShortProjectVisuals(projectId: number): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/script/organize_all_short_visuals/${projectId}`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // No body needed
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to trigger bulk visual organization for short script";
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) { /* Ignore JSON parsing error */ }
+    throw new Error(errorDetail);
+  }
+  return response.json(); // Returns { message: "..." }
+}
+
+/**
  * Organize visuals within a segment using the backend LLM
  */
 // Accepts an object with segment, projectId, sectionId

@@ -131,6 +131,25 @@ const ProjectShortGenerator: React.FC = () => {
     }
   };
 
+  // Handler for organizing all visuals for the short script
+  const [isOrganizingVisuals, setIsOrganizingVisuals] = useState(false);
+  const [organizeVisualStatus, setOrganizeVisualStatus] = useState<string | null>(null);
+  const handleOrganizeAllShortVisuals = async () => {
+    if (!projectId) return;
+    setIsOrganizingVisuals(true);
+    setOrganizeVisualStatus(null);
+    setError(null);
+    try {
+      const resp = await import('../services/api').then(mod => mod.organizeAllShortProjectVisuals(Number(projectId)));
+      setOrganizeVisualStatus(resp.message || 'Visuals organization for short script completed!');
+    } catch (err: any) {
+      setError(err.message || 'Failed to organize visuals for short script.');
+    } finally {
+      setIsOrganizingVisuals(false);
+    }
+  };
+
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto py-8">
@@ -157,10 +176,18 @@ const ProjectShortGenerator: React.FC = () => {
         >
           {isGeneratingVisuals ? 'Generating Visuals...' : 'Generate All Visuals for Short'}
         </button>
+        <button
+          className="bg-yellow-600 hover:bg-yellow-700 text-foreground font-bold py-2 px-4 rounded mb-4 ml-2"
+          onClick={handleOrganizeAllShortVisuals}
+          disabled={isOrganizingVisuals || isLoading}
+        >
+          {isOrganizingVisuals ? 'Organizing Visuals...' : 'Organize All Visuals for Short'}
+        </button>
         {error && <div className="text-red-600 mb-2">{error}</div>}
         {saveStatus && <div className="text-green-600 mb-2">{saveStatus}</div>}
         {audioGenStatus && <div className="text-green-600 mb-2">{audioGenStatus}</div>}
         {visualGenStatus && <div className="text-purple-600 mb-2">{visualGenStatus}</div>}
+        {organizeVisualStatus && <div className="text-yellow-600 mb-2">{organizeVisualStatus}</div>}
         {shortScript && (
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-2">Generated Short Script (Raw JSON):</h2>
