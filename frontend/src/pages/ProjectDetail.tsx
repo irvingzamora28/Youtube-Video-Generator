@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProject, updateProject, ProjectUpdateParams, deleteProject } from '../services/projectApi';
+import { getProjectContent, updateProject, ProjectUpdateParams, deleteProject } from '../services/projectApi';
 import { Script } from '../types/script';
 import ProjectScriptViewer from '../components/ProjectScriptViewer';
 import Layout from '../components/Layout';
@@ -30,7 +30,7 @@ const ProjectDetail: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getProject(projectId);
+      const data = await getProjectContent(projectId);
       console.log('Project data loaded:', data);
       console.log('Script sections:', data.sections);
       setScript(data);

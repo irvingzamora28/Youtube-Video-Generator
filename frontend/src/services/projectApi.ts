@@ -137,49 +137,86 @@ export async function uploadBackgroundImage(projectId: number, file: File): Prom
   return data.background_image;
 }
 
-export async function getProject(projectId: number): Promise<Script> {
+/**
+ * Fetch the raw project object from the API (no content parsing)
+ */
+export async function getProject(projectId: number): Promise<any> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/project/${projectId}`);
-
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.detail || 'Failed to fetch project');
     }
-
     const data = await response.json();
-    console.log('Raw project data from API:', data);
-
-    // If the project doesn't have a script yet, create an empty one
-    if (!data.project.content) {
-      console.log('No content found, creating empty object');
-      data.project.content = {};
-    } else {
-      console.log('Project content:', data.project.content);
-    }
-
-    // If content is a string (JSON), parse it
-    if (typeof data.project.content === 'string') {
-      try {
-        data.project.content = JSON.parse(data.project.content);
-      } catch (e) {
-        console.error('Error parsing project content:', e);
-        data.project.content = {};
-      }
-    }
-
-    // Add sections if they don't exist
-    if (!data.project.sections) {
-      data.project.sections = [];
-    }
-
-    const transformedScript = transformScriptFromApi(data.project);
-    console.log('Transformed script:', transformedScript);
-    return transformedScript;
+    return data.project;
   } catch (error) {
     console.error(`Error fetching project ${projectId}:`, error);
     throw error;
   }
 }
+
+/**
+ * Get and parse the main script content from a project
+ */
+export async function getProjectContent(projectId: number): Promise<Script> {
+  try {
+    const project = await getProject(projectId);
+    let content = project.content;
+    // If the project doesn't have a script yet, create an empty one
+    if (!content) {
+      content = {};
+    }
+    // If content is a string (JSON), parse it
+    if (typeof content === 'string') {
+      try {
+        content = JSON.parse(content);
+      } catch (e) {
+        console.error('Error parsing project content:', e);
+        content = {};
+      }
+    }
+    // Add sections if they don't exist
+    if (!content.sections) {
+      content.sections = [];
+    }
+    const transformedScript = transformScriptFromApi({ ...project, content });
+    return transformedScript;
+  } catch (error) {
+    console.error(`Error fetching project content for ${projectId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Get and parse the short script content from a project
+ */
+export async function getProjectShortContent(projectId: number): Promise<Script> {
+  try {
+    const project = await getProject(projectId);
+    let shortContent = project.short_content;
+    if (!shortContent) {
+      shortContent = {};
+    }
+    if (typeof shortContent === 'string') {
+      try {
+        shortContent = JSON.parse(shortContent);
+      } catch (e) {
+        console.error('Error parsing project short_content:', e);
+        shortContent = {};
+      }
+    }
+    // Add sections if they don't exist
+    if (!shortContent.sections) {
+      shortContent.sections = [];
+    }
+    const transformedShortScript = transformScriptFromApi({ ...project, content: shortContent });
+    return transformedShortScript;
+  } catch (error) {
+    console.error(`Error fetching project short_content for ${projectId}:`, error);
+    throw error;
+  }
+}
+
 
 /**
  * Get a project's script content

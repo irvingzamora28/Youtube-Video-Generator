@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Script } from '../types/script';
-import { getProject } from '../services/projectApi';
+import { getProjectContent } from '../services/projectApi';
 import { generateVideo, getVideoStatus } from '../services/api';
 // Import the new timeline component
 import VisualTimeline from '../components/VisualTimeline';
@@ -74,7 +74,7 @@ const VisualTimelineEditorPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getProject(id);
+      const data = await getProjectContent(id);
       console.log('Project data loaded for timeline:', data);
       if (!data || !data.sections) {
         throw new Error("Loaded project data is missing sections.");

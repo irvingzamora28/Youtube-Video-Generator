@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { generateShortScript } from '../services/api';
 import { Script } from '../types/script';
-import { getProject, updateProjectShortScript } from '../services/projectApi';
+import { getProjectShortContent, updateProjectShortScript } from '../services/projectApi';
 
 const ProjectShortGenerator: React.FC = () => {
   const { id: projectId } = useParams<{ id: string }>();
@@ -25,7 +25,7 @@ const ProjectShortGenerator: React.FC = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const project = await getProject(id);
+        const project = await getProjectShortContent(id);
   
         // If the project has content, use it
         if (project) {

@@ -8,7 +8,7 @@ import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
 // Import the new API functions
 import { generateScript, generateAllProjectAudio, organizeSegmentVisuals, generateAllProjectImages, organizeAllProjectVisuals, generateVisualsForSegment, saveImageAsset } from '../services/api';
-import { getProject, updateProjectScript, getProjectFullScript } from '../services/projectApi';
+import { getProjectContent, updateProjectScript, getProjectFullScript } from '../services/projectApi';
 
 export default function ScriptGenerator() {
   const { id: projectId } = useParams<{ id: string }>();
@@ -62,7 +62,7 @@ export default function ScriptGenerator() {
     try {
       setIsLoading(true);
       setError(null);
-      const project = await getProject(id);
+      const project = await getProjectContent(id);
 
       // If the project has content, use it
       if (project) {
