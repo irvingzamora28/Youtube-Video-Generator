@@ -428,13 +428,13 @@ export async function generateSegmentAudio({
 }
 
 /**
- * Trigger background audio generation for all segments in a project
+ * Trigger background audio generation for all segments in a project (main script)
  */
 export async function generateAllProjectAudio(projectId: number): Promise<{ message: string }> {
   const response = await fetch(`${API_BASE_URL}/api/audio/generate_all_project_audio/${projectId}`, {
     method: "POST",
     headers: {
-      'Content-Type': 'application/json', // Content-Type might not be strictly needed for POST without body, but good practice
+      'Content-Type': 'application/json',
     },
     // No body needed for this request
   });
@@ -449,6 +449,32 @@ export async function generateAllProjectAudio(projectId: number): Promise<{ mess
   }
   return response.json(); // Returns { message: "..." }
 }
+
+/**
+ * Trigger background audio generation for all segments in the short script (short_content field)
+ * @param projectId Project ID
+ * @returns {Promise<{ message: string }>}
+ */
+export async function generateAllShortProjectAudio(projectId: number): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/audio/generate_all_project_audio/${projectId}?field=short_content`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // No body needed for this request
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to trigger bulk audio generation for short script";
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) { /* Ignore JSON parsing error */ }
+    throw new Error(errorDetail);
+  }
+  return response.json(); // Returns { message: "..." }
+}
+
 
 /**
  * Trigger background visual timing organization for all segments in a project

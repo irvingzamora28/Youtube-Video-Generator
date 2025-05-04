@@ -249,20 +249,31 @@ async def generate_segment_audio(
 
 # --- Bulk Generation Endpoint ---
 
-async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProvider):
-    """Background task to generate audio for all segments in a project."""
-    print(f"[_bulk_generate_audio_task] Starting bulk audio generation for project {project_id}")
+async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProvider, field: str = "content"):
+    """Background task to generate audio for all segments in a project.
+    'field' determines which field to update ('content' or 'short_content').
+    """
+    print(f"[_bulk_generate_audio_task] Starting bulk audio generation for project {project_id}, field: {field}")
     project = Project.get_by_id(project_id)
     if not project:
         print(f"[ERROR][_bulk_generate_audio_task] Project {project_id} not found.")
+        return
+
+    if field not in ("content", "short_content"):
+        print(f"[ERROR][_bulk_generate_audio_task] Invalid field '{field}'")
         return
 
     segments_processed = 0
     segments_failed = 0
     project_updated = False
 
-    # Iterate through all segments
-    for section in project.content.get('sections', []):
+    # Use the correct field for traversal and update
+    script_data = getattr(project, field, None)
+    if not script_data or not isinstance(script_data, dict):
+        print(f"[ERROR][_bulk_generate_audio_task] Project {project_id} has no valid '{field}' field.")
+        return
+
+    for section in script_data.get('sections', []):
         for i, segment in enumerate(section.get('segments', [])):
             segment_id = segment.get('id')
             segment_narration = segment.get('narrationText', '')
@@ -271,12 +282,6 @@ async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProv
             if not segment_id or not segment_narration:
                 print(f"[_bulk_generate_audio_task] Skipping segment at section '{section.get('title')}', index {i}: Missing ID or narration.")
                 continue
-
-            # Decide whether to skip or regenerate based on existing ID
-            # For now, let's regenerate if called, deleting the old one via the helper
-            # if existing_audio_asset_id:
-            #      print(f"[_bulk_generate_audio_task] Skipping segment {segment_id}: Audio already exists (Asset ID: {existing_audio_asset_id}).")
-            #      continue
 
             print(f"[_bulk_generate_audio_task] Processing segment {segment_id} (Existing Asset ID: {existing_audio_asset_id})...")
             asset_dict, segment_update_data, _ = await _generate_and_link_audio_for_segment(
@@ -288,7 +293,7 @@ async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProv
             )
 
             if asset_dict and segment_update_data:
-                # Update the segment data *within the project.content dictionary*
+                # Update the segment data *within the chosen field dictionary*
                 print(f"[_bulk_generate_audio_task][DEBUG] Segment BEFORE update: {segment}")
                 print(f"[_bulk_generate_audio_task][DEBUG] segment_update_data: {segment_update_data}")
                 segment.update(segment_update_data)
@@ -302,10 +307,11 @@ async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProv
 
             time.sleep(1) # Add a small delay between segments
 
-    # Save the project *once* after processing all segments if any updates were made
+    # Save the updated field back to the project
     if project_updated:
-        print(f"[_bulk_generate_audio_task][DEBUG] Project content before save: {project.content}")
-        print(f"[_bulk_generate_audio_task] Saving updated project {project_id} with new audio data...")
+        setattr(project, field, script_data)
+        print(f"[_bulk_generate_audio_task][DEBUG] Project {field} before save: {script_data}")
+        print(f"[_bulk_generate_audio_task] Saving updated project {project_id} with new audio data in '{field}'...")
         save_success = project.save()
         if save_success:
             print(f"[_bulk_generate_audio_task] Project {project_id} saved successfully.")
@@ -314,25 +320,31 @@ async def _bulk_generate_audio_task(project_id: int, audio_provider: AIAudioProv
     else:
          print(f"[_bulk_generate_audio_task] No segments required audio generation for project {project_id}.")
 
+    print(f"[_bulk_generate_audio_task] Finished bulk audio generation for project {project_id} (field: {field}). Processed: {segments_processed}, Failed: {segments_failed}")
 
-    print(f"[_bulk_generate_audio_task] Finished bulk audio generation for project {project_id}. Processed: {segments_processed}, Failed: {segments_failed}")
 
+from fastapi import Query
 
 @router.post("/generate_all_project_audio/{project_id}")
 async def generate_all_project_audio(
     project_id: int,
     background_tasks: BackgroundTasks,
-    audio_provider: AIAudioProvider = Depends(get_audio_provider)
+    audio_provider: AIAudioProvider = Depends(get_audio_provider),
+    field: str = Query("content", description="Which field to update: 'content' or 'short_content'")
 ):
     """
     Triggers background generation of audio for all segments in a project.
+    'field' parameter determines which field to update ('content' or 'short_content').
     """
     # Check if project exists first
     project = Project.get_by_id(project_id)
     if not project:
         raise HTTPException(status_code=404, detail=f"Project {project_id} not found.")
 
-    print(f"[generate_all_project_audio] Adding bulk audio generation task for project {project_id} to background.")
-    background_tasks.add_task(_bulk_generate_audio_task, project_id, audio_provider)
+    if field not in ("content", "short_content"):
+        raise HTTPException(status_code=400, detail="Invalid field. Must be 'content' or 'short_content'.")
 
-    return {"message": f"Audio generation for all segments of project {project_id} started in the background."}
+    print(f"[generate_all_project_audio] Adding bulk audio generation task for project {project_id} to background. Field: {field}")
+    background_tasks.add_task(_bulk_generate_audio_task, project_id, audio_provider, field)
+
+    return {"message": f"Audio generation for all segments of project {project_id} started in the background (field: {field})."}

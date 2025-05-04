@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { generateShortScript } from '../services/api';
+import { generateShortScript, generateAllShortProjectAudio } from '../services/api';
 import { Script } from '../types/script';
 import { getProjectShortContent, updateProjectShortScript } from '../services/projectApi';
 
@@ -14,6 +14,9 @@ const ProjectShortGenerator: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // State for bulk audio generation for short script
+  const [isGeneratingAudios, setIsGeneratingAudios] = useState(false);
+  const [audioGenStatus, setAudioGenStatus] = useState<string | null>(null);
 
   useEffect(() => {
       if (projectId) {
@@ -89,6 +92,22 @@ const ProjectShortGenerator: React.FC = () => {
       }
     };
 
+  // Handler for generating all audios for the short script
+  const handleGenerateAllShortAudios = async () => {
+    if (!projectId) return;
+    setIsGeneratingAudios(true);
+    setAudioGenStatus(null);
+    setError(null);
+    try {
+      const resp = await generateAllShortProjectAudio(Number(projectId));
+      setAudioGenStatus(resp.message || 'Audio generation for short script started!');
+    } catch (err: any) {
+      setError(err.message || 'Failed to start audio generation for short script.');
+    } finally {
+      setIsGeneratingAudios(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto py-8">
@@ -101,8 +120,16 @@ const ProjectShortGenerator: React.FC = () => {
         >
           {isGenerating ? 'Generating...' : 'Generate Short Script'}
         </button>
+        <button
+          className="bg-green-600 hover:bg-green-700 text-foreground font-bold py-2 px-4 rounded mb-4 ml-2"
+          onClick={handleGenerateAllShortAudios}
+          disabled={isGeneratingAudios || isLoading}
+        >
+          {isGeneratingAudios ? 'Generating Audios...' : 'Generate All Audios for Short'}
+        </button>
         {error && <div className="text-red-600 mb-2">{error}</div>}
         {saveStatus && <div className="text-green-600 mb-2">{saveStatus}</div>}
+        {audioGenStatus && <div className="text-green-600 mb-2">{audioGenStatus}</div>}
         {shortScript && (
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-2">Generated Short Script (Raw JSON):</h2>
