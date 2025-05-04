@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS projects (
     background_image TEXT, -- Optional local path to background image
     inspiration TEXT,
     infocard_highlights JSON, -- Stores infocard highlight objects
+    social_posts JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

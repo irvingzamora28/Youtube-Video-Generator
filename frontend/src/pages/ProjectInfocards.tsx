@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getProjectFullScript } from "../services/projectApi";
-import { getInfocardHighlights, generateInfocardHighlights, generateHighlightImages, addTextToHighlightImages } from "../services/infocardHighlightApi";
+import { getInfocardHighlights, generateInfocardHighlights, generateHighlightImages, addTextToHighlightImages, getProjectSocialPosts } from "../services/infocardHighlightApi";
 import { keysToCamel } from "../utils/caseUtils";
 import { InfocardHighlight } from "../types/infocardHighlight";
+import { generateSocialPosts } from "../services/socialApi";
 
 const normalizeUrl = (path?: string) => {
   if (!path) return undefined;
@@ -15,6 +16,25 @@ const normalizeUrl = (path?: string) => {
 };
 
 const ProjectInfocards: React.FC = () => {
+  const [socialPosts, setSocialPosts] = React.useState<any>(null);
+  const [generatingPosts, setGeneratingPosts] = React.useState(false);
+
+  const handleGenerateSocialPosts = async () => {
+    setGeneratingPosts(true);
+    setError(null);
+    try {
+      // Assuming you have projectId in scope, e.g. from route params or props
+      const projectId = Number(window.location.pathname.split("/").find((v, i, arr) => arr[i - 1] === "projects"));
+      const result = await generateSocialPosts(projectId);
+      setSocialPosts(result.social_posts);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to generate social posts');
+    } finally {
+      setGeneratingPosts(false);
+    }
+  };
+
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [script, setScript] = useState<string | null>(null);
@@ -37,6 +57,10 @@ const ProjectInfocards: React.FC = () => {
     getInfocardHighlights(Number(id))
       .then((res) => setHighlights(keysToCamel(res.highlights)))
       .catch(() => setHighlights([]));
+    // Fetch project-level social posts
+    getProjectSocialPosts(Number(id))
+      .then((res) => setSocialPosts(res.social_posts))
+      .catch(() => setSocialPosts(null));
   }, [id]);
 
   const handleGenerateHighlights = async () => {
@@ -95,11 +119,16 @@ const ProjectInfocards: React.FC = () => {
         </div>
         <div className="bg-card rounded-lg shadow-md p-6 border border-border">
           <h2 className="text-xl font-semibold mb-4">Infocards for Project {id}</h2>
-          {loadingScript ? (
+  
+          {loadingScript && (
             <div className="text-muted-foreground">Loading script...</div>
-          ) : error ? (
-            <div className="text-destructive">{error}</div>
-          ) : script ? (
+          )}
+  
+          {error && (
+            <div className="text-red-600 font-semibold mb-4">{error}</div>
+          )}
+  
+          {script ? (
             <>
               <div className="mb-4">
                 <button
@@ -124,9 +153,42 @@ const ProjectInfocards: React.FC = () => {
                   {loadingAddText ? "Adding Text..." : "Add Text to Highlight Images"}
                 </button>
               </div>
+  
               {highlights.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Extracted Highlights</h3>
+                  <h2 className="text-xl font-bold mb-2">Highlights</h2>
+                  <button
+                    className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                    onClick={handleGenerateSocialPosts}
+                    disabled={generatingPosts}
+                  >
+                    {generatingPosts ? 'Generating Social Posts...' : 'Generate Social Posts'}
+                  </button>
+
+                  {socialPosts && (
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold mb-2">Social Post Options</h3>
+                      <div className="flex flex-row gap-4">
+                        {['twitter', 'youtube', 'facebook'].map(platform => (
+                          <div key={platform} className="p-4 border rounded bg-gray-50 dark:bg-gray-800 max-w-xs border-border dark:border-gray-700">
+                            <div className="font-bold mb-2 capitalize text-black dark:text-gray-100">{platform}</div>
+                            {Array.isArray(socialPosts[platform]) ? (
+                              <ul>
+                                {socialPosts[platform].map((postObj, idx) => (
+                                  <li key={idx} className="mb-2 text-gray-800 dark:text-gray-200">
+                                    {postObj.post || JSON.stringify(postObj)}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <div className="whitespace-pre-line text-gray-800 dark:text-gray-200">{socialPosts[platform] || 'No posts available.'}</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+  
                   <ul className="list-disc pl-6">
                     {highlights.map((hl, idx) => (
                       <li key={idx} className="mb-4">
@@ -170,6 +232,7 @@ const ProjectInfocards: React.FC = () => {
       </div>
     </Layout>
   );
+  
 };
 
 export default ProjectInfocards;

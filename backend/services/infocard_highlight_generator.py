@@ -12,6 +12,7 @@ class InfocardHighlightGeneratorService:
             - text (the main message for the infocard, concise and impactful)
             - visual_description (a short, simple prompt for an image generation model describing a single, iconic, minimalist visual or symbol for this highlight; avoid complex scenes, backgrounds, or multiple actions; use flat design or icon style. Examples: 'A simple icon of an eye', 'A flat design speech bubble', 'A minimalist question mark', 'A person giving a thumbs up'.)
             - story_context (e.g., introduction, problem, solution, conclusion, etc.)
+            - post_text (a post-ready, engaging, and concise caption for this highlight, suitable for sharing on social media)
 
             Output as a JSON list of objects.
 

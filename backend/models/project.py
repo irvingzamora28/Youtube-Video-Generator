@@ -18,6 +18,7 @@ class Project:
                  background_image: Optional[str] = None,
                  inspiration: Optional[str] = None,
                  infocard_highlights: Optional[list] = None,
+                 social_posts: Optional[dict] = None,
                  created_at: Optional[datetime] = None, updated_at: Optional[datetime] = None):
         """
         Initialize a Project instance.
@@ -47,6 +48,7 @@ class Project:
         self.background_image = background_image
         self.inspiration = inspiration
         self.infocard_highlights = infocard_highlights or []
+        self.social_posts = social_posts or {}
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Project':
@@ -75,6 +77,14 @@ class Project:
             except json.JSONDecodeError:
                 highlights = []
 
+        # Parse social_posts JSON if it's a string
+        social_posts = data.get('social_posts')
+        if isinstance(social_posts, str):
+            try:
+                social_posts = json.loads(social_posts)
+            except json.JSONDecodeError:
+                social_posts = {}
+
         return cls(
             id=data.get('id'),
             title=data.get('title', ""),
@@ -88,6 +98,7 @@ class Project:
             background_image=data.get('background_image'),
             inspiration=data.get('inspiration'),
             infocard_highlights=highlights,
+            social_posts=social_posts,
             created_at=data.get('created_at'),
             updated_at=data.get('updated_at')
         )
@@ -112,6 +123,7 @@ class Project:
             'background_image': self.background_image,
             'inspiration': self.inspiration,
             'infocard_highlights': self.infocard_highlights,
+            'social_posts': self.social_posts,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -139,15 +151,21 @@ class Project:
         except Exception as e:
             print(f"Error converting highlights to JSON: {str(e)}")
             return False
+        try:
+            social_posts_json = json.dumps(self.social_posts)
+            print(f"Social Posts JSON: {social_posts_json[:100]}..." if len(social_posts_json) > 100 else social_posts_json)
+        except Exception as e:
+            print(f"Error converting social_posts to JSON: {str(e)}")
+            return False
 
         if self.id is None:
             # Insert new project
             sql = """
-                INSERT INTO projects (title, description, target_audience, content, style, visual_style, total_duration, status, background_image, inspiration, infocard_highlights, created_at, updated_at)
+                INSERT INTO projects (title, description, target_audience, content, style, visual_style, total_duration, status, background_image, inspiration, infocard_highlights, social_posts, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             params = (self.title, self.description, self.target_audience, content_json,
-                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, highlights_json, self.created_at, self.updated_at)
+                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, highlights_json, social_posts_json, self.created_at, self.updated_at)
             self.id = execute(sql, params)
             return self.id is not None
         else:
@@ -156,11 +174,11 @@ class Project:
             sql = """
                 UPDATE projects
                 SET title = ?, description = ?, target_audience = ?, content = ?,
-                    style = ?, visual_style = ?, total_duration = ?, status = ?, background_image = ?, inspiration = ?, infocard_highlights = ?, updated_at = ?
+                    style = ?, visual_style = ?, total_duration = ?, status = ?, background_image = ?, inspiration = ?, infocard_highlights = ?, social_posts = ?, updated_at = ?
                 WHERE id = ?
             """
             params = (self.title, self.description, self.target_audience, content_json,
-                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, highlights_json, self.updated_at, self.id)
+                     self.style, self.visual_style, self.total_duration, self.status, self.background_image, self.inspiration, highlights_json, social_posts_json, self.updated_at, self.id)
             return execute(sql, params) is not None
 
     @classmethod
