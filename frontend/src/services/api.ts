@@ -24,6 +24,28 @@ export async function generateVisualsForSegment({ projectId, segmentId, narratio
 }
 
 /**
+ * Trigger bulk visuals generation for all segments in the short script (short_content field, 9:16 aspect ratio)
+ * @param projectId Project ID
+ * @returns {Promise<{ visuals: any[]; assets: any[]; errors: any[] }>}
+ */
+export async function generateAllShortProjectVisuals(projectId: number): Promise<{ visuals: any[]; assets: any[]; errors: any[] }> {
+  const response = await fetch(`${API_BASE_URL}/api/image/generate_all_project_visuals/${projectId}?field=short_content&aspect_ratio=9:16`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    let errorDetail = 'Failed to generate visuals for short script';
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) {}
+    throw new Error(errorDetail);
+  }
+  return response.json();
+}
+
+
+/**
  * Preview background removal for an image and optional background.
  * Returns a base64 PNG string.
  */

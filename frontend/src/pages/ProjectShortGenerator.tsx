@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { generateShortScript, generateAllShortProjectAudio } from '../services/api';
+import { generateShortScript, generateAllShortProjectAudio, generateAllShortProjectVisuals } from '../services/api';
 import { Script } from '../types/script';
 import { getProjectShortContent, updateProjectShortScript } from '../services/projectApi';
 
@@ -17,6 +17,9 @@ const ProjectShortGenerator: React.FC = () => {
   // State for bulk audio generation for short script
   const [isGeneratingAudios, setIsGeneratingAudios] = useState(false);
   const [audioGenStatus, setAudioGenStatus] = useState<string | null>(null);
+  // State for bulk visuals generation for short script
+  const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
+  const [visualGenStatus, setVisualGenStatus] = useState<string | null>(null);
 
   useEffect(() => {
       if (projectId) {
@@ -108,6 +111,26 @@ const ProjectShortGenerator: React.FC = () => {
     }
   };
 
+  // Handler for generating all visuals for the short script
+  const handleGenerateAllShortVisuals = async () => {
+    if (!projectId) return;
+    setIsGeneratingVisuals(true);
+    setVisualGenStatus(null);
+    setError(null);
+    try {
+      const resp = await generateAllShortProjectVisuals(Number(projectId));
+      if (resp.errors && resp.errors.length > 0) {
+        setVisualGenStatus(`Visuals generated with ${resp.errors.length} errors.`);
+      } else {
+        setVisualGenStatus('Visuals generation for short script completed!');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate visuals for short script.');
+    } finally {
+      setIsGeneratingVisuals(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto py-8">
@@ -127,9 +150,17 @@ const ProjectShortGenerator: React.FC = () => {
         >
           {isGeneratingAudios ? 'Generating Audios...' : 'Generate All Audios for Short'}
         </button>
+        <button
+          className="bg-purple-600 hover:bg-purple-700 text-foreground font-bold py-2 px-4 rounded mb-4 ml-2"
+          onClick={handleGenerateAllShortVisuals}
+          disabled={isGeneratingVisuals || isLoading}
+        >
+          {isGeneratingVisuals ? 'Generating Visuals...' : 'Generate All Visuals for Short'}
+        </button>
         {error && <div className="text-red-600 mb-2">{error}</div>}
         {saveStatus && <div className="text-green-600 mb-2">{saveStatus}</div>}
         {audioGenStatus && <div className="text-green-600 mb-2">{audioGenStatus}</div>}
+        {visualGenStatus && <div className="text-purple-600 mb-2">{visualGenStatus}</div>}
         {shortScript && (
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-2">Generated Short Script (Raw JSON):</h2>
