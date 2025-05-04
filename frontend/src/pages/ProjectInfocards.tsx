@@ -170,18 +170,18 @@ const ProjectInfocards: React.FC = () => {
                       <h3 className="text-lg font-semibold mb-2">Social Post Options</h3>
                       <div className="flex flex-row gap-4">
                         {['twitter', 'youtube', 'facebook'].map(platform => (
-                          <div key={platform} className="p-4 border rounded bg-gray-50 dark:bg-gray-800 max-w-xs border-border dark:border-gray-700">
-                            <div className="font-bold mb-2 capitalize text-black dark:text-gray-100">{platform}</div>
+                          <div key={platform} className="p-4 border rounded bg-card max-w-xs border-border">
+                            <div className="font-bold mb-2 capitalize text-foreground">{platform}</div>
                             {Array.isArray(socialPosts[platform]) ? (
                               <ul>
                                 {socialPosts[platform].map((postObj, idx) => (
-                                  <li key={idx} className="mb-2 text-gray-800 dark:text-gray-200">
+                                  <li key={idx} className="mb-2 text-foreground">
                                     {postObj.post || JSON.stringify(postObj)}
                                   </li>
                                 ))}
                               </ul>
                             ) : (
-                              <div className="whitespace-pre-line text-gray-800 dark:text-gray-200">{socialPosts[platform] || 'No posts available.'}</div>
+                              <div className="whitespace-pre-line text-foreground">{socialPosts[platform] || 'No posts available.'}</div>
                             )}
                           </div>
                         ))}
@@ -193,12 +193,13 @@ const ProjectInfocards: React.FC = () => {
                     {highlights.map((hl, idx) => (
                       <li key={idx} className="mb-4">
                         <div className="font-semibold">{hl.text}</div>
-                        <div className="text-sm text-muted-foreground">Visual: {hl.visualDescription}</div>
-                        {hl.storyContext && <div className="text-xs text-gray-500">Context: {hl.storyContext}</div>}
+                        {hl.postText && <div className="text-lg text-foreground">Post Text: {hl.postText}</div>}
+                        <div className="text-sm text-foreground">Visual: {hl.visualDescription}</div>
+                        {hl.storyContext && <div className="text-xs text-foreground">Context: {hl.storyContext}</div>}
                         <div className="mt-2 flex flex-row gap-4">
                           {hl.imageUrl && (
                             <div className="flex flex-col items-center">
-                              <span className="text-xs text-muted-foreground mb-1">Original</span>
+                              <span className="text-xs text-foreground mb-1">Original</span>
                               <img
                                 src={normalizeUrl(hl.imageUrl)}
                                 alt={hl.visualDescription || hl.text}
