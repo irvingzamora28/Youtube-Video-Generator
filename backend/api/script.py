@@ -5,11 +5,23 @@ import os
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel # Import BaseModel
 from typing import Dict, Any
+from datetime import datetime
 
 from backend.llm.base import LLMProvider
 from backend.llm.factory import create_llm_provider_from_env
 from backend.models.script import ScriptRequest, ScriptResponse
 from backend.services.script_generator import ScriptGeneratorService
+from backend.models.script import Script
+
+class ParseJsonRequest(BaseModel):
+    json_str: str
+    topic: str
+    target_audience: str
+    duration_minutes: float
+    style: str
+    visual_style: str
+    inspiration: str = None
+
 
 # Create router
 router = APIRouter(prefix="/api/script", tags=["Script"])
@@ -31,6 +43,49 @@ def get_script_generator(llm_provider: LLMProvider = Depends(get_llm_provider)) 
     return ScriptGeneratorService(llm_provider)
 
 # Routes
+
+@router.post("/parse_json", response_model=ScriptResponse)
+async def parse_json_script(
+    request: ParseJsonRequest,
+    script_generator: ScriptGeneratorService = Depends(get_script_generator)
+):
+    """
+    Parse a pasted JSON string into a script using the internal _parse_llm_response logic.
+    """
+    try:
+        script_req = ScriptRequest(
+            topic=request.topic,
+            target_audience=request.target_audience,
+            duration_minutes=request.duration_minutes,
+            style=request.style,
+            visual_style=request.visual_style,
+            inspiration=request.inspiration,
+        )
+        # Use the internal parser
+        script_data = script_generator._parse_llm_response(request.json_str, script_req)
+        if not script_data:
+            raise HTTPException(status_code=400, detail="Failed to parse script JSON.")
+        script = Script(
+            id=f"script-imported",
+            title=script_data["title"],
+            description=script_data["description"],
+            target_audience=script_req.target_audience,
+            style=script_req.style,
+            inspiration=script_req.inspiration,
+            visual_style=script_req.visual_style,
+            sections=script_generator._create_sections(script_data["sections"]),
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            total_duration=script_data["total_duration"],
+            status="draft"
+        )
+        return ScriptResponse(script=script)
+    except Exception as e:
+        import traceback
+        print(f"Error in /parse_json: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/generate", response_model=ScriptResponse)
 async def generate_script(
     request: ScriptRequest,

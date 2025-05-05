@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { ArrowLeft } from 'lucide-react';
-import { generateScript } from '../services/api';
+import { generateScript, parseScriptJson } from '../services/api';
 import { getProject, getProjectContent, updateProjectScript } from '../services/projectApi';
 import { Script } from '../types/script';
 
@@ -18,6 +18,10 @@ export default function CreateEditScript() {
   const [inspiration, setInspiration] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // For pasted JSON
+  const [pastedJson, setPastedJson] = useState('');
+  const [isParsingJson, setIsParsingJson] = useState(false);
 
   // Load project data if projectId is provided
     useEffect(() => {
@@ -83,6 +87,31 @@ export default function CreateEditScript() {
     }
   };
 
+  // Handler for parsing and saving pasted JSON
+  const handleParseJson = async () => {
+    setIsParsingJson(true);
+    setError(null);
+    try {
+      const script = await parseScriptJson({
+        jsonStr: pastedJson,
+        topic,
+        targetAudience: audience,
+        durationMinutes: parseFloat(duration),
+        style,
+        visualStyle,
+        inspiration,
+      });
+      if (projectId) {
+        await updateProjectScript(Number(projectId), script);
+        navigate(`/projects/${projectId}/edit-script`);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to parse and save script.');
+    } finally {
+      setIsParsingJson(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto">
@@ -95,6 +124,29 @@ export default function CreateEditScript() {
           Back to Project Detail
         </button>
         <h1 className="text-2xl font-bold text-foreground mb-2">Create/Edit Script</h1>
+
+        {/* Paste JSON and parse/save section */}
+        <div className="mb-8">
+          <label htmlFor="pasted-json" className="block text-sm font-medium text-foreground mb-1">
+            Paste Script JSON
+          </label>
+          <textarea
+            id="pasted-json"
+            value={pastedJson}
+            onChange={(e) => setPastedJson(e.target.value)}
+            rows={8}
+            className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary font-mono"
+            placeholder="Paste raw LLM JSON here..."
+          />
+          <button
+            type="button"
+            className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50"
+            onClick={handleParseJson}
+            disabled={isParsingJson || !pastedJson.trim() || !projectId}
+          >
+            {isParsingJson ? 'Parsing & Saving...' : 'Parse & Save Script from JSON'}
+          </button>
+        </div>
         {error && (
           <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md mb-4">{error}</div>
         )}

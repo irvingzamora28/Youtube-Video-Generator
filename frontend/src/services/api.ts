@@ -166,6 +166,43 @@ export async function generateImageDescription({
 }
 
 /**
+ * Parse a pasted JSON into a script using the backend API
+ */
+export async function parseScriptJson({ jsonStr, topic, targetAudience, durationMinutes, style, visualStyle, inspiration }: {
+  jsonStr: string;
+  topic: string;
+  targetAudience: string;
+  durationMinutes: number;
+  style: string;
+  visualStyle: string;
+  inspiration?: string;
+}): Promise<Script> {
+  const response = await fetch(`${API_BASE_URL}/api/script/parse_json`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      json_str: jsonStr,
+      topic,
+      target_audience: targetAudience,
+      duration_minutes: durationMinutes,
+      style,
+      visual_style: visualStyle,
+      inspiration
+    }),
+  });
+  if (!response.ok) {
+    let errorDetail = 'Failed to parse script JSON';
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) {}
+    throw new Error(errorDetail);
+  }
+  const data = await response.json();
+  return data.script;
+}
+
+/**
  * Generate a script using the backend API
  */
 export async function generateScript(
