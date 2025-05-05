@@ -8,7 +8,7 @@ import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
 // Import the new API functions
 import { generateScript, generateAllProjectAudio, organizeSegmentVisuals, generateAllProjectImages, organizeAllProjectVisuals, generateVisualsForSegment, saveImageAsset } from '../services/api';
-import { getProjectContent, updateProjectScript, getProjectFullScript } from '../services/projectApi';
+import { getProjectContent, updateProjectScript, getProjectFullScript, getProject } from '../services/projectApi';
 
 export default function ScriptGenerator() {
   const { id: projectId } = useParams<{ id: string }>();
@@ -62,7 +62,8 @@ export default function ScriptGenerator() {
     try {
       setIsLoading(true);
       setError(null);
-      const project = await getProjectContent(id);
+      const project = await getProject(id);
+      const projectContent = await getProjectContent(id);
 
       // If the project has content, use it
       if (project) {
@@ -75,11 +76,11 @@ export default function ScriptGenerator() {
           }
         }
 
-        setGeneratedScript(project);
+        setGeneratedScript(projectContent);
         setTopic(project.title || '');
         setStyle(project.style || 'educational');
         setAudience(project.targetAudience || 'general');
-        setDuration(project.totalDuration.toString() || '5');
+        setDuration(projectContent.totalDuration.toString() || '5');
         setVisualStyle(project.visualStyle || 'stick-man');
         setInspiration(project.inspiration || '');
       }
@@ -538,6 +539,20 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                     </select>
                   </div>
                 </div>
+
+                <div>
+                    <label htmlFor="inspiration" className="block text-sm font-medium text-foreground mb-1">
+                      Inspiration
+                    </label>
+                    <textarea
+                      id="inspiration"
+                      value={inspiration}
+                      onChange={(e) => setInspiration(e.target.value)}
+                      className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="e.g., Pixar, Disney, Pixar, etc."
+                      rows={15}
+                    />
+                  </div>
 
                 <div className="pt-4">
                   <button
