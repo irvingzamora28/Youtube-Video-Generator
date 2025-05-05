@@ -7,7 +7,7 @@ import SectionRegenerator from '../components/SectionRegenerator';
 import ScriptVisualizer from '../components/ScriptVisualizer';
 import SegmentTimeline from '../components/SegmentTimeline';
 // Import the new API functions
-import { generateScript, generateAllProjectAudio, organizeSegmentVisuals, generateAllProjectImages, organizeAllProjectVisuals, generateVisualsForSegment, saveImageAsset } from '../services/api';
+import { generateAllProjectAudio, organizeSegmentVisuals, generateAllProjectImages, organizeAllProjectVisuals, generateVisualsForSegment, saveImageAsset, generateScript } from '../services/api';
 import { getProjectContent, updateProjectScript, getProjectFullScript, getProject } from '../services/projectApi';
 
 export default function ScriptGenerator() {
@@ -78,7 +78,6 @@ export default function ScriptGenerator() {
 
         setGeneratedScript(projectContent);
         setTopic(project.title || '');
-        setStyle(project.style || 'educational');
         setAudience(project.targetAudience || 'general');
         setDuration(projectContent.totalDuration.toString() || '5');
         setVisualStyle(project.visualStyle || 'stick-man');
@@ -448,133 +447,11 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
         </div>
       )}
 
-      {/* Show loading indicator */}
-      {isLoading && (
-        <div className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      )}
+     
       <div className="max-w-7xl mx-auto">
-        {!generatedScript ? (
-          <div className="bg-card shadow rounded-lg overflow-hidden">
-            <div className="px-4 py-5 sm:p-6">
-              <h1 className="text-2xl font-bold text-foreground mb-2">
-                {projectId ? 'Generate Script for Project' : 'Create Video Script'}
-              </h1>
-              {projectId && (
-                <p className="text-muted-foreground mb-6">
-                  Generate a script for your project based on the information below.
-                  You can edit the script after generation.
-                </p>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="topic" className="block text-sm font-medium text-foreground mb-1">
-                    What topic would you like to create a video about?
-                  </label>
-                  <input
-                    type="text"
-                    id="topic"
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="e.g., Quantum Computing, Climate Change, Financial Literacy"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label htmlFor="audience" className="block text-sm font-medium text-foreground mb-1">
-                      Target Audience
-                    </label>
-                    <select
-                      id="audience"
-                      value={audience}
-                      onChange={(e) => setAudience(e.target.value)}
-                      className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="beginners">Beginners</option>
-                      <option value="general">General Audience</option>
-                      <option value="students">Students</option>
-                      <option value="professionals">Professionals</option>
-                      <option value="experts">Experts</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="duration" className="block text-sm font-medium text-foreground mb-1">
-                      Approximate Duration (minutes)
-                    </label>
-                    <select
-                      id="duration"
-                      value={duration}
-                      onChange={(e) => setDuration(e.target.value)}
-                      className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="2">2 minutes</option>
-                      <option value="5">5 minutes</option>
-                      <option value="10">10 minutes</option>
-                      <option value="15">15 minutes</option>
-                      <option value="20">20+ minutes</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="style" className="block text-sm font-medium text-foreground mb-1">
-                      Visual Style
-                    </label>
-                    <select
-                      id="style"
-                      value={visualStyle}
-                      onChange={(e) => setVisualStyle(e.target.value)}
-                      className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="stick-man">Stick Man</option>
-                      <option value="realistic">Realistic</option>
-                      <option value="cartoon">Cartoon</option>
-                      <option value="3d">3D</option>
-                      <option value="3d-cartoon">3D Cartoon</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                    <label htmlFor="inspiration" className="block text-sm font-medium text-foreground mb-1">
-                      Inspiration
-                    </label>
-                    <textarea
-                      id="inspiration"
-                      value={inspiration}
-                      onChange={(e) => setInspiration(e.target.value)}
-                      className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="e.g., Pixar, Disney, Pixar, etc."
-                      rows={15}
-                    />
-                  </div>
-
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    disabled={isGenerating || !topic}
-                    className="w-full md:w-auto px-6 py-3 bg-primary text-primary-foreground rounded-md font-medium shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isGenerating ? (
-                      <div className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Generating Script...
-                      </div>
-                    ) : (
-                      'Generate Script'
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
+        {!generatedScript || isLoading ? (
+          <div className="flex justify-center items-center h-32">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : (
           <div className="space-y-6">
@@ -614,8 +491,8 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                       Preview
                     </button>
                     <button
-                      onClick={() => setGeneratedScript(null)}
                       className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90"
+                      onClick={() => navigate(`/projects/${projectId}/create-edit`)}
                     >
                       Create New Script
                     </button>
@@ -701,7 +578,7 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                             {/* Segments */}
                             <h4 className="text-sm font-medium text-muted-foreground mt-4 mb-2">Segments</h4>
                             <div className="space-y-3">
-                              {section.segments.map((segment, index) => {
+                              {section.segments.map((segment) => {
                                 console.log('Rendering segment:', segment);
                                 console.log('Segment narration text:', segment.narrationText);
                                 return (
@@ -814,10 +691,11 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
 
                 <div className="mt-6 flex justify-between">
                   <button
-                    className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90"
+                    className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90 disabled:opacity-50"
+                    disabled={isSaving || isGenerating || isGeneratingVisuals}
                     onClick={handleSubmit}
                   >
-                    Regenerate Script
+                    {isGenerating ? 'Generating...' : 'Regenerate Script'}
                   </button>
 
                   <div className="space-x-3 flex items-center">
@@ -826,7 +704,7 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                        <button
                         className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90 disabled:opacity-50"
                         onClick={handleGenerateAllAudios}
-                        disabled={isSaving || isGenerating} // Disable if other actions are running
+                        disabled={isSaving || isGenerating || isGeneratingVisuals} // Disable if other actions are running
                         title="Generate audio narration for all segments"
                       >
                         Generate All Audios
@@ -837,10 +715,10 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                        <button
                         className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/90 disabled:opacity-50"
                         onClick={handleGenerateAllImages}
-                        disabled={isSaving || isGenerating} // Disable if other actions are running
+                        disabled={isSaving || isGenerating || isGeneratingVisuals} // Disable if other actions are running
                         title="Generate images for all visuals"
                       >
-                        Generate All Images
+                        {isGeneratingVisuals ? 'Generating...' : 'Generate All Images'}
                       </button>
                      )}
                   
@@ -887,7 +765,7 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
         <SectionRegenerator
           section={getActiveSection()!}
           sections={generatedScript ? generatedScript.sections : []}
-          inspiration={inspiration}
+          inspiration={''}
           onRegenerate={handleRegenerateSectionSubmit}
           onCancel={() => setShowSectionRegenerator(false)}
         />
