@@ -82,16 +82,36 @@ export async function previewBackgroundRemoval({ imageUrl, backgroundUrl, remove
  * Generate an image description for a visual, using script, narration, and selected text as context
  */
 /**
- * Start video generation for a project (asynchronous)
+ * Start video generation for a project (asynchronous, main script)
  */
 export async function generateVideo(projectId: number): Promise<{ status: string; task_id: string }> {
   const response = await fetch(`${API_BASE_URL}/api/video/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ project_id: projectId }),
+    body: JSON.stringify({ project_id: projectId, field: 'content' }),
   });
   if (!response.ok) {
     let errorDetail = 'Failed to start video generation';
+    try {
+      const errorData = await response.json();
+      errorDetail = errorData.detail || errorDetail;
+    } catch (e) {}
+    throw new Error(errorDetail);
+  }
+  return response.json();
+}
+
+/**
+ * Start video generation for a project (short script)
+ */
+export async function generateShortVideo(projectId: number): Promise<{ status: string; task_id: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/video/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ project_id: projectId, field: 'short_content' }),
+  });
+  if (!response.ok) {
+    let errorDetail = 'Failed to start short video generation';
     try {
       const errorData = await response.json();
       errorDetail = errorData.detail || errorDetail;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { generateShortScript, generateAllShortProjectAudio, generateAllShortProjectVisuals } from '../services/api';
+import { generateShortScript, generateAllShortProjectAudio, generateAllShortProjectVisuals, generateShortVideo, getVideoStatus } from '../services/api';
 import { Script } from '../types/script';
 import { getProjectShortContent, updateProjectShortScript } from '../services/projectApi';
 
@@ -20,6 +20,11 @@ const ProjectShortGenerator: React.FC = () => {
   // State for bulk visuals generation for short script
   const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
   const [visualGenStatus, setVisualGenStatus] = useState<string | null>(null);
+  // State for short video generation
+  const [isGeneratingShortVideo, setIsGeneratingShortVideo] = useState(false);
+  const [shortVideoStatus, setShortVideoStatus] = useState<string | null>(null);
+  const [shortVideoUrl, setShortVideoUrl] = useState<string | null>(null);
+  const [shortVideoTaskId, setShortVideoTaskId] = useState<string | null>(null);
 
   useEffect(() => {
       if (projectId) {
@@ -150,6 +155,64 @@ const ProjectShortGenerator: React.FC = () => {
   };
 
 
+  // Handler for generating the short video
+  const handleGenerateShortVideo = async () => {
+    if (!projectId) return;
+    setIsGeneratingShortVideo(true);
+    setShortVideoStatus('Starting short video generation...');
+    setShortVideoUrl(null);
+    setShortVideoTaskId(null);
+    setError(null);
+    try {
+      const resp = await generateShortVideo(Number(projectId));
+      setShortVideoTaskId(resp.task_id);
+      setShortVideoStatus('Video generation started. Waiting for completion...');
+      // Poll status
+      pollShortVideoStatus(resp.task_id);
+    } catch (err: any) {
+      setError(err.message || 'Failed to start short video generation.');
+      setShortVideoStatus(null);
+      setIsGeneratingShortVideo(false);
+    }
+  };
+
+  // Polling function for video status
+  const pollShortVideoStatus = async (taskId: string) => {
+    let attempts = 0;
+    const maxAttempts = 120; // e.g., poll for up to 10 minutes
+    const poll = async () => {
+      try {
+        const statusResp = await getVideoStatus(taskId);
+        if (statusResp.status === 'completed') {
+          setShortVideoStatus('Short video generation complete!');
+          setShortVideoUrl(statusResp.video_url || null);
+          setIsGeneratingShortVideo(false);
+          return;
+        } else if (statusResp.status === 'error') {
+          setShortVideoStatus('Short video generation failed.');
+          setError(statusResp.error || 'Unknown error during video generation.');
+          setIsGeneratingShortVideo(false);
+          return;
+        } else {
+          setShortVideoStatus(`Short video status: ${statusResp.status}...`);
+        }
+      } catch (err: any) {
+        setShortVideoStatus('Error polling video status.');
+        setError(err.message || 'Failed to poll video status.');
+        setIsGeneratingShortVideo(false);
+        return;
+      }
+      attempts++;
+      if (attempts < maxAttempts) {
+        setTimeout(poll, 5000); // poll every 5 seconds
+      } else {
+        setShortVideoStatus('Timed out waiting for video generation.');
+        setIsGeneratingShortVideo(false);
+      }
+    };
+    poll();
+  };
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto py-8">
@@ -183,6 +246,19 @@ const ProjectShortGenerator: React.FC = () => {
         >
           {isOrganizingVisuals ? 'Organizing Visuals...' : 'Organize All Visuals for Short'}
         </button>
+        <button
+          className="bg-pink-600 hover:bg-pink-700 text-foreground font-bold py-2 px-4 rounded mb-4 ml-2"
+          onClick={handleGenerateShortVideo}
+          disabled={isGeneratingShortVideo || isLoading}
+        >
+          {isGeneratingShortVideo ? 'Generating Short Video...' : 'Generate Short Video'}
+        </button>
+        {shortVideoStatus && <div className="text-pink-600 mb-2">{shortVideoStatus}</div>}
+        {shortVideoUrl && (
+          <div className="mb-2">
+            <a href={shortVideoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">Download/View Short Video</a>
+          </div>
+        )}
         {error && <div className="text-red-600 mb-2">{error}</div>}
         {saveStatus && <div className="text-green-600 mb-2">{saveStatus}</div>}
         {audioGenStatus && <div className="text-green-600 mb-2">{audioGenStatus}</div>}

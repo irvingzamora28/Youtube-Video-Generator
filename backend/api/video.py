@@ -16,6 +16,7 @@ video_generation_tasks: Dict[str, Dict] = {}
 
 class VideoGenerationRequest(BaseModel):
     project_id: int
+    field: str = "content"  # 'content' or 'short_content'
 
 @router.post("/generate")
 def generate_video(request: VideoGenerationRequest, background_tasks: BackgroundTasks):
@@ -23,9 +24,10 @@ def generate_video(request: VideoGenerationRequest, background_tasks: Background
     Start video generation for a project (asynchronous).
     """
     project_id = request.project_id
+    field = getattr(request, 'field', 'content') or 'content'
     task_id = str(uuid.uuid4())
     video_generation_tasks[task_id] = {"status": "pending"}
-    background_tasks.add_task(_generate_video_task, project_id, task_id)
+    background_tasks.add_task(_generate_video_task, project_id, task_id, field)
     return {"status": "started", "task_id": task_id}
 
 @router.get("/status/{task_id}")
@@ -35,9 +37,10 @@ def get_video_status(task_id: str):
         raise HTTPException(status_code=404, detail="Task not found")
     return task
 
-def _generate_video_task(project_id: int, task_id: str):
+def _generate_video_task(project_id: int, task_id: str, field: str = "content"):
     """
     Background task to generate a video for the project.
+    field: 'content' for main script, 'short_content' for short script
     """
     import traceback
     try:
@@ -56,6 +59,12 @@ def _generate_video_task(project_id: int, task_id: str):
         import datetime
         import os
         
+        # Set dimensions based on field
+        if field == "short_content":
+            video_width, video_height = 1080, 1920  # 9:16 portrait
+        else:
+            video_width, video_height = 1920, 1080  # 16:9 landscape
+
         def resize(input_file, output_file, width, height):
             (
                 ffmpeg.input(input_file)
@@ -65,7 +74,15 @@ def _generate_video_task(project_id: int, task_id: str):
                 .run()
             )
 
-        script = project.content
+        # Select script data based on field
+        if field == "short_content":
+            script = getattr(project, "short_content", None)
+        else:
+            script = getattr(project, "content", None)
+        if not script or not isinstance(script, dict):
+            video_generation_tasks[task_id]["status"] = "error"
+            video_generation_tasks[task_id]["error"] = f"Project has no valid '{field}' field."
+            return
         visuals = []
         audio_paths = []
         durations = []
@@ -136,16 +153,16 @@ def _generate_video_task(project_id: int, task_id: str):
                             # Use method from visual, fallback to 'color'
                             method = visual.get('removeBackgroundMethod') or visual.get('remove_background_method') or 'color'
                             remove_background_from_image(image_path, project_bg, composited_path, method)
-                            resize(composited_path, resized_img_path, 1920, 1080)
+                            resize(composited_path, resized_img_path, video_width, video_height)
                         else:
-                            resize(image_path, resized_img_path, 1920, 1080)
+                            resize(image_path, resized_img_path, video_width, video_height)
                         start = visual.get('timestamp', 0)
                         duration = visual.get('duration', segment_duration)
                         img_clip = ImageClip(resized_img_path).with_start(start).with_duration(duration)
                         visual_clips.append(img_clip)
 
                 audio_clip = AudioFileClip(audio_abspath)
-                composite = CompositeVideoClip(visual_clips, size=(1920, 1080)).with_duration(segment_duration).with_audio(audio_clip)
+                composite = CompositeVideoClip(visual_clips, size=(video_width, video_height)).with_duration(segment_duration).with_audio(audio_clip)
                 clips.append(composite)
         if not clips:
             video_generation_tasks[task_id]["status"] = "error"
