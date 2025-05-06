@@ -255,6 +255,13 @@ async def organize_segment_visuals(
         except Exception as e:
             print(f"[forced_alignment] Error in word-level forced alignment: {e}")
             word_segments = []
+    # Add word_timings property with [{'word': ..., 'start': ...}, ...]
+    if word_segments:
+        updated_segment['word_timings'] = [
+            {'word': w['word'], 'start': float(w['start'])} for w in word_segments if 'word' in w and 'start' in w
+        ]
+    else:
+        updated_segment['word_timings'] = []
     # --- Ensure all visuals have '/static/' prefix on imageUrl before saving ---
     def ensure_static_prefix(image_url):
         if image_url and not image_url.startswith('/static/'):
@@ -316,6 +323,7 @@ async def organize_segment_visuals(
                             if str(segment.get('id')) == str(segment_id):
                                 found_segment = True
                                 segment['visuals'] = updated_segment['visuals']
+                                segment['word_timings'] = updated_segment.get('word_timings', [])
                                 break
                 if not found_section:
                     print(f"[DEBUG] organize_visuals: Section with id {section_id} not found in project.content['sections']")
@@ -323,7 +331,7 @@ async def organize_segment_visuals(
                     print(f"[DEBUG] organize_visuals: Segment with id {segment_id} not found in section['segments']")
                 save_result = project.save()
                 print(f"[DEBUG] organize_visuals: project.save() result: {save_result}")
-
+    print(f"[DEBUG] organize_visuals: Updated segment: {updated_segment}")
     return OrganizeVisualsResponse(organized_segment=updated_segment)
 
 
