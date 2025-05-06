@@ -892,6 +892,20 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-1">
+                          Reference Text
+                        </label>
+                        <textarea
+                          value={visuals[activeVisualIndex].referenceText || ''}
+                          onChange={(e) => handleUpdateVisual(activeVisualIndex, 'referenceText', e.target.value)}
+                          className="w-full px-4 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-y min-h-[40px]"
+                          placeholder="Reference to narration text, e.g., 'This visual illustrates the process described above.'"
+                        />
+                      </div>
+                    </div>
+
                     <div className="mt-4 flex items-center">
                       <input
                         id="remove-background-toggle"
