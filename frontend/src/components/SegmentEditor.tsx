@@ -501,6 +501,21 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
                     </div>
                   </div>
                 )}
+                {/* Word Timings Chips */}
+                {Array.isArray(segment.wordTimings) && segment.wordTimings.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {segment.wordTimings.map((wt: { word: string; start: number }, idx: number) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center px-2 py-1 rounded bg-muted text-xs font-mono text-foreground border border-border hover:bg-primary/10 cursor-pointer transition"
+                        title={`Start: ${wt.start.toFixed(2)}s`}
+                      >
+                        {wt.word}
+                        <span className="ml-1 text-muted-foreground text-[10px]">({wt.start.toFixed(2)}s)</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <div className="mt-1 text-xs text-muted-foreground">
                   Select text to create a visual for that specific part of the narration.
                 </div>

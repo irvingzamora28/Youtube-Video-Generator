@@ -338,6 +338,7 @@ export function transformScriptFromApi(apiScript: any): Script {
             duration: segment.duration || 0,
             audioUrl: segment.audioUrl || '', // Add audioUrl mapping
             audioAssetId: segment.audioAssetId, // Add audioAssetId mapping
+            wordTimings: segment.word_timings || segment.wordTimings || [],
             visuals: (segment.visuals || []).map((visual: any) => ({
               id: visual.id || `visual-${Math.random().toString(36).substring(2, 11)}`,
               description: visual.description || '',

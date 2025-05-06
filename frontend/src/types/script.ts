@@ -32,6 +32,7 @@ export type ScriptSegment = {
   visuals: Visual[]; // Multiple visuals can be associated with a segment
   audioUrl?: string; // Optional: URL to the generated audio for narration
   audioAssetId?: number; // Optional: ID linking to the Asset table record for audio
+  wordTimings?: { word: string; start: number }[];
 };
 
 export type ScriptSection = {
