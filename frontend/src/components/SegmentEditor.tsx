@@ -1,5 +1,78 @@
+import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { ScriptSegment, Visual } from '../types/script';
+
+// --- WordTimingsSelector component ---
+type WordTimingsSelectorProps = {
+  wordTimings: { word: string; start: number }[];
+  onSentenceSelect?: (sentence: string) => void;
+};
+
+const WordTimingsSelector: React.FC<WordTimingsSelectorProps> = ({ wordTimings, onSentenceSelect }) => {
+  console.log('[WordTimingsSelector] rendered with wordTimings:', wordTimings);
+  console.log('[WordTimingsSelector] rendered with onSentenceSelect:', onSentenceSelect);
+
+  const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
+
+  const handleChipClick = (idx: number) => {
+    console.log('[WordTimingsSelector] handleChipClick idx:', idx);
+
+    if (selectedIndices.length === 0 || selectedIndices.length === 2) {
+      setSelectedIndices([idx]); // start new selection
+    } else if (selectedIndices.length === 1) {
+      const newIndices = [selectedIndices[0], idx];
+      setSelectedIndices(newIndices);
+      // Compute and log the sentence
+      const [start, end] = newIndices;
+      const from = Math.min(start, end);
+      const to = Math.max(start, end);
+      const words = wordTimings.slice(from, to + 1).map(wt => wt.word);
+      const sentence = words.join(' ');
+      // Log the result
+      // eslint-disable-next-line no-console
+      console.log('Selected sentence:', sentence);
+      if (onSentenceSelect) {
+        console.log('[WordTimingsSelector] Calling onSentenceSelect with:', sentence);
+        onSentenceSelect(sentence);
+      } else {
+        console.log('[WordTimingsSelector] onSentenceSelect is not defined');
+      }
+    }
+  };
+
+  let highlightRange: [number, number] | null = null;
+  if (selectedIndices.length === 2) {
+    highlightRange = [Math.min(...selectedIndices), Math.max(...selectedIndices)];
+  }
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {wordTimings.map((wt, idx) => {
+        const isSelected = selectedIndices.includes(idx);
+        const isInRange =
+          highlightRange && idx >= highlightRange[0] && idx <= highlightRange[1];
+        return (
+          <span
+            key={idx}
+            className={
+              'inline-flex items-center px-2 py-1 rounded text-xs font-mono border transition cursor-pointer ' +
+              (isInRange
+                ? 'bg-primary/20 border-primary text-primary-foreground'
+                : 'bg-muted border-border text-foreground hover:bg-primary/10')
+            }
+            title={`Start: ${wt.start.toFixed(2)}s`}
+            onClick={() => handleChipClick(idx)}
+          >
+            {wt.word}
+            <span className="ml-1 text-muted-foreground text-[10px]">({wt.start.toFixed(2)}s)</span>
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+// --- End WordTimingsSelector ---
+
 // Import new API functions
 import { generateImageForVisual, saveImageAsset, generateSegmentAudio, organizeSegmentVisuals, generateImageDescription, previewBackgroundRemoval, generateVisualsForSegment } from '../services/api';
 
@@ -14,6 +87,20 @@ type SegmentEditorProps = {
 import { getProjectAssets } from '../services/projectApi';
 
 export default function SegmentEditor({ segment, projectId, sectionId, onSave, onCancel }: SegmentEditorProps) {
+  const instanceId = React.useRef(Math.random().toString(36).substr(2, 5));
+
+  // State for reference text (for visual creation, etc)
+  const [referenceText, setReferenceText] = useState<string>("");
+  console.log('[SegmentEditor]', instanceId.current, 'render, segment.id:', segment.id, 'referenceText:', referenceText);
+  React.useEffect(() => {
+    console.log('[SegmentEditor]', instanceId.current, 'referenceText changed:', referenceText);
+  }, [referenceText]);
+
+  React.useEffect(() => {
+    return () => {
+      console.log('[SegmentEditor]', instanceId.current, 'unmounted');
+    };
+  }, []);
   // State for generating all visuals
   const [isGeneratingAllVisuals, setIsGeneratingAllVisuals] = useState(false);
   const [generateAllVisualsError, setGenerateAllVisualsError] = useState<string | null>(null);
@@ -501,24 +588,18 @@ const [bgRemovalPreview, setBgRemovalPreview] = useState<string | null>(null);
                     </div>
                   </div>
                 )}
-                {/* Word Timings Chips */}
-                {Array.isArray(segment.wordTimings) && segment.wordTimings.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {segment.wordTimings.map((wt: { word: string; start: number }, idx: number) => (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center px-2 py-1 rounded bg-muted text-xs font-mono text-foreground border border-border hover:bg-primary/10 cursor-pointer transition"
-                        title={`Start: ${wt.start.toFixed(2)}s`}
-                      >
-                        {wt.word}
-                        <span className="ml-1 text-muted-foreground text-[10px]">({wt.start.toFixed(2)}s)</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Select text to create a visual for that specific part of the narration.
-                </div>
+              </div>
+              {/* Word Timings Chips */}
+              {Array.isArray(segment.wordTimings) && segment.wordTimings.length > 0 && activeVisualIndex !== null && (
+                <WordTimingsSelector
+                  wordTimings={segment.wordTimings}
+                  onSentenceSelect={(sentence) => handleUpdateVisual(activeVisualIndex, 'referenceText', sentence)}
+                />
+              )}
+
+
+              <div className="mt-1 text-xs text-muted-foreground">
+                Select text to create a visual for that specific part of the narration.
               </div>
             </div>
 
