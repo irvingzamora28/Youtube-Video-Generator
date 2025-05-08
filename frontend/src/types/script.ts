@@ -61,4 +61,9 @@ export type Script = {
   style?: string;
   background_image?: string; // Optional background image path
   inspiration?: string; // Optional inspiration text
+  youtube?: {
+    title?: string;
+    description?: string;
+    timestamps?: string;
+  };
 };

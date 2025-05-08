@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProjectContent, updateProject, ProjectUpdateParams, deleteProject } from '../services/projectApi';
+import { getProjectContent, updateProject, ProjectUpdateParams, deleteProject, buildYoutubeMeta } from '../services/projectApi';
 import { Script } from '../types/script';
 import ProjectScriptViewer from '../components/ProjectScriptViewer';
 import Layout from '../components/Layout';
+import { setIn } from '../utils/objectUtils';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,11 @@ const ProjectDetail: React.FC = () => {
     targetAudience: '',
     visualStyle: '',
     inspiration: '',
+    youtube: {
+      title: '',
+      description: '',
+      timestamps: '',
+    },
   });
 
   useEffect(() => {
@@ -40,6 +46,11 @@ const ProjectDetail: React.FC = () => {
         targetAudience: data.targetAudience,
         visualStyle: data.visualStyle || '',
         inspiration: data.inspiration || '',
+        youtube: {
+          title: data.youtube?.title || '',
+          description: data.youtube?.description || '',
+          timestamps: data.youtube?.timestamps || '',
+        },
       });
     } catch (err) {
       setError('Failed to load project. Please try again.');
@@ -51,10 +62,8 @@ const ProjectDetail: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    const path = name.split('.');
+    setFormData(prev => setIn(prev, path, value));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,7 +78,14 @@ const ProjectDetail: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      await updateProject(parseInt(id), formData);
+      // Build youtube meta for backend
+      const youtube = buildYoutubeMeta(formData);
+      console.log('Youtube meta:', youtube);
+      const payload = {
+        ...formData,
+        youtube,
+      };
+      await updateProject(parseInt(id), payload);
 
       // Refresh the project data
       await fetchProject(parseInt(id));
@@ -202,6 +218,54 @@ const ProjectDetail: React.FC = () => {
                 rows={4}
                 className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
                 placeholder="Enter project description"
+              />
+            </div>
+
+            {/* YouTube Title */}
+            <div className="mb-4">
+              <label htmlFor="youtubeTitle" className="block text-sm font-medium mb-1 text-foreground">
+                YouTube Title
+              </label>
+              <input
+                type="text"
+                id="youtubeTitle"
+                name="youtube.title"
+                value={formData.youtube?.title}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+                placeholder="Enter YouTube video title"
+              />
+            </div>
+
+            {/* YouTube Description */}
+            <div className="mb-4">
+              <label htmlFor="youtubeDescription" className="block text-sm font-medium mb-1 text-foreground">
+                YouTube Description
+              </label>
+              <textarea
+                id="youtubeDescription"
+                name="youtube.description"
+                value={formData.youtube?.description}
+                onChange={handleChange}
+                rows={4}
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+                placeholder="Enter YouTube video description"
+              />
+            </div>
+
+            {/* YouTube Timestamps */}
+            <div className="mb-4">
+              <label htmlFor="youtubeTimestamps" className="block text-sm font-medium mb-1 text-foreground">
+                YouTube Timestamps
+              </label>
+              <textarea
+                id="youtubeTimestamps"
+                name="youtube.timestamps"
+                value={formData.youtube?.timestamps}
+                onChange={handleChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+                placeholder="Paste or write timestamps for YouTube video (e.g. 00:00 Intro...)"
               />
             </div>
 

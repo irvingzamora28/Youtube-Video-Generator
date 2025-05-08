@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS projects (
     background_image TEXT, -- Optional local path to background image
     inspiration TEXT,
     infocard_highlights JSON, -- Stores infocard highlight objects
+    youtube JSON, -- Stores YouTube-related properties (title, description, thumbnail_prompt, thumbnail_url, etc.)
     social_posts JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

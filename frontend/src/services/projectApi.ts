@@ -34,7 +34,24 @@ export type ProjectUpdateParams = {
   visualStyle?: string;
   style?: string;
   inspiration?: string;
+  youtube?: {
+    title?: string;
+    description?: string;
+    timestamps?: string;
+  };
 };
+
+// Helper to build the youtube object for the backend
+export function buildYoutubeMeta(params: ProjectUpdateParams) {
+  // Always return an object with all three keys, even if empty
+  const { youtube } = params;
+  return {
+    title: youtube?.title || '',
+    description: youtube?.description || '',
+    timestamps: youtube?.timestamps || '',
+  };
+}
+
 
 export type AssetType = 'image' | 'audio' | 'video';
 
@@ -290,6 +307,7 @@ export async function updateProject(
         ...(params.status !== undefined && { status: params.status }),
         ...(params.visualStyle !== undefined && { visual_style: params.visualStyle }),
         ...(params.inspiration !== undefined && { inspiration: params.inspiration }),
+        ...(params.youtube !== undefined && { youtube: params.youtube }),
       }),
     });
 

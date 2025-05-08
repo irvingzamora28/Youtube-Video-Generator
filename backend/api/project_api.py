@@ -33,6 +33,11 @@ class ProjectCreate(BaseModel):
     visual_style: Optional[str] = None
     inspiration: Optional[str] = None
 
+class YouTubeMeta(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    timestamps: Optional[str] = None
+
 class ProjectUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -42,6 +47,7 @@ class ProjectUpdate(BaseModel):
     style: Optional[str] = None
     visual_style: Optional[str] = None
     inspiration: Optional[str] = None
+    youtube: Optional[YouTubeMeta] = None
 
 class ScriptUpdate(BaseModel):
     content: Dict[str, Any]
@@ -150,6 +156,10 @@ async def update_project(project_id: int, project_data: ProjectUpdate):
         project.visual_style = project_data.visual_style
     if project_data.inspiration is not None:
         project.inspiration = project_data.inspiration
+
+    # Handle YouTube metadata as a JSON field
+    if project_data.youtube is not None:
+        project.youtube = project_data.youtube.dict()
 
     if project.save():
         return {"success": True, "project": project.to_dict()}
