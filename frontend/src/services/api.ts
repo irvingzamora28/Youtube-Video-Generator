@@ -355,6 +355,7 @@ export function transformScriptFromApi(apiScript: any): Script {
               removeBackground: typeof visual.removeBackground !== 'undefined' ? visual.removeBackground : (typeof visual.remove_background !== 'undefined' ? visual.remove_background : false),
               removeBackgroundMethod: visual.removeBackgroundMethod || visual.remove_background_method || 'color',
               referenceText: visual.referenceText || visual.reference_text || '',
+              referenceFound: visual.referenceFound,
             }))
           };
         }),

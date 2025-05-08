@@ -2,6 +2,10 @@
 
 export type Visual = {
   /**
+   * Indicates if the reference in narrationText was found for this visual (used for UI highlighting)
+   */
+  referenceFound?: boolean;
+  /**
    * If true, remove the background from the image and use the project's background image during video generation.
    */
   removeBackground?: boolean;

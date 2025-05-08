@@ -438,6 +438,27 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Helper function to determine segment border color based on visuals' referenceFound property
+  function getSegmentBorderColor(segment: ScriptSegment) {
+    if (!Array.isArray(segment.visuals) || segment.visuals.length === 0) {
+      return 'border-border';
+    }
+    // If any visual does not have referenceFound property, keep default
+    if (segment.visuals.some(v => typeof v.referenceFound === 'undefined')) {
+      return 'border-border';
+    }
+    // If all visuals have referenceFound true
+    if (segment.visuals.every(v => v.referenceFound === true)) {
+      return 'border-success';
+    }
+    // If at least one visual has referenceFound false (and all have the property)
+    if (segment.visuals.some(v => v.referenceFound === false)) {
+      return 'border-error';
+    }
+    // Fallback
+    return 'border-border';
+  }
+
   return (
     <Layout>
       {/* Show error message if there is one */}
@@ -584,9 +605,8 @@ const handleGenerateAllVisuals = async (sectionId: string) => {
                                 return (
                                 <div
                                   key={segment.id}
-                                  className={`p-3 border rounded-md ${
-                                    activeSegmentId === segment.id ? 'border-primary bg-primary/5' : 'border-border'
-                                  }`}
+                                  className={`p-3 border rounded-md ${getSegmentBorderColor(segment)} ${activeSegmentId === segment.id ? 'bg-primary/5' : ''}`}
+
                                   onClick={() => handleSegmentClick(segment.id)}
                                 >
                                   <div className="flex justify-between items-start mb-2">

@@ -33,6 +33,14 @@
   --radius-full: 9999px;
 }
 
+/* Custom border color utilities for segment status */
+.border-success {
+  border-color: oklch(0.65 0.19 145); /* vivid green */
+}
+.border-error {
+  border-color: oklch(0.65 0.19 29);  /* vivid red */
+}
+
 /* Dark mode class overrides */
 .dark {
   --color-background: oklch(0.2 0.02 240);
