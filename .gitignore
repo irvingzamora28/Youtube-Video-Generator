@@ -23,6 +23,8 @@ backend/static/projects/3
 backend/static/projects/4
 backend/static/projects/5
 backend/static/projects/6
+backend/static/projects/8
+
 
 # Database files
 *.db
