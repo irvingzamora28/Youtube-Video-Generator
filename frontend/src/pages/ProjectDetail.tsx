@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProjectContent, updateProject, ProjectUpdateParams, deleteProject, buildYoutubeMeta } from '../services/projectApi';
+import { getProjectContent, updateProject, ProjectUpdateParams, deleteProject, buildYoutubeMeta, generateYoutubeTitle } from '../services/projectApi';
 import { Script } from '../types/script';
 import ProjectScriptViewer from '../components/ProjectScriptViewer';
 import Layout from '../components/Layout';
@@ -25,6 +25,10 @@ const ProjectDetail: React.FC = () => {
       timestamps: '',
     },
   });
+
+  const [generatingTitle, setGeneratingTitle] = useState(false);
+  const [titleGenError, setTitleGenError] = useState<string | null>(null);
+  const [generatedTitles, setGeneratedTitles] = useState<string[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -57,6 +61,34 @@ const ProjectDetail: React.FC = () => {
       console.error('Error fetching project:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateTitle = async () => {
+    if (!formData.description?.trim()) {
+      setTitleGenError('Project description is required to generate a title.');
+      return;
+    }
+    setGeneratingTitle(true);
+    setTitleGenError(null);
+    try {
+      // Compose a plain text version of the script for the LLM
+      let scriptText = '';
+      if (script && script.sections) {
+        scriptText = script.sections.map((section: any) => {
+          let txt = '';
+          if (section.title) txt += `Section: ${section.title}\n`;
+          if (section.content) txt += `${section.content}\n`;
+          return txt.trim();
+        }).join('\n---\n');
+      }
+      const titles = await generateYoutubeTitle(formData.description, scriptText);
+      setGeneratedTitles(titles);
+      // Do not set formData.youtube.title automatically, let user pick
+    } catch (err: any) {
+      setTitleGenError(err.message || 'Failed to generate title.');
+    } finally {
+      setGeneratingTitle(false);
     }
   };
 
@@ -226,15 +258,53 @@ const ProjectDetail: React.FC = () => {
               <label htmlFor="youtubeTitle" className="block text-sm font-medium mb-1 text-foreground">
                 YouTube Title
               </label>
-              <input
-                type="text"
-                id="youtubeTitle"
-                name="youtube.title"
-                value={formData.youtube?.title}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
-                placeholder="Enter YouTube video title"
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  name="youtube.title"
+                  value={formData.youtube?.title}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+                  placeholder="Enter YouTube video title"
+                  disabled={!isEditing || loading || generatingTitle}
+                />
+                <button
+                  type="button"
+                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded disabled:opacity-50"
+                  onClick={handleGenerateTitle}
+                  disabled={generatingTitle || loading || !isEditing}
+                >
+                  {generatingTitle ? 'Generating...' : 'Generate Title'}
+                </button>
+              </div>
+              {titleGenError && (
+                <span className="text-red-500 text-xs">{titleGenError}</span>
+              )}
+              {generatedTitles.length > 0 && (
+                <div className="mt-2">
+                  <div className="text-xs text-muted-foreground mb-1">Click a title to use it:</div>
+                  <ul className="space-y-1">
+                    {generatedTitles.map((t, i) => (
+                      <li key={i}>
+                        <button
+                          type="button"
+                          className="w-full text-left bg-card hover:bg-card/10 border border-border rounded px-2 py-1 text-sm"
+                          onClick={() => setFormData(prev => ({
+                            ...prev,
+                            youtube: {
+                              ...prev.youtube,
+                              title: t,
+                            },
+                          }))}
+                          disabled={!isEditing || loading}
+                        >
+                          {t}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* YouTube Description */}

@@ -4,6 +4,23 @@ import { transformScriptFromApi } from './api';
 const API_BASE_URL = 'http://localhost:8000';
 
 /**
+ * Generate a YouTube title using the backend LLM endpoint
+ */
+export async function generateYoutubeTitle(projectDescription: string, script: string): Promise<string[]> {
+  const response = await fetch(`${API_BASE_URL}/api/youtube/generate_title`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ project_description: projectDescription, script }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to generate YouTube title');
+  }
+  const data = await response.json();
+  return data.titles;
+}
+
+/**
  * Types for project API
  */
 export type ProjectListItem = {
