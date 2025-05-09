@@ -1,12 +1,79 @@
 """
 YouTube Title Generation API endpoint.
 """
+from fastapi import APIRouter, HTTPException, Body, Depends, Request
+from pydantic import BaseModel
+from typing import List
 from fastapi import APIRouter, HTTPException, Body, Depends
 from pydantic import BaseModel
 from backend.llm.factory import create_llm_provider_from_env
 from backend.llm.base import LLMProvider
 
 router = APIRouter(prefix="/api/youtube", tags=["YouTube"])
+
+class YoutubeTimestampsRequest(BaseModel):
+    project_description: str
+    script_structure: dict  # Should include sections/segments/startTimes/titles
+
+class YoutubeTimestampsResponse(BaseModel):
+    timestamps: str
+
+def get_llm_provider() -> LLMProvider:
+    try:
+        return create_llm_provider_from_env()
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+from backend.models.project import extract_word_timings_from_content
+
+@router.post("/generate_timestamps", response_model=YoutubeTimestampsResponse)
+async def generate_youtube_timestamps(
+    req: YoutubeTimestampsRequest = Body(...),
+    llm_provider: LLMProvider = Depends(get_llm_provider)
+):
+    """
+    Generate YouTube-style video timestamps using the LLM, given the script structure and word timings.
+    """
+    # Extract flat word timings from script_structure
+    word_timings = extract_word_timings_from_content(req.script_structure, accum=True)
+    print(f"Word timings: ", word_timings)
+    # Build a compact string for LLM: "word (start)"
+    word_timing_lines = "\n".join([
+        f"{w['word']} ({w['start']:.2f}s)" for w in word_timings
+    ])
+    prompt = (
+        "You are a YouTube expert. Given the following project description and a list of words with their start times, "
+        "generate a clean, copy-pasteable list of timestamps for the video description. "
+        "Each line should be in the format [MM:SS] [Topic or Section Title], e.g. 0:00 Introduction. "
+        "Use the timing information to group words into logical topics or sections, and assign a descriptive title to each."
+        "They have to be between 4 and 6 timestamps reflecting keypoints in the video"
+        "Do not invent extra content, just use the information provided.\n"
+        f"Project description: {req.project_description}\n"
+        f"Word timings:\n{word_timing_lines}"
+    )
+    # print(f"Prompt: ", prompt)
+    response = await llm_provider.generate_completion(
+        messages=[{"role": "user", "content": prompt}],
+        model=None,
+        temperature=0.2,
+        max_tokens=300
+    )
+    # Remove markdown/code block if present
+    import re
+    raw = response["content"].strip()
+    codeblock_match = re.match(r"^```(?:[a-zA-Z]+)?\s*([\s\S]*?)\s*```$", raw)
+    if codeblock_match:
+        raw = codeblock_match.group(1).strip()
+    return YoutubeTimestampsResponse(timestamps=raw)
+
+@router.get("/project/{project_id}/word_timings", response_model=List[dict])
+def get_word_timings(project_id: int):
+    project = Project.get_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    content = project.content or {}
+    word_timings = extract_word_timings_from_content(content)
+    return word_timings
 
 def get_llm_provider() -> LLMProvider:
     try:

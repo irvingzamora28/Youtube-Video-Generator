@@ -7,6 +7,34 @@ import json
 
 from backend.database.db import query, execute
 
+def extract_word_timings_from_content(content: dict, accum: bool = False):
+    """
+    Extract all word timings from project content, normalizing both 'wordTimings' and 'word_timings'.
+    If accum=True, accumulate start times across segments so each word's start is relative to the whole video.
+    Returns a flat list of {word, start} dicts.
+    """
+    results = []
+    accumulator = 0.0
+    for section in content.get("sections", []):
+        for segment in section.get("segments", []):
+            word_timings = segment.get("wordTimings") or segment.get("word_timings") or []
+            if not word_timings:
+                continue
+            if accum:
+                # Offset all word timings in this segment by the current accumulator
+                for w in word_timings:
+                    if "word" in w and "start" in w:
+                        results.append({"word": w["word"], "start": w["start"] + accumulator})
+                # Advance accumulator by the last word's start time (plus duration if available)
+                last_start = word_timings[-1]["start"] if "start" in word_timings[-1] else 0
+                accumulator += last_start
+            else:
+                for w in word_timings:
+                    if "word" in w and "start" in w:
+                        results.append({"word": w["word"], "start": w["start"]})
+    return results
+
+
 class Project:
     """Project model class."""
 

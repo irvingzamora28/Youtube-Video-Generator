@@ -4,6 +4,32 @@ import { transformScriptFromApi } from './api';
 const API_BASE_URL = 'http://localhost:8000';
 
 /**
+ * Fetch all word timings for a project
+ */
+export async function generateYoutubeTimestamps(projectDescription: string, scriptStructure: object): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/api/youtube/generate_timestamps`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ project_description: projectDescription, script_structure: scriptStructure }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to generate YouTube timestamps');
+  }
+  const data = await response.json();
+  return data.timestamps;
+}
+
+export async function getProjectWordTimings(projectId: number): Promise<{word: string, start: number}[]> {
+  const response = await fetch(`${API_BASE_URL}/api/project/${projectId}/word_timings`);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to fetch word timings');
+  }
+  return await response.json();
+}
+
+/**
  * Generate a YouTube title using the backend LLM endpoint
  */
 export async function generateYoutubeTitle(projectDescription: string, script: string): Promise<string[]> {

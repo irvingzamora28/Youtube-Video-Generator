@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProjectContent, updateProject, ProjectUpdateParams, deleteProject, buildYoutubeMeta, generateYoutubeTitle } from '../services/projectApi';
+import { getProjectContent, updateProject, ProjectUpdateParams, deleteProject, buildYoutubeMeta, generateYoutubeTitle, generateYoutubeTimestamps } from '../services/projectApi';
 import { Script } from '../types/script';
 import ProjectScriptViewer from '../components/ProjectScriptViewer';
 import Layout from '../components/Layout';
@@ -29,6 +29,9 @@ const ProjectDetail: React.FC = () => {
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [titleGenError, setTitleGenError] = useState<string | null>(null);
   const [generatedTitles, setGeneratedTitles] = useState<string[]>([]);
+const [generatingTimestamps, setGeneratingTimestamps] = useState(false);
+const [timestampGenError, setTimestampGenError] = useState<string | null>(null);
+const [generatedTimestamps, setGeneratedTimestamps] = useState<string>("");
 
   useEffect(() => {
     if (id) {
@@ -91,6 +94,35 @@ const ProjectDetail: React.FC = () => {
       setGeneratingTitle(false);
     }
   };
+
+  const handleGenerateTimestamps = async () => {
+    if (!formData.description?.trim() || !script) {
+      setTimestampGenError('Project description and script are required.');
+      return;
+    }
+    setGeneratingTimestamps(true);
+    setTimestampGenError(null);
+    setGeneratedTimestamps("");
+    try {
+      const timestamps = await generateYoutubeTimestamps(formData.description, script);
+      setGeneratedTimestamps(timestamps);
+    } catch (err: any) {
+      setTimestampGenError(err.message || 'Failed to generate timestamps.');
+    } finally {
+      setGeneratingTimestamps(false);
+    }
+  };
+
+  const handleInsertTimestamps = () => {
+    setFormData(prev => ({
+      ...prev,
+      youtube: {
+        ...prev.youtube,
+        description: (prev.youtube?.description || "") + (prev.youtube?.description ? "\n\n" : "") + generatedTimestamps,
+      },
+    }));
+  };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -276,6 +308,14 @@ const ProjectDetail: React.FC = () => {
                 >
                   {generatingTitle ? 'Generating...' : 'Generate Title'}
                 </button>
+                <button
+                  type="button"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded disabled:opacity-50"
+                  onClick={handleGenerateTimestamps}
+                  disabled={generatingTimestamps || loading || !isEditing}
+                >
+                  {generatingTimestamps ? 'Generating...' : 'Generate Timestamps'}
+                </button>
               </div>
               {titleGenError && (
                 <span className="text-red-500 text-xs">{titleGenError}</span>
@@ -305,10 +345,33 @@ const ProjectDetail: React.FC = () => {
                   </ul>
                 </div>
               )}
+
+              {/* LLM-Generated Timestamps */}
+              {timestampGenError && (
+                <span className="text-red-500 text-xs">{timestampGenError}</span>
+              )}
+              {generatedTimestamps && (
+                <div className="mt-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs text-muted-foreground">YouTube Timestamps:</span>
+                    <button
+                      type="button"
+                      className="text-xs bg-gray-200 hover:bg-gray-300 rounded px-2 py-1 border border-border"
+                      onClick={handleInsertTimestamps}
+                    >
+                      Insert into Description
+                    </button>
+                  </div>
+                  <pre className="bg-gray-100 rounded p-2 text-xs whitespace-pre-wrap border border-border overflow-x-auto">
+                    {generatedTimestamps}
+                  </pre>
+                </div>
+              )}
             </div>
 
+
             {/* YouTube Description */}
-            <div className="mb-4">
+          <div className="mb-4">
               <label htmlFor="youtubeDescription" className="block text-sm font-medium mb-1 text-foreground">
                 YouTube Description
               </label>
