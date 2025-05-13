@@ -281,11 +281,14 @@ async def organize_segment_visuals(
                 visual['timestamp'] = round(float(alignment_result['start']), 2)
                 visual['duration'] = round(float(alignment_result['end']) - float(alignment_result['start']), 2)
                 visual['referenceFound'] = True
+                visual['fuzzyReferenceFound'] = alignment_result.get('fuzzy_found', False)
             else:
                 visual['referenceFound'] = False
+                visual['fuzzyReferenceFound'] = False
         except Exception as e:
             print(f"[forced_alignment] Error aligning visual: {e}")
             visual['referenceFound'] = False
+            visual['fuzzyReferenceFound'] = False
             continue
     # --- Sort visuals in chronological order by timestamp ---
     updated_segment['visuals'].sort(key=lambda v: v.get('timestamp', 0))
