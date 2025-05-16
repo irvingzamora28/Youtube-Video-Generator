@@ -197,10 +197,11 @@ The project is currently in active development. The following features are imple
 - ✅ Integration with LLM providers
 - ✅ Segment-based script structure with multiple visuals
 - ✅ Visual-text synchronization
-- ⬜ Image generation using Gemini
-- ⬜ Video rendering
-- ⬜ Audio narration generation
 - ⬜ User authentication and script saving
+
+## TODO
+
+- [ ] Make the description of the visual better, it should be more simple, and it shouldn't be so long, it shouldn't have anything about abstract or complex ideas, it should be simple
 
 ## License
 

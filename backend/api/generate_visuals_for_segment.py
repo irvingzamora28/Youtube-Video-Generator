@@ -25,7 +25,7 @@ async def _generate_visuals_for_segment_core(project, segment, narration_text, i
         "VERY IMPORTANT: Generate at least 3 parts, even if the narration is short."
         "For each part, return an object with two fields: "
         "- 'referenceText': the exact substring from the narration text that this visual should be synced to (do NOT paraphrase, use the exact text). "
-        "- 'description': a concise, self-contained description or phrase suitable for image generation. "
+        "- 'description': a concise, self-contained description suitable for image generation (DO NOT SPECIFY ANY TEXT GENERATION IN THE IMAGES ). "
         "Return ONLY a JSON array of objects in this format, no explanations.\n\n"
         f"Narration:\n{narration_text}\n"
         "Parts:"
@@ -131,7 +131,7 @@ async def _generate_visuals_for_segment_core(project, segment, narration_text, i
             image_description = part if isinstance(part, str) else str(part)
             reference_text = part if isinstance(part, str) else str(part)
         try:
-            prompt = f"Generate an image of: {image_description}. Style: {project.visual_style or 'educational'}."
+            prompt = f"Generate an image of: {image_description}. Style: {project.visual_style or 'educational'}. (DO NOT INCLUDE ANY TEXT IN THE IMAGE)"
             img_result = await image_provider.generate_image(prompt, None, aspect_ratio)
             if not img_result.get('success', False):
                 raise Exception(img_result.get('error', 'Unknown image generation error'))
